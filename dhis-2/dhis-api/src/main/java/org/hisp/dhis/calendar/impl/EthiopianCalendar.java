@@ -64,6 +64,8 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     @Override
     public DateTimeUnit toIso( DateTimeUnit dateTimeUnit )
     {
+        dateTimeUnit = bumpPagume( dateTimeUnit );
+        
         if ( dateTimeUnit.getMonth() > 12 )
         {
             throw new RuntimeException( "Illegal month, must be between 1 and 12, was given " + dateTimeUnit.getMonth() );
@@ -76,6 +78,8 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     public DateTimeUnit fromIso( Date date )
     {
         DateTimeUnit dateTimeUnit = super.fromIso( date );
+        
+        dateTimeUnit = bumpPagume( dateTimeUnit );
 
         if ( dateTimeUnit.getMonth() > 12 )
         {
@@ -229,5 +233,15 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     public DateTimeUnit isoStartOfYear( int year )
     {
         return fromIso( super.isoStartOfYear( year ) );
+    }
+    
+    private DateTimeUnit bumpPagume( DateTimeUnit dateTimeUnit )
+    {
+        if ( dateTimeUnit.getMonth() == 13 ) //bump Pagume to Meskerem
+        {
+            dateTimeUnit.setDate( dateTimeUnit.getYear() + 1, 1, 1);
+        }
+        
+        return dateTimeUnit;
     }
 }

@@ -1,4 +1,4 @@
-package org.hisp.dhis.analytics;
+package org.hisp.dhis.period;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,39 +28,67 @@ package org.hisp.dhis.analytics;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.period.FinancialAprilPeriodType;
-import org.hisp.dhis.period.FinancialJulyPeriodType;
-import org.hisp.dhis.period.FinancialOctoberPeriodType;
-import org.hisp.dhis.period.FinancialNovemberPeriodType;
-import org.hisp.dhis.period.FinancialPeriodType;
+import org.hisp.dhis.calendar.Calendar;
+import org.hisp.dhis.calendar.DateTimeUnit;
+import org.hisp.dhis.calendar.impl.EthiopianCalendar;
+import org.joda.time.DateTimeConstants;
 
 /**
- * @author Henning Håkonsen
+ * @author Abyot Asalefew Gizaw <abyota@gmail.com>
+ *
  */
-public enum AnalyticsFinancialYearStartKey
+public class SixMonthlyNovemberPeriodType
+    extends SixMonthlyAbstractPeriodType
 {
-    FINANCIAL_YEAR_APRIL( "FINANCIAL_YEAR_APRIL", new FinancialAprilPeriodType() ),
-    FINANCIAL_YEAR_JULY( "FINANCIAL_YEAR_JULY", new FinancialJulyPeriodType() ),
-    FINANCIAL_YEAR_OCTOBER( "FINANCIAL_YEAR_OCTOBER", new FinancialOctoberPeriodType() ),
-    FINANCIAL_YEAR_NOVEMBER("FINANCIAL_YEAR_NOVEMBER", new FinancialNovemberPeriodType() );
 
-    private final String name;
+    private static final long serialVersionUID = 6767824318126016552L;
 
-    private final FinancialPeriodType financialPeriodType;
+    private static final String ISO_FORMAT = "yyyySn";
 
-    AnalyticsFinancialYearStartKey( String name, FinancialPeriodType financialPeriodType )
+    private static final String ISO8601_DURATION = "P6M";
+
+    private static final int BASE_MONTH = DateTimeConstants.NOVEMBER;
+
+    public static final String NAME = "SixMonthlyNov";
+
+    @Override
+    protected int getBaseMonth()
     {
-        this.name = name;
-        this.financialPeriodType = financialPeriodType;
+        return BASE_MONTH;
     }
 
+    @Override
     public String getName()
     {
-        return name;
+        return NAME;
     }
 
-    public FinancialPeriodType getFinancialPeriodType()
+    @Override
+    public String getIsoDate( DateTimeUnit dateTimeUnit, Calendar calendar )
     {
-        return financialPeriodType;
+        int month = dateTimeUnit.getMonth();
+
+        switch ( month )
+        {
+        case 11:
+            return calendar instanceof EthiopianCalendar ? dateTimeUnit.getYear() + 1 + "NovS1" : dateTimeUnit.getYear() + "NovS2";
+        case 5:
+            return dateTimeUnit.getYear() + "NovS2";
+        default:
+            throw new IllegalArgumentException( "Month not valid [11,5] " + month );
+        }
     }
+
+    @Override
+    public String getIsoFormat()
+    {
+        return ISO_FORMAT;
+    }
+
+    @Override
+    public String getIso8601Duration()
+    {
+        return ISO8601_DURATION;
+    }
+
 }

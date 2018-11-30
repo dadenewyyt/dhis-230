@@ -64,6 +64,11 @@ public abstract class SixMonthlyAbstractPeriodType
     @Override
     public Period createPeriod( DateTimeUnit dateTimeUnit, org.hisp.dhis.calendar.Calendar calendar )
     {
+        if ( this.getName().equalsIgnoreCase( SixMonthlyNovemberPeriodType.NAME ) ) 
+        {
+                return getSixMonthlyNovemberPeriod( calendar, dateTimeUnit );
+        }
+        
         DateTimeUnit start = new DateTimeUnit( dateTimeUnit );
 
         int baseMonth = getBaseMonth();
@@ -160,5 +165,38 @@ public abstract class SixMonthlyAbstractPeriodType
         cal.minusMonths( dateTimeUnit, rewindedPeriods * 6 );
 
         return cal.toIso( dateTimeUnit ).toJdkDate();
+    }
+    
+    // -------------------------------------------------------------------------
+    // SixMonthly November period helper
+    // -------------------------------------------------------------------------
+    private Period getSixMonthlyNovemberPeriod( Calendar calendar, DateTimeUnit dateTimeUnit) 
+    {
+        DateTimeUnit start = new DateTimeUnit( dateTimeUnit );
+        
+        int baseMonth = getBaseMonth();
+        int year = start.getYear();
+        int month = baseMonth;
+        
+        if( start.getMonth() < 5 )
+        {               
+                month = baseMonth;
+                year = year - 1;
+        }
+        
+        if ( start.getMonth() >= 5 && start.getMonth() <= 10 ) 
+        {               
+                month = baseMonth - 6;
+        }
+        
+        start.setYear( year );
+        start.setMonth( month );
+        start.setDay( 1 );        
+
+        DateTimeUnit end = new DateTimeUnit( start );
+        end = calendar.plusMonths( end, 5 );
+        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+
+        return toIsoPeriod( start, end, calendar );
     }
 }

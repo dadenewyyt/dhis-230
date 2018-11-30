@@ -1,4 +1,4 @@
-package org.hisp.dhis.analytics;
+package org.hisp.dhis.period;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,39 +28,53 @@ package org.hisp.dhis.analytics;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.period.FinancialAprilPeriodType;
-import org.hisp.dhis.period.FinancialJulyPeriodType;
-import org.hisp.dhis.period.FinancialOctoberPeriodType;
-import org.hisp.dhis.period.FinancialNovemberPeriodType;
-import org.hisp.dhis.period.FinancialPeriodType;
+import java.util.Calendar;
+
+import org.hisp.dhis.calendar.DateTimeUnit;
 
 /**
- * @author Henning Håkonsen
+ * @author Abyot Asalefew Gizaw <abyota@gmail.com>
+ *
  */
-public enum AnalyticsFinancialYearStartKey
+public class FinancialNovemberPeriodType extends FinancialPeriodType    
 {
-    FINANCIAL_YEAR_APRIL( "FINANCIAL_YEAR_APRIL", new FinancialAprilPeriodType() ),
-    FINANCIAL_YEAR_JULY( "FINANCIAL_YEAR_JULY", new FinancialJulyPeriodType() ),
-    FINANCIAL_YEAR_OCTOBER( "FINANCIAL_YEAR_OCTOBER", new FinancialOctoberPeriodType() ),
-    FINANCIAL_YEAR_NOVEMBER("FINANCIAL_YEAR_NOVEMBER", new FinancialNovemberPeriodType() );
 
-    private final String name;
+    private static final long serialVersionUID = -3877070427790904732L;
+    
+    private static final String ISO_FORMAT = "yyyyNov";
 
-    private final FinancialPeriodType financialPeriodType;
+    private static final String ISO8601_DURATION = "P1Y";
 
-    AnalyticsFinancialYearStartKey( String name, FinancialPeriodType financialPeriodType )
+    public static final String NAME = "FinancialNov";
+
+    @Override
+    protected int getBaseMonth()
     {
-        this.name = name;
-        this.financialPeriodType = financialPeriodType;
+        return Calendar.NOVEMBER;
     }
 
+    @Override
     public String getName()
     {
-        return name;
+        return NAME;
     }
 
-    public FinancialPeriodType getFinancialPeriodType()
+    @Override
+    public String getIsoDate( DateTimeUnit dateTimeUnit, org.hisp.dhis.calendar.Calendar calendar )
     {
-        return financialPeriodType;
+        return String.format( "%dNov", dateTimeUnit.getYear() );
     }
+
+    @Override
+    public String getIsoFormat()
+    {
+        return ISO_FORMAT;
+    }
+
+    @Override
+    public String getIso8601Duration()
+    {
+        return ISO8601_DURATION;
+    }
+
 }

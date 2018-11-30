@@ -29,6 +29,8 @@ package org.hisp.dhis.calendar;
  */
 
 import com.google.common.collect.Maps;
+
+import org.hisp.dhis.calendar.impl.EthiopianCalendar;
 import org.hisp.dhis.calendar.impl.Iso8601Calendar;
 import org.hisp.dhis.period.BiWeeklyPeriodType;
 import org.hisp.dhis.period.PeriodType;
@@ -207,6 +209,11 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
             {
                 return null;
             }
+            
+            if ( calendar instanceof EthiopianCalendar ) 
+            {
+                return getEthiopianQuarterInterval( calendar, year, quarter );
+            }
 
             DateTimeUnit start = new DateTimeUnit( year, ((quarter - 1) * 3) + 1, 1, calendar.isIso8601() );
             DateTimeUnit end = new DateTimeUnit( start );
@@ -249,6 +256,32 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
             {
                 return null;
             }
+
+            DateTimeUnit start = new DateTimeUnit( year, semester == 1 ? 4 : 10, 1, calendar.isIso8601() );
+            DateTimeUnit end = new DateTimeUnit( start );
+            end = calendar.plusMonths( end, 6 );
+            end = calendar.minusDays( end, 1 );
+
+            start.setDayOfWeek( calendar.weekday( start ) );
+            end.setDayOfWeek( calendar.weekday( end ) );
+
+            return new DateInterval( start, end );
+        }
+        else if ( DateUnitType.SIX_MONTHLY_NOVEMBER == dateUnitType )
+        {
+            int year = Integer.parseInt( matcher.group( 1 ) );
+            int semester = Integer.parseInt( matcher.group( 2 ) );
+
+            // valid six-monthly are from 1 - 2
+            if ( semester < 1 || semester > 2 )
+            {
+                return null;
+            }
+            
+            if ( calendar instanceof EthiopianCalendar )
+            {
+                return getEthiopianSixMonthlyNovemberInterval( calendar, year, semester );                
+            }            
 
             DateTimeUnit start = new DateTimeUnit( year, semester == 1 ? 4 : 10, 1, calendar.isIso8601() );
             DateTimeUnit end = new DateTimeUnit( start );
@@ -315,6 +348,20 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
 
             return new DateInterval( start, end );
         }
+        else if ( DateUnitType.FINANCIAL_NOVEMBER == dateUnitType )
+        {
+            int year = Integer.parseInt( matcher.group( 1 ) );
+
+            DateTimeUnit start = new DateTimeUnit( year, 11, 1, calendar.isIso8601() );
+            DateTimeUnit end = new DateTimeUnit( start );
+            end = calendar.plusYears( end, 1 );
+            end = calendar.minusDays( end, 1 );
+
+            start.setDayOfWeek( calendar.weekday( start ) );
+            end.setDayOfWeek( calendar.weekday( end ) );
+
+            return new DateInterval( start, end );
+        }
 
         return null;
     }
@@ -358,5 +405,44 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
             return date;
         }
 
+    }
+    
+    //--------------------------------------------------
+    //                          Ethiopian calendar helper
+    //--------------------------------------------------
+    private DateInterval getEthiopianQuarterInterval( Calendar calendar, Integer year, Integer quarter ) 
+    {
+        int monthOffset = -2;
+        int month = ( ( quarter - 1 ) * 3 ) + 1;
+        month = month + monthOffset;
+        
+        if( month < 0 ) 
+        {
+                month += 12;
+                year -= 1;
+        }
+        
+        DateTimeUnit start = new DateTimeUnit( year, month, 1, calendar.isIso8601() );
+        DateTimeUnit end =new DateTimeUnit( start );
+        end = calendar.plusMonths( end, 3 );
+        end = calendar.minusDays( end, 1 );
+        
+        start.setDayOfWeek( calendar.weekday( start ) );
+        end.setDayOfWeek( calendar.weekday( end ) );
+        
+        return new DateInterval( start, end );
+    }
+    
+    private DateInterval getEthiopianSixMonthlyNovemberInterval( Calendar calendar, Integer year, Integer semester ) 
+    {
+        DateTimeUnit start = new DateTimeUnit( semester == 1 ? year - 1 : year, semester == 1 ? 11 : 5, 1, calendar.isIso8601() );
+        DateTimeUnit end = new DateTimeUnit( start );
+        end = calendar.plusMonths( end, 6 );
+        end = calendar.minusDays( end, 1 );
+
+        start.setDayOfWeek( calendar.weekday( start ) );
+        end.setDayOfWeek( calendar.weekday( end ) );
+
+        return new DateInterval( start, end );
     }
 }
