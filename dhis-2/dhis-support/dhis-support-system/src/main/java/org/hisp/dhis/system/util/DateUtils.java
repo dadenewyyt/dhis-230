@@ -38,6 +38,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
+import org.joda.time.chrono.EthiopicChronology;
+import org.joda.time.chrono.GregorianChronology;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
@@ -748,7 +750,30 @@ public class DateUtils
     public static Date getCalendarToday()
     {        
         Calendar today = Calendar.getInstance();
+        
         PeriodType.clearTimeOfDay( today );
+        
         return today.getTime();
+    }
+    
+    public static Date getIsoDate( org.hisp.dhis.calendar.Calendar calendar, String date )
+    {
+        if ( date == null || calendar == null )
+        {
+            return null;
+        }        
+        
+        if ( calendar.isIso8601() )
+        {
+            return parseDate( date );
+        }
+        
+        Date isoDate = null;
+        
+        DateTime dateTime = MEDIUM_DATE_FORMAT.withChronology( EthiopicChronology.getInstance() ).parseDateTime( date );
+        
+        isoDate = dateTime.withChronology( GregorianChronology.getInstance() ).toGregorianCalendar().getTime();
+        
+        return isoDate;        
     }
 }
