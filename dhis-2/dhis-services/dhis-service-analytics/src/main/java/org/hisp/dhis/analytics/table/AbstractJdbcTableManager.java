@@ -42,6 +42,7 @@ import org.hisp.dhis.analytics.AnalyticsTablePhase;
 import org.hisp.dhis.analytics.AnalyticsTableType;
 import org.hisp.dhis.analytics.AnalyticsTableUpdateParams;
 import org.hisp.dhis.analytics.partition.PartitionManager;
+import org.hisp.dhis.analytics.util.AnalyticsUtils;
 import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.category.CategoryService;
 import org.hisp.dhis.common.CodeGenerator;
@@ -403,6 +404,8 @@ public abstract class AbstractJdbcTableManager
         Calendar calendar = PeriodType.getCalendar();
 
         Collections.sort( dataYears );
+        
+        dataYears = AnalyticsUtils.getDataYears( dataYears );
         
         String baseName = getAnalyticsTableType().getTableName();
         

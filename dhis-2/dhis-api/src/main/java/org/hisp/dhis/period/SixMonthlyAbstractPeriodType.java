@@ -66,7 +66,7 @@ public abstract class SixMonthlyAbstractPeriodType
     {
         if ( this.getName().equalsIgnoreCase( SixMonthlyNovemberPeriodType.NAME ) ) 
         {
-                return getSixMonthlyNovemberPeriod( calendar, dateTimeUnit );
+            return getSixMonthlyNovemberPeriod( calendar, dateTimeUnit );
         }
         
         DateTimeUnit start = new DateTimeUnit( dateTimeUnit );
@@ -99,6 +99,11 @@ public abstract class SixMonthlyAbstractPeriodType
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
+        if ( offset < 0 ) 
+        {
+            return calendar.minusMonths( dateTimeUnit, Math.abs( offset * 6 ) );
+        }
+        
         return calendar.plusMonths( dateTimeUnit, offset * 6 );
     }
 
@@ -178,15 +183,15 @@ public abstract class SixMonthlyAbstractPeriodType
         int year = start.getYear();
         int month = baseMonth;
         
-        if( start.getMonth() < 5 )
-        {               
-                month = baseMonth;
-                year = year - 1;
+        if ( start.getMonth() < 5 )
+        {
+            month = baseMonth;
+            year = year - 1;
         }
         
         if ( start.getMonth() >= 5 && start.getMonth() <= 10 ) 
-        {               
-                month = baseMonth - 6;
+        {
+            month = baseMonth - 6;
         }
         
         start.setYear( year );

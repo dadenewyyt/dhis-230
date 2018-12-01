@@ -754,4 +754,35 @@ public class AnalyticsUtils
     {
         return ( columns != null && !columns.isEmpty() ) || ( rows != null && !rows.isEmpty() );
     }
+    
+    /**
+     * Returns data years with one more year added to both start and end of list.
+     * 
+     * @param years
+     * @return
+     */
+    public static List<Integer> getDataYears( List<Integer> years )
+    {
+        List<Integer> dataYears = new ArrayList<>();
+        
+        int len = years.size();
+        
+        if ( len > 0 )
+        {
+            Collections.sort( years );
+            
+            int firstYear = years.get( 0 );
+                
+            int lastYear = years.get( len - 1 );
+            
+            int startYear = firstYear > 1 ? firstYear - 1 : firstYear;
+            
+            for ( Integer year = startYear; year <= lastYear + 1; year++ )
+            {
+                dataYears.add( year );
+            }
+        }
+        
+        return dataYears;
+    }
 }
