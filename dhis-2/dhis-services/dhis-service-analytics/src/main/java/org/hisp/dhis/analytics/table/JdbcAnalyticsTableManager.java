@@ -159,11 +159,17 @@ public class JdbcAnalyticsTableManager
         final String approvalClause = getApprovalJoinClause( partition.getYear() );
         final String numericClause = skipDataTypeValidation ? "" : ( "and dv.value " + statementBuilder.getRegexpMatch() + " '" + MathUtils.NUMERIC_LENIENT_REGEXP + "' " );
 
-        String intClause =
-            "( dv.value != '0' or de.aggregationtype in ('" + AggregationType.AVERAGE + ',' + AggregationType.AVERAGE_SUM_ORG_UNIT + "') or de.zeroissignificant = true ) " +
+        String intNonLastClause =
+            "de.aggregationtype != '" + AggregationType.LAST_SUM_ORG_UNIT + "' and ( dv.value != '0' or de.aggregationtype in ('" + AggregationType.AVERAGE + ',' + AggregationType.AVERAGE_SUM_ORG_UNIT + "') or de.zeroissignificant = true ) " +
             numericClause;
+        
+        String intLastClause =
+            "de.aggregationtype = '" + AggregationType.LAST_SUM_ORG_UNIT + "' and ( dv.value != '0' or de.zeroissignificant = true ) " +
+            numericClause;        
 
-        populateTable( partition, "cast(dv.value as " + dbl + ")", "null", ValueType.NUMERIC_TYPES, intClause, approvalClause );
+        populateTable( partition, "cast(dv.value as " + dbl + ")", "null", ValueType.NUMERIC_TYPES, intNonLastClause, approvalClause );
+        
+        populateLastValueTable( partition, "cast(dv.value as " + dbl + ")", "null", ValueType.NUMERIC_TYPES, intLastClause, approvalClause );
 
         populateTable( partition, "1", "null", Sets.newHashSet( ValueType.BOOLEAN, ValueType.TRUE_ONLY ), "dv.value = 'true'", approvalClause );
 
@@ -252,6 +258,80 @@ public class JdbcAnalyticsTableManager
 
         populateAndLog( sql, tableName + ", " + valueTypes );
     }
+    
+    
+    private void populateLastValueTable( AnalyticsTablePartition partition, String valueExpression,
+        String textValueExpression, Set<ValueType> valueTypes, String whereClause, String approvalClause )
+    {
+        final String tableName = partition.getTempTableName();
+        final String valTypes = TextUtils.getQuotedCommaDelimitedString( ObjectUtils.asStringList( valueTypes ) );
+        final boolean respectStartEndDates = (Boolean) systemSettingManager.getSystemSetting( SettingKey.RESPECT_META_DATA_START_END_DATES_IN_ANALYTICS_TABLE_EXPORT );
+
+        String sql = "insert into " + partition.getTempTableName() + " (";
+
+        List<AnalyticsTableColumn> columns = getDimensionColumns( partition.getYear() );
+        List<AnalyticsTableColumn> values = partition.getMasterTable().getValueColumns();
+
+        validateDimensionColumns( columns );
+        
+        for ( AnalyticsTableColumn col : ListUtils.union( columns, values ) )
+        {
+            sql += col.getName() + ",";
+        }
+        
+        sql = TextUtils.removeLastComma( sql ) + ") select ";
+
+        for ( AnalyticsTableColumn col : columns )
+        {
+            sql += col.getAlias() + ",";
+        }
+
+        sql +=
+            valueExpression + " * ps.daysno as daysxvalue, " +
+            "ps.daysno as daysno, " +
+            valueExpression + " as value, " +
+            textValueExpression + " as textvalue " +
+            "from datavalue dv " +
+            "inner join period pe on dv.periodid=pe.periodid " +
+            "inner join _lastperiodstructure ps on dv.periodid=ps.periodid " +
+            "inner join dataelement de on dv.dataelementid=de.dataelementid " +
+            "inner join _dataelementstructure des on dv.dataelementid = des.dataelementid " +
+            "inner join _dataelementgroupsetstructure degs on dv.dataelementid=degs.dataelementid " +
+            "inner join organisationunit ou on dv.sourceid=ou.organisationunitid " +
+            "left join _orgunitstructure ous on dv.sourceid=ous.organisationunitid " +
+            "inner join _organisationunitgroupsetstructure ougs on dv.sourceid=ougs.organisationunitid " +
+                "and (cast(date_trunc('month', pe.startdate) as date)=ougs.startdate or ougs.startdate is null) " +
+            "inner join categoryoptioncombo co on dv.categoryoptioncomboid=co.categoryoptioncomboid " +
+            "inner join categoryoptioncombo ao on dv.attributeoptioncomboid=ao.categoryoptioncomboid " +
+            "inner join _categorystructure dcs on dv.categoryoptioncomboid=dcs.categoryoptioncomboid " +
+            "inner join _categorystructure acs on dv.attributeoptioncomboid=acs.categoryoptioncomboid " +
+            "inner join _categoryoptioncomboname aon on dv.attributeoptioncomboid=aon.categoryoptioncomboid " +
+            "inner join _categoryoptioncomboname con on dv.categoryoptioncomboid=con.categoryoptioncomboid " +
+
+            approvalClause +
+            "where de.valuetype in (" + valTypes + ") " +
+            "and de.domaintype = 'AGGREGATE' " +
+            "and ps.year = " + partition.getYear() + " " +
+            "and dv.value is not null " +
+            "and dv.deleted is false ";
+
+        if ( respectStartEndDates )
+        {
+            sql +=
+                "and (aon.startdate is null or aon.startdate <= pe.startdate) " +
+                "and (aon.enddate is null or aon.enddate >= pe.enddate) " +
+                "and (con.startdate is null or con.startdate <= pe.startdate) " +
+                "and (con.enddate is null or con.enddate >= pe.enddate) ";
+        }
+
+        if ( whereClause != null )
+        {
+            sql += "and " + whereClause;
+        }
+
+        populateAndLog( sql, tableName + ", " + valueTypes );
+    }
+    
 
     /**
      * Returns sub-query for approval level. First looks for approval level in

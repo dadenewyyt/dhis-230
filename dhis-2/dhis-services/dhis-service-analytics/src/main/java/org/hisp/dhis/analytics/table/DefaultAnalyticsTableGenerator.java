@@ -183,6 +183,7 @@ public class DefaultAnalyticsTableGenerator
         resourceTableService.generateCategoryTable();
         resourceTableService.generateDataElementTable();
         resourceTableService.generatePeriodTable();
+        resourceTableService.generateLastPeriodTable();
         resourceTableService.generateDatePeriodTable();
         resourceTableService.generateCategoryOptionComboTable();
         resourceTableService.createAllSqlViews();
