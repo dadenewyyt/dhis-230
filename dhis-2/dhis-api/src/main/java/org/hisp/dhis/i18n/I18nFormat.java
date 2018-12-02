@@ -1,5 +1,7 @@
 package org.hisp.dhis.i18n;
 
+import org.hisp.dhis.calendar.Calendar;
+
 /*
  * Copyright (c) 2004-2018, University of Oslo
  * All rights reserved.
@@ -230,7 +232,20 @@ public class I18nFormat
 
         if ( periodType instanceof WeeklyAbstractPeriodType ) // Use ISO dates due to potential week confusion
         {
-            DateTime dateTime = new DateTime( period.getStartDate() );
+            Calendar calendar = PeriodType.getCalendar();
+            
+            DateTimeUnit dateTimeUnit = calendar.fromIso( period.getStartDate() );
+            
+            int week = calendar.week( dateTimeUnit );
+
+            if ( week == 1 && dateTimeUnit.getMonth() == calendar.monthsInYear() )
+            {
+                dateTimeUnit.setYear( dateTimeUnit.getYear() + 1 );
+            }
+
+            return String.format( "W%s %s", week, dateTimeUnit.getYear() );
+            
+            /*DateTime dateTime = new DateTime( period.getStartDate() );
             LocalDate date = period.getStartDate().toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
             WeekFields weekFields = WeekFields.of( PeriodType.MAP_WEEK_TYPE.get( periodType.getName() ), 4 );
 
@@ -244,7 +259,7 @@ public class I18nFormat
 
             year += dateTime.dayOfWeek().getAsShortText() + " " + year;
 
-            return String.format( "W%s %s", week, year );
+            return String.format( "W%s %s", week, year );*/
         }
 
         String keyStartDate = "format." + typeName + ".startDate";

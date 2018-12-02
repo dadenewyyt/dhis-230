@@ -31,8 +31,10 @@ package org.hisp.dhis.calendar.impl;
 import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.calendar.ChronologyBasedCalendar;
 import org.hisp.dhis.calendar.DateTimeUnit;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.chrono.EthiopicChronology;
+import org.joda.time.chrono.ISOChronology;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -222,6 +224,22 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
 
         return 30;
     }
+    
+    @Override
+    public int week( DateTimeUnit dateTimeUnit )
+    {
+        DateTime dateTime = dateTimeUnit.toJodaDateTime( EthiopicChronology.getInstance() );
+        return dateTime.getWeekOfWeekyear();
+        
+        //return isoWeek( dateTimeUnit );
+    }
+    
+    @Override
+    public int weeksInYear( int year )
+    {
+        DateTime dateTime = new DateTime( year, 1, 1, 0, 0, ISOChronology.getInstance( DateTimeZone.getDefault() ) );
+        return dateTime.weekOfWeekyear().getMaximumValue();
+    }
 
     @Override
     public int daysInWeek()
@@ -229,6 +247,13 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
         return 7;
     }
 
+    @Override
+    public int isoWeek( DateTimeUnit dateTimeUnit )
+    {
+        DateTime dateTime = toIso( dateTimeUnit ).toJodaDateTime( ISOChronology.getInstance( DateTimeZone.getDefault() ) );
+        return dateTime.getWeekyear();
+    }
+    
     @Override
     public DateTimeUnit isoStartOfYear( int year )
     {
