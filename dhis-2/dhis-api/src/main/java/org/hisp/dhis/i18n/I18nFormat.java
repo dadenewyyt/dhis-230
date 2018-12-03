@@ -235,15 +235,8 @@ public class I18nFormat
             Calendar calendar = PeriodType.getCalendar();
             
             DateTimeUnit dateTimeUnit = calendar.fromIso( period.getStartDate() );
-            
-            int week = calendar.week( dateTimeUnit );
 
-            if ( week == 1 && dateTimeUnit.getMonth() == calendar.monthsInYear() )
-            {
-                dateTimeUnit.setYear( dateTimeUnit.getYear() + 1 );
-            }
-
-            return String.format( "W%s %s", week, dateTimeUnit.getYear() );
+            return String.format( "W%s %s", calendar.week( dateTimeUnit ), dateTimeUnit.getYear() );
             
             /*DateTime dateTime = new DateTime( period.getStartDate() );
             LocalDate date = period.getStartDate().toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
