@@ -43,7 +43,7 @@ public class SixMonthlyNovemberPeriodType
 
     private static final long serialVersionUID = 6767824318126016552L;
 
-    private static final String ISO_FORMAT = "yyyySn";
+    private static final String ISO_FORMAT = "yyyyNovSn";
 
     private static final String ISO8601_DURATION = "P6M";
 
