@@ -420,12 +420,12 @@ public class RelativePeriods
 
         if ( isThisSixMonth() || isLastSixMonth() || isLast2SixMonths() )
         {
-            return PeriodType.getPeriodTypeByName( SixMonthlyPeriodType.NAME );
+            return PeriodType.getPeriodTypeByName( SixMonthlyNovemberPeriodType.NAME );
         }
 
         if ( isThisFinancialYear() || isLastFinancialYear() || isLast5FinancialYears() )
         {
-            return PeriodType.getPeriodTypeByName( FinancialOctoberPeriodType.NAME );
+            return PeriodType.getPeriodTypeByName( FinancialNovemberPeriodType.NAME );
         }
 
         return PeriodType.getPeriodTypeByName( YearlyPeriodType.NAME );
@@ -628,12 +628,12 @@ public class RelativePeriods
 
         if ( isThisSixMonth() )
         {
-            periods.add( getRelativePeriod( new SixMonthlyPeriodType(), LAST_SIXMONTH, calendarDate, dynamicNames, format ) );
+            periods.add( getRelativePeriod( new SixMonthlyNovemberPeriodType(), LAST_SIXMONTH, calendarDate, dynamicNames, format ) );
         }
 
         if ( isLastSixMonth() )
         {
-            periods.add( getRelativePeriod( new SixMonthlyPeriodType(), LAST_SIXMONTH, new DateTime( calendarDate ).minusMonths( 6 ).toDate(), dynamicNames, format ) );
+            periods.add( getRelativePeriod( new SixMonthlyNovemberPeriodType(), LAST_SIXMONTH, new DateTime( calendarDate ).minusMonths( 6 ).toDate(), dynamicNames, format ) );
         }
 
         if ( isWeeksThisYear() )
@@ -688,7 +688,7 @@ public class RelativePeriods
 
         if ( isLast2SixMonths() )
         {
-            periods.addAll( getRollingRelativePeriodList( new SixMonthlyPeriodType(), SIXMONHTS_LAST_2, new DateTime( calendarDate ).minusMonths( 6 ).toDate(), dynamicNames, format ) );
+            periods.addAll( getRollingRelativePeriodList( new SixMonthlyNovemberPeriodType(), SIXMONHTS_LAST_2, new DateTime( calendarDate ).minusMonths( 6 ).toDate(), dynamicNames, format ) );
         }
 
         if ( isLast4Weeks() )
