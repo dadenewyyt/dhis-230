@@ -38,6 +38,7 @@ import org.hisp.dhis.calendar.DateTimeUnit;
 import org.hisp.dhis.calendar.DateUnitPeriodTypeParser;
 import org.hisp.dhis.calendar.DateUnitType;
 import org.hisp.dhis.calendar.PeriodTypeParser;
+import org.hisp.dhis.calendar.impl.EthiopianCalendar;
 import org.hisp.dhis.calendar.impl.Iso8601Calendar;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.IdentifiableObjectUtils;
@@ -515,6 +516,11 @@ public abstract class PeriodType
 
         final DateTimeUnit from = cal.toIso( dateInterval.getFrom() );
         final DateTimeUnit to = cal.toIso( dateInterval.getTo() );
+        
+        if ( cal instanceof EthiopianCalendar )
+        {
+            return new Period( this, from.toJdkDate(), to.toJdkDate(), getIsoDate( dateInterval.getFrom() ) );
+        }
 
         return new Period( this, from.toJdkDate(), to.toJdkDate(), getIsoDate( from ) );
     }
