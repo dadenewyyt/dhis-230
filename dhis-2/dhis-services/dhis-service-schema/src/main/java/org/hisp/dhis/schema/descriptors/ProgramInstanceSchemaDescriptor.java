@@ -1,4 +1,4 @@
-package org.hisp.dhis.program;
+package org.hisp.dhis.schema.descriptors;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,47 +28,25 @@ package org.hisp.dhis.program;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.util.List;
+import org.hisp.dhis.program.ProgramInstance;
+import org.hisp.dhis.schema.Schema;
+import org.hisp.dhis.schema.SchemaDescriptor;
 
-import org.springframework.transaction.annotation.Transactional;
-
-/**
- * @author Abyot Asalefew Gizaw <abyota@gmail.com>
- *
- */
-@Transactional
-public class DefaultEventSyncService implements EventSyncService
+public class ProgramInstanceSchemaDescriptor implements SchemaDescriptor
 {
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
 
-    private EventSyncStore eventSyncStore;
+    public static final String SINGULAR = "programInstance";
 
-    public void setEventSyncStore( EventSyncStore eventSyncStore )
-    {
-        this.eventSyncStore = eventSyncStore;
-    }
-    
-    // -------------------------------------------------------------------------
-    // Implementation methods
-    // -------------------------------------------------------------------------
-    
-    @Override
-    public List<ProgramStageInstance> getEvents( List<String> uids )
-    {
-        return eventSyncStore.getEvents( uids );
-    }
+    public static final String PLURAL = "programInstances";
+
+    public static final String API_ENDPOINT = "/" + PLURAL;
 
     @Override
-    public ProgramStageInstance getEvent( String uid )
+    public Schema getSchema()
     {
-        return eventSyncStore.getEvent( uid );
-    }
+        Schema schema = new Schema( ProgramInstance.class, SINGULAR, PLURAL );
+        schema.setRelativeApiEndpoint( API_ENDPOINT );
 
-    @Override
-    public ProgramInstance getEnrollment( String uid )
-    {
-        return eventSyncStore.getEnrollment( uid );
+        return schema;
     }
 }

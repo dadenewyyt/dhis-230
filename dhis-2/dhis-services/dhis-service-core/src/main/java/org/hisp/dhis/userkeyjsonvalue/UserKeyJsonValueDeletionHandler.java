@@ -1,4 +1,4 @@
-package org.hisp.dhis.program;
+package org.hisp.dhis.userkeyjsonvalue;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,47 +28,27 @@ package org.hisp.dhis.program;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.util.List;
+import org.hisp.dhis.system.deletion.DeletionHandler;
+import org.hisp.dhis.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import org.springframework.transaction.annotation.Transactional;
-
-/**
- * @author Abyot Asalefew Gizaw <abyota@gmail.com>
- *
- */
-@Transactional
-public class DefaultEventSyncService implements EventSyncService
+public class UserKeyJsonValueDeletionHandler
+    extends DeletionHandler
 {
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    private EventSyncStore eventSyncStore;
 
-    public void setEventSyncStore( EventSyncStore eventSyncStore )
-    {
-        this.eventSyncStore = eventSyncStore;
-    }
-    
-    // -------------------------------------------------------------------------
-    // Implementation methods
-    // -------------------------------------------------------------------------
-    
     @Override
-    public List<ProgramStageInstance> getEvents( List<String> uids )
+    protected String getClassName()
     {
-        return eventSyncStore.getEvents( uids );
+        return UserKeyJsonValue.class.getSimpleName();
     }
 
     @Override
-    public ProgramStageInstance getEvent( String uid )
+    public void deleteUser( User user )
     {
-        return eventSyncStore.getEvent( uid );
-    }
-
-    @Override
-    public ProgramInstance getEnrollment( String uid )
-    {
-        return eventSyncStore.getEnrollment( uid );
+        jdbcTemplate.execute( "DELETE FROM userkeyjsonvalue WHERE userid = " + user.getId());
     }
 }

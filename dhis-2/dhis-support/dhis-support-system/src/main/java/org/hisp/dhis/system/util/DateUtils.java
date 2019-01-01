@@ -750,9 +750,7 @@ public class DateUtils
     public static Date getCalendarToday()
     {        
         Calendar today = Calendar.getInstance();
-        
         PeriodType.clearTimeOfDay( today );
-        
         return today.getTime();
     }
     
