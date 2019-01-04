@@ -34,17 +34,12 @@ import org.hisp.dhis.calendar.DateTimeUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.period.WeeklyAbstractPeriodType;
-import org.hisp.dhis.period.WeeklyPeriodType;
-import org.joda.time.DateTime;
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.WeekFields;
 import java.util.Date;
 import java.util.ResourceBundle;
 
