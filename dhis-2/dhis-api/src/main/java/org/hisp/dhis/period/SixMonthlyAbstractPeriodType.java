@@ -98,12 +98,7 @@ public abstract class SixMonthlyAbstractPeriodType
     // -------------------------------------------------------------------------
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
-    {
-        if ( offset < 0 ) 
-        {
-            return calendar.minusMonths( dateTimeUnit, Math.abs( offset * 6 ) );
-        }
-        
+    {        
         return calendar.plusMonths( dateTimeUnit, offset * 6 );
     }
 
