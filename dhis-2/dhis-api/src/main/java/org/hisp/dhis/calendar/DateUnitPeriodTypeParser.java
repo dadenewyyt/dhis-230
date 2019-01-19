@@ -278,12 +278,7 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
                 return null;
             }
             
-            if ( calendar instanceof EthiopianCalendar )
-            {
-                return getEthiopianSixMonthlyNovemberInterval( calendar, year, semester );                
-            }            
-
-            DateTimeUnit start = new DateTimeUnit( year, semester == 1 ? 4 : 10, 1, calendar.isIso8601() );
+            DateTimeUnit start = new DateTimeUnit( semester == 1 ? year - 1 : year, semester == 1 ? 11 : 5, 1, calendar.isIso8601() );
             DateTimeUnit end = new DateTimeUnit( start );
             end = calendar.plusMonths( end, 6 );
             end = calendar.minusDays( end, 1 );
@@ -352,7 +347,7 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
         {
             int year = Integer.parseInt( matcher.group( 1 ) );
 
-            DateTimeUnit start = new DateTimeUnit( year, 11, 1, calendar.isIso8601() );
+            DateTimeUnit start = new DateTimeUnit( year - 1, 11, 1, calendar.isIso8601() );
             DateTimeUnit end = new DateTimeUnit( start );
             end = calendar.plusYears( end, 1 );
             end = calendar.minusDays( end, 1 );
@@ -408,7 +403,7 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
     }
     
     //--------------------------------------------------
-    //                          Ethiopian calendar helper
+    // Ethiopian calendar helper
     //--------------------------------------------------
     private DateInterval getEthiopianQuarterInterval( Calendar calendar, Integer year, Integer quarter ) 
     {
@@ -416,10 +411,10 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
         int month = ( ( quarter - 1 ) * 3 ) + 1;
         month = month + monthOffset;
         
-        if( month < 0 ) 
+        if ( month < 0 ) 
         {
-                month += 12;
-                year -= 1;
+            month += 12;
+            year -= 1;
         }
         
         DateTimeUnit start = new DateTimeUnit( year, month, 1, calendar.isIso8601() );
@@ -430,19 +425,6 @@ public class DateUnitPeriodTypeParser implements PeriodTypeParser
         start.setDayOfWeek( calendar.weekday( start ) );
         end.setDayOfWeek( calendar.weekday( end ) );
         
-        return new DateInterval( start, end );
-    }
-    
-    private DateInterval getEthiopianSixMonthlyNovemberInterval( Calendar calendar, Integer year, Integer semester ) 
-    {
-        DateTimeUnit start = new DateTimeUnit( semester == 1 ? year - 1 : year, semester == 1 ? 11 : 5, 1, calendar.isIso8601() );
-        DateTimeUnit end = new DateTimeUnit( start );
-        end = calendar.plusMonths( end, 6 );
-        end = calendar.minusDays( end, 1 );
-
-        start.setDayOfWeek( calendar.weekday( start ) );
-        end.setDayOfWeek( calendar.weekday( end ) );
-
         return new DateInterval( start, end );
     }
 }

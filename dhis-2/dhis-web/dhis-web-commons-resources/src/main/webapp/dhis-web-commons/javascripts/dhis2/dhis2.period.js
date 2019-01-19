@@ -490,7 +490,10 @@ dhis2.period.PeriodGenerator.prototype.getPeriodForTheDate = function(date, type
   var yearOffset = year - (new Date()).getFullYear();
   var offset = 0, eventDate, allPeriods, periodWithDate = null;
 
-  if ( type === 'FinancialOct' ) {
+  if ( type === 'FinancialNov' ) {
+	  offset = monh <= 10 ? 4: 5;
+  }
+  else if ( type === 'FinancialOct' ) {
     offset = month <= 9 ? 4 : 5;
   } else if ( type === 'FinancialJuly' ) {
     offset = month <= 6 ? 4 : 5;
@@ -500,6 +503,8 @@ dhis2.period.PeriodGenerator.prototype.getPeriodForTheDate = function(date, type
     offset = -5;
   } else if ( type === 'SixMonthlyApril' ) {
     offset = month < 4 ? -1 : 0;
+  } else if ( type === 'SixMonthlyNov' ) {
+    offset = month < 11 ? -1 : 0;
   } else if ( (type === 'SixMonthly') || (type === 'Quarterly') || (type === 'BiMonthly') || (type === 'Monthly')
     || (type === 'Weekly') || (type === 'WeeklyWednesday') || (type === 'WeeklyThursday') || (type === 'WeeklySaturday') || (type === 'WeeklySunday')
     || (type === 'Daily') ) {
@@ -1306,13 +1311,7 @@ $.extend( dhis2.period.SixMonthlyNovemberGenerator.prototype, {
     period['endDate'] = endDate.formatDate( this.format );
     period['name'] = getMonthTranslation( startDate.formatDate( "MM yyyy" ) ) + ' - ' + getMonthTranslation( endDate.formatDate( "MM yyyy" ) );// + ' ' + year;
     period['id'] = 'SixMonthlyNov_' + period['startDate'];
-    
-    if ( $.calendars.calendars.ethiopian && this.calendar instanceof $.calendars.calendars.ethiopian ) {
-        period['iso'] = endDate.formatDate( "yyyy" ) + 'NovS1';
-    }
-    else {
-        period['iso'] = startDate.formatDate( "yyyy" ) + 'NovS1';
-    }   
+    period['iso'] = endDate.formatDate( "yyyy" ) + 'NovS1';   
 
     period['_startDate'] = this.calendar.newDate( startDate );
     period['_endDate'] = this.calendar.newDate( endDate );
@@ -1417,6 +1416,7 @@ $.extend( dhis2.period.FinancialBaseGenerator.prototype, {
     var year = offset + this.calendar.today().year();
     var periods = [];
 
+    console.log('name:  ', this.name );
     var startDate = this.calendar.newDate( year - 5, this.monthOffset, 1 );
 
     // generate 11 years, thisYear +/- 5 years
@@ -1428,7 +1428,9 @@ $.extend( dhis2.period.FinancialBaseGenerator.prototype, {
       period['endDate'] = endDate.formatDate( this.format );
       period['name'] = getMonthTranslation( startDate.formatDate( "MM" ) ) + ' ' + startDate.year() + ' - ' + getMonthTranslation( endDate.formatDate( "MM" ) ) + ' ' + endDate.year();
       period['id'] = 'Financial' + this.monthShortName + '_' + period['startDate'];
-      period['iso'] = startDate.formatDate( "yyyy" ) + this.monthShortName;
+      
+      var isoDate = this.name === 'FinancialNov' ? endDate.formatDate( "yyyy" ) : startDate.formatDate( "yyyy" );
+      period['iso'] =  isoDate + this.monthShortName;
 
       period['_startDate'] = this.calendar.newDate( startDate );
       period['_endDate'] = this.calendar.newDate( endDate );

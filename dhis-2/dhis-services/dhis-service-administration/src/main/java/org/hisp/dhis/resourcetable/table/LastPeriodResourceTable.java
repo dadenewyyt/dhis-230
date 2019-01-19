@@ -119,8 +119,7 @@ public class LastPeriodResourceTable
                 final PeriodType rowType = period.getPeriodType();
                 
                 final String isoDate = period.getIsoDate();
-                // final int year = PeriodType.getCalendar().fromIso(
-                // period.getStartDate() ).getYear();
+                // final int year = PeriodType.getCalendar().fromIso( period.getStartDate() ).getYear();
                 final int year = DateTimeUnit.fromJdkDate( period.getStartDate() ).getYear();
 
                 if ( !uniqueIsoDates.add( isoDate ) )

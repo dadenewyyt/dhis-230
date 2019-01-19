@@ -30,7 +30,6 @@ package org.hisp.dhis.period;
 
 import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.calendar.DateTimeUnit;
-import org.hisp.dhis.calendar.impl.EthiopianCalendar;
 import org.joda.time.DateTimeConstants;
 
 /**
@@ -71,7 +70,7 @@ public class SixMonthlyNovemberPeriodType
         switch ( month )
         {
         case 11:
-            return calendar instanceof EthiopianCalendar ? dateTimeUnit.getYear() + 1 + "NovS1" : dateTimeUnit.getYear() + "NovS2";
+            return dateTimeUnit.getYear() + 1 + "NovS1";
         case 5:
             return dateTimeUnit.getYear() + "NovS2";
         default:
@@ -89,6 +88,37 @@ public class SixMonthlyNovemberPeriodType
     public String getIso8601Duration()
     {
         return ISO8601_DURATION;
+    }
+    
+    @Override
+    public Period createPeriod( DateTimeUnit dateTimeUnit, org.hisp.dhis.calendar.Calendar calendar )    
+    {
+        DateTimeUnit start = new DateTimeUnit( dateTimeUnit );
+        
+        int baseMonth = getBaseMonth();
+        int year = start.getYear();
+        int month = baseMonth;
+        
+        if ( start.getMonth() < 5 )
+        {
+            month = baseMonth;
+            year = year - 1;
+        }
+        
+        if ( start.getMonth() >= 5 && start.getMonth() <= 10 ) 
+        {
+            month = baseMonth - 6;
+        }
+        
+        start.setYear( year );
+        start.setMonth( month );
+        start.setDay( 1 );        
+
+        DateTimeUnit end = new DateTimeUnit( start );
+        end = calendar.plusMonths( end, 5 );
+        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+
+        return toIsoPeriod( start, end, calendar );
     }
 
 }
