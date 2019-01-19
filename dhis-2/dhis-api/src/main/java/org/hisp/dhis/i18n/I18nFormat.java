@@ -1,7 +1,5 @@
 package org.hisp.dhis.i18n;
 
-import org.hisp.dhis.calendar.Calendar;
-
 /*
  * Copyright (c) 2004-2018, University of Oslo
  * All rights reserved.
@@ -34,12 +32,18 @@ import org.hisp.dhis.calendar.DateTimeUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.period.WeeklyAbstractPeriodType;
+import org.hisp.dhis.period.WeeklyPeriodType;
+import org.joda.time.DateTime;
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.WeekFields;
 import java.util.Date;
 import java.util.ResourceBundle;
 
@@ -227,14 +231,8 @@ public class I18nFormat
 
         if ( periodType instanceof WeeklyAbstractPeriodType ) // Use ISO dates due to potential week confusion
         {
-            Calendar calendar = PeriodType.getCalendar();
-            
-            DateTimeUnit dateTimeUnit = calendar.fromIso( period.getStartDate() );
-
-            return String.format( "W%s %s", calendar.week( dateTimeUnit ), dateTimeUnit.getYear() );
-            
-            /*DateTime dateTime = new DateTime( period.getStartDate() );
-            LocalDate date = period.getStartDate().toInstant().atZone( ZoneId.systemDefault() ).toLocalDate();
+            DateTime dateTime = new DateTime( period.getStartDate() );
+            LocalDate date = Instant.ofEpochMilli( period.getStartDate().getTime() ).atZone( ZoneId.systemDefault() ).toLocalDate();
             WeekFields weekFields = WeekFields.of( PeriodType.MAP_WEEK_TYPE.get( periodType.getName() ), 4 );
 
             String year = String.valueOf( date.get( weekFields.weekBasedYear() ) );
@@ -247,7 +245,7 @@ public class I18nFormat
 
             year += dateTime.dayOfWeek().getAsShortText() + " " + year;
 
-            return String.format( "W%s %s", week, year );*/
+            return String.format( "W%s %s", week, year );
         }
 
         String keyStartDate = "format." + typeName + ".startDate";

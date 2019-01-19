@@ -63,7 +63,7 @@ public abstract class SixMonthlyAbstractPeriodType
 
     @Override
     public Period createPeriod( DateTimeUnit dateTimeUnit, org.hisp.dhis.calendar.Calendar calendar )
-    {        
+    {
         DateTimeUnit start = new DateTimeUnit( dateTimeUnit );
 
         int baseMonth = getBaseMonth();
@@ -93,7 +93,7 @@ public abstract class SixMonthlyAbstractPeriodType
     // -------------------------------------------------------------------------
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
-    {        
+    {
         return calendar.plusMonths( dateTimeUnit, offset * 6 );
     }
 
