@@ -729,7 +729,7 @@ public class DataQueryParams
         {
             for ( DimensionalItemObject aggregatePeriod : getDimensionOrFilterItems( PERIOD_DIM_ID ) )
             {
-                Period dataPeriod = dataPeriodType.createPeriod( ((Period) aggregatePeriod).getStartDate() );
+                Period dataPeriod = dataPeriodType.createPeriod( ((Period) aggregatePeriod).getStartDate(), PeriodType.getCalendar() );
                 
                 map.putValue( dataPeriod, aggregatePeriod );
             }
