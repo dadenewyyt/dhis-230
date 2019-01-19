@@ -69,7 +69,7 @@ public class DefaultAnalyticsTableGenerator
 
     @Autowired
     private MessageService messageService;
-    
+
     @Autowired
     private SystemSettingManager systemSettingManager;
 
@@ -184,6 +184,7 @@ public class DefaultAnalyticsTableGenerator
         resourceTableService.generateDataElementTable();
         resourceTableService.generatePeriodTable();
         resourceTableService.generateLastPeriodTable();
+        resourceTableService.generateOverflowPeriodTable();
         resourceTableService.generateDatePeriodTable();
         resourceTableService.generateCategoryOptionComboTable();
         resourceTableService.createAllSqlViews();

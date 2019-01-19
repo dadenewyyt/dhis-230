@@ -83,7 +83,7 @@ public class JdbcAnalyticsTableManager
 {
     @Autowired
     private SystemSettingManager systemSettingManager;
-    
+
     @Autowired
     private PartitionManager partitionManager;
 
@@ -102,16 +102,16 @@ public class JdbcAnalyticsTableManager
     public List<AnalyticsTable> getAnalyticsTables( Date earliest )
     {
         AnalyticsTable table = getAnalyticsTable( getDataYears( earliest ), getDimensionColumns( null ), getValueColumns() );
-        
+
         return table.hasPartitionTables() ? Lists.newArrayList( table ) : Lists.newArrayList();
     }
-    
+
     @Override
     public Set<String> getExistingDatabaseTables()
     {
         return partitionManager.getDataValueAnalyticsPartitions();
     }
-    
+
     @Override
     public String validState()
     {
@@ -149,7 +149,7 @@ public class JdbcAnalyticsTableManager
             "year = " + partition.getYear() + "",
             "pestartdate < '" + DateUtils.getMediumDateString( partition.getEndDate() ) + "'" );
     }
-    
+
     @Override
     protected void populateTable( AnalyticsTablePartition partition )
     {
@@ -175,7 +175,15 @@ public class JdbcAnalyticsTableManager
 
         populateTable( partition, "0", "null", Sets.newHashSet( ValueType.BOOLEAN ), "dv.value = 'false'", approvalClause );
 
-        populateTable( partition, "null", "dv.value", Sets.union( ValueType.TEXT_TYPES, ValueType.DATE_TYPES ), null, approvalClause );
+        populateTable( partition, "null", "dv.value", Sets.union( ValueType.TEXT_TYPES, ValueType.DATE_TYPES ), null, approvalClause );        
+        
+        populateOverflowTable( partition, "cast(dv.value as " + dbl + ")", "null", ValueType.NUMERIC_TYPES, intNonLastClause, approvalClause );        
+
+        populateOverflowTable( partition, "1", "null", Sets.newHashSet( ValueType.BOOLEAN, ValueType.TRUE_ONLY ), "dv.value = 'true'", approvalClause );
+
+        populateOverflowTable( partition, "0", "null", Sets.newHashSet( ValueType.BOOLEAN ), "dv.value = 'false'", approvalClause );
+
+        populateOverflowTable( partition, "null", "dv.value", Sets.union( ValueType.TEXT_TYPES, ValueType.DATE_TYPES ), null, approvalClause );
     }
 
     /**
@@ -200,12 +208,12 @@ public class JdbcAnalyticsTableManager
         List<AnalyticsTableColumn> values = partition.getMasterTable().getValueColumns();
 
         validateDimensionColumns( columns );
-        
+
         for ( AnalyticsTableColumn col : ListUtils.union( columns, values ) )
         {
             sql += col.getName() + ",";
         }
-        
+
         sql = TextUtils.removeLastComma( sql ) + ") select ";
 
         for ( AnalyticsTableColumn col : columns )
@@ -273,7 +281,7 @@ public class JdbcAnalyticsTableManager
         List<AnalyticsTableColumn> values = partition.getMasterTable().getValueColumns();
 
         validateDimensionColumns( columns );
-        
+
         for ( AnalyticsTableColumn col : ListUtils.union( columns, values ) )
         {
             sql += col.getName() + ",";
@@ -332,12 +340,83 @@ public class JdbcAnalyticsTableManager
         populateAndLog( sql, tableName + ", " + valueTypes );
     }
     
+    private void populateOverflowTable( AnalyticsTablePartition partition, String valueExpression,
+        String textValueExpression, Set<ValueType> valueTypes, String whereClause, String approvalClause )
+    {
+        final String tableName = partition.getTempTableName();
+        final String valTypes = TextUtils.getQuotedCommaDelimitedString( ObjectUtils.asStringList( valueTypes ) );
+        final boolean respectStartEndDates = (Boolean) systemSettingManager.getSystemSetting( SettingKey.RESPECT_META_DATA_START_END_DATES_IN_ANALYTICS_TABLE_EXPORT );
+
+        String sql = "insert into " + partition.getTempTableName() + " (";
+
+        List<AnalyticsTableColumn> columns = getDimensionColumns( partition.getYear() );
+        List<AnalyticsTableColumn> values = partition.getMasterTable().getValueColumns();
+
+        validateDimensionColumns( columns );
+        
+        for ( AnalyticsTableColumn col : ListUtils.union( columns, values ) )
+        {
+            sql += col.getName() + ",";
+        }
+        
+        sql = TextUtils.removeLastComma( sql ) + ") select ";
+
+        for ( AnalyticsTableColumn col : columns )
+        {
+            sql += col.getAlias() + ",";
+        }
+
+        sql +=
+            valueExpression + " * ps.daysno as daysxvalue, " +
+            "ps.daysno as daysno, " +
+            valueExpression + " as value, " +
+            textValueExpression + " as textvalue " +
+            "from datavalue dv " +
+            "inner join period pe on dv.periodid=pe.periodid " +
+            "inner join _overflowperiodstructure ps on dv.periodid=ps.periodid " +
+            "inner join dataelement de on dv.dataelementid=de.dataelementid " +
+            "inner join _dataelementstructure des on dv.dataelementid = des.dataelementid " +
+            "inner join _dataelementgroupsetstructure degs on dv.dataelementid=degs.dataelementid " +
+            "inner join organisationunit ou on dv.sourceid=ou.organisationunitid " +
+            "left join _orgunitstructure ous on dv.sourceid=ous.organisationunitid " +
+            "inner join _organisationunitgroupsetstructure ougs on dv.sourceid=ougs.organisationunitid " +
+                "and (cast(date_trunc('month', pe.startdate) as date)=ougs.startdate or ougs.startdate is null) " +
+            "inner join categoryoptioncombo co on dv.categoryoptioncomboid=co.categoryoptioncomboid " +
+            "inner join categoryoptioncombo ao on dv.attributeoptioncomboid=ao.categoryoptioncomboid " +
+            "inner join _categorystructure dcs on dv.categoryoptioncomboid=dcs.categoryoptioncomboid " +
+            "inner join _categorystructure acs on dv.attributeoptioncomboid=acs.categoryoptioncomboid " +
+            "inner join _categoryoptioncomboname aon on dv.attributeoptioncomboid=aon.categoryoptioncomboid " +
+            "inner join _categoryoptioncomboname con on dv.categoryoptioncomboid=con.categoryoptioncomboid " +
+
+            approvalClause +
+            "where de.valuetype in (" + valTypes + ") " +
+            "and de.domaintype = 'AGGREGATE' " +
+            "and ps.year = " + partition.getYear() + " " +
+            "and dv.value is not null " +
+            "and dv.deleted is false ";
+
+        if ( respectStartEndDates )
+        {
+            sql +=
+                "and (aon.startdate is null or aon.startdate <= pe.startdate) " +
+                "and (aon.enddate is null or aon.enddate >= pe.enddate) " +
+                "and (con.startdate is null or con.startdate <= pe.startdate) " +
+                "and (con.enddate is null or con.enddate >= pe.enddate) ";
+        }
+
+        if ( whereClause != null )
+        {
+            sql += "and " + whereClause;
+        }
+
+        populateAndLog( sql, tableName + ", " + valueTypes );
+    }
 
     /**
      * Returns sub-query for approval level. First looks for approval level in
      * data element resource table which will indicate level 0 (highest) if approval
      * is not required. Then looks for highest level in dataapproval table.
-     * 
+     *
      * @param year the data year.
      */
     private String getApprovalJoinClause( Integer year )
@@ -361,7 +440,7 @@ public class JdbcAnalyticsTableManager
 
         return StringUtils.EMPTY;
     }
-    
+
     private List<AnalyticsTableColumn> getDimensionColumns( Integer year )
     {
         List<AnalyticsTableColumn> columns = new ArrayList<>();
@@ -434,7 +513,7 @@ public class JdbcAnalyticsTableManager
         String approvalCol = isApprovalEnabled( year ) ?
             "coalesce(des.datasetapprovallevel, aon.approvallevel, da.minlevel, " + APPROVAL_LEVEL_UNAPPROVED + ") as approvallevel " :
             DataApprovalLevelService.APPROVAL_LEVEL_HIGHEST + " as approvallevel";
-        
+
         columns.add( new AnalyticsTableColumn( quote( "dx" ), "character(11) not null", "de.uid" ) );
         columns.add( new AnalyticsTableColumn( quote( "co" ), "character(11) not null", "co.uid" ) );
         columns.add( new AnalyticsTableColumn( quote( "ao" ), "character(11) not null", "ao.uid" ) );
@@ -547,13 +626,13 @@ public class JdbcAnalyticsTableManager
         boolean setting = systemSettingManager.hideUnapprovedDataInAnalytics();
         boolean levels = !dataApprovalLevelService.getAllDataApprovalLevels().isEmpty();
         Integer maxYears = (Integer) systemSettingManager.getSystemSetting( SettingKey.IGNORE_ANALYTICS_APPROVAL_YEAR_THRESHOLD );
-        
+
         log.debug( String.format( "Hide approval setting: %b, approval levels exists: %b, max years threshold: %d", setting, levels, maxYears ) );
-        
+
         if ( year != null )
         {
             boolean periodOverMaxYears = AnalyticsUtils.periodIsOutsideApprovalMaxYears( year, maxYears );
-            
+
             return setting && levels && !periodOverMaxYears;
         }
         else
