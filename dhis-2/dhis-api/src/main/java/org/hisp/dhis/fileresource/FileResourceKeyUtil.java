@@ -1,7 +1,7 @@
-package org.hisp.dhis.resourcetable;
+package org.hisp.dhis.fileresource;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,34 +28,27 @@ package org.hisp.dhis.resourcetable;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
-* @author Lars Helge Overland
-*/
-public enum ResourceTableType
-{
-    ORG_UNIT_STRUCTURE( "_orgunitstructure" ),
-    DATA_SET_ORG_UNIT_CATEGORY( "_datasetorganisationunitcategory" ),
-    CATEGORY_OPTION_COMBO_NAME( "_categoryoptioncomboname" ),
-    DATA_ELEMENT_GROUP_SET_STRUCTURE( "_dataelementgroupsetstructure" ),
-    INDICATOR_GROUP_SET_STRUCTURE( "_indicatorgroupsetstructure" ),
-    ORG_UNIT_GROUP_SET_STRUCTURE( "_organisationunitgroupsetstructure" ),
-    CATEGORY_STRUCTURE( "_categorystructure" ),
-    DATA_ELEMENT_STRUCTURE( "_dataelementstructure" ),
-    PERIOD_STRUCTURE( "_periodstructure" ),
-    DATE_PERIOD_STRUCTURE( "_dateperiodstructure" ),
-    DATA_ELEMENT_CATEGORY_OPTION_COMBO( "_dataelementcategoryoptioncombo" ),
-    DATA_APPROVAL_REMAP_LEVEL( "_dataapprovalremaplevel" ),
-    DATA_APPROVAL_MIN_LEVEL( "_dataapprovalminlevel" );
+import java.util.Optional;
+import java.util.UUID;
 
-    private String tableName;
-    
-    ResourceTableType( String tableName )
+/**
+ * @author Luciano Fiandesio
+ */
+public class FileResourceKeyUtil
+{
+
+    public static String makeKey( FileResourceDomain domain, Optional<String> key )
     {
-        this.tableName = tableName;
+        if ( key.isPresent() )
+        {
+            return domain.getContainerName() + "/" + key.get();
+        }
+        return generateStorageKey( domain );
+
     }
-    
-    public String getTableName()
+
+    private static String generateStorageKey( FileResourceDomain domain )
     {
-        return tableName;
+        return domain.getContainerName() + "/" + UUID.randomUUID().toString();
     }
 }

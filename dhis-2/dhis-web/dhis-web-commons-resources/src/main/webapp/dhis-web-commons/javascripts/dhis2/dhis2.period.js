@@ -1416,7 +1416,6 @@ $.extend( dhis2.period.FinancialBaseGenerator.prototype, {
     var year = offset + this.calendar.today().year();
     var periods = [];
 
-    console.log('name:  ', this.name );
     var startDate = this.calendar.newDate( year - 5, this.monthOffset, 1 );
 
     // generate 11 years, thisYear +/- 5 years

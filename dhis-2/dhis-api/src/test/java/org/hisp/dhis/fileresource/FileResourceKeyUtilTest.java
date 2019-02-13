@@ -1,4 +1,4 @@
-package org.hisp.dhis.resourcetable;
+package org.hisp.dhis.fileresource;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,34 +28,31 @@ package org.hisp.dhis.resourcetable;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
-* @author Lars Helge Overland
-*/
-public enum ResourceTableType
-{
-    ORG_UNIT_STRUCTURE( "_orgunitstructure" ),
-    DATA_SET_ORG_UNIT_CATEGORY( "_datasetorganisationunitcategory" ),
-    CATEGORY_OPTION_COMBO_NAME( "_categoryoptioncomboname" ),
-    DATA_ELEMENT_GROUP_SET_STRUCTURE( "_dataelementgroupsetstructure" ),
-    INDICATOR_GROUP_SET_STRUCTURE( "_indicatorgroupsetstructure" ),
-    ORG_UNIT_GROUP_SET_STRUCTURE( "_organisationunitgroupsetstructure" ),
-    CATEGORY_STRUCTURE( "_categorystructure" ),
-    DATA_ELEMENT_STRUCTURE( "_dataelementstructure" ),
-    PERIOD_STRUCTURE( "_periodstructure" ),
-    DATE_PERIOD_STRUCTURE( "_dateperiodstructure" ),
-    DATA_ELEMENT_CATEGORY_OPTION_COMBO( "_dataelementcategoryoptioncombo" ),
-    DATA_APPROVAL_REMAP_LEVEL( "_dataapprovalremaplevel" ),
-    DATA_APPROVAL_MIN_LEVEL( "_dataapprovalminlevel" );
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
-    private String tableName;
-    
-    ResourceTableType( String tableName )
+import java.util.Optional;
+
+import org.junit.Test;
+
+/**
+ * @author Luciano Fiandesio
+ */
+public class FileResourceKeyUtilTest
+{
+
+    @Test
+    public void verifyBuildKey()
     {
-        this.tableName = tableName;
+        String key = FileResourceKeyUtil.makeKey( FileResourceDomain.DOCUMENT, Optional.empty() );
+        assertThat( key, startsWith( "document/" ) );
+        assertEquals( 36, key.substring( "document/".length() ).length() );
+
+        key = FileResourceKeyUtil.makeKey( FileResourceDomain.DOCUMENT, Optional.of( "myKey" ) );
+        assertThat( key, is( "document/myKey" ) );
+
     }
-    
-    public String getTableName()
-    {
-        return tableName;
-    }
+
 }

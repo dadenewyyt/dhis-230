@@ -67,13 +67,13 @@ public class JdbcEventAnalyticsTableManager
     extends AbstractEventJdbcTableManager
 {
     private static final ImmutableSet<ValueType> NO_INDEX_VAL_TYPES = ImmutableSet.of( ValueType.TEXT, ValueType.LONG_TEXT );
-    
+
     @Override
     public AnalyticsTableType getAnalyticsTableType()
     {
         return AnalyticsTableType.EVENT;
     }
-    
+
     @Override
     @Transactional
     public List<AnalyticsTable> getAnalyticsTables( Date earliest )
@@ -81,13 +81,13 @@ public class JdbcEventAnalyticsTableManager
         log.info( String.format( "Get tables using earliest: %s, spatial support: %b", earliest, databaseInfo.isSpatialSupport() ) );
 
         List<AnalyticsTable> tables = new ArrayList<>();
-        
+
         Calendar calendar = PeriodType.getCalendar();
-        
+
         String baseName = getTableName();
-        
+
         List<Program> programs = idObjectManager.getAllNoAcl( Program.class );
-        
+
         for ( Program program : programs )
         {
             List<Integer> dataYears = AnalyticsUtils.getDataYears( getDataYears( program, earliest ) );
@@ -95,12 +95,12 @@ public class JdbcEventAnalyticsTableManager
             Collections.sort( dataYears );
 
             AnalyticsTable table = new AnalyticsTable( baseName, getDimensionColumns( program ), Lists.newArrayList(), program );
-            
+
             for ( Integer year : dataYears )
-            {                
+            {
                 table.addPartitionTable( year, PartitionUtils.getStartDate( calendar, year ), PartitionUtils.getEndDate( calendar, year ) );
             }
-            
+
             if ( table.hasPartitionTables() )
             {
                 tables.add( table );
@@ -124,7 +124,7 @@ public class JdbcEventAnalyticsTableManager
             "executiondate >= '" + DateUtils.getMediumDateString( partition.getStartDate() ) + "'",
             "executiondate < '" + DateUtils.getMediumDateString( partition.getEndDate() ) + "'" );
     }
-    
+
     @Override
     protected void populateTable( AnalyticsTablePartition partition )
     {
@@ -136,7 +136,7 @@ public class JdbcEventAnalyticsTableManager
         String sql = "insert into " + partition.getTempTableName() + " (";
 
         List<AnalyticsTableColumn> columns = getDimensionColumns( program );
-        
+
         validateDimensionColumns( columns );
 
         for ( AnalyticsTableColumn col : columns )
@@ -165,9 +165,9 @@ public class JdbcEventAnalyticsTableManager
                 "and (cast(date_trunc('month', psi.executiondate) as date)=ougs.startdate or ougs.startdate is null) " +
             "inner join _categorystructure acs on psi.attributeoptioncomboid=acs.categoryoptioncomboid " +
             "left join _dateperiodstructure dps on cast(psi.executiondate as date)=dps.dateperiod " +
-            "where psi.executiondate >= '" + start + "' " + 
+            "where psi.executiondate >= '" + start + "' " +
             "and psi.executiondate < '" + end + "' " +
-            "and pr.programid=" + program.getId() + " " + 
+            "and pr.programid=" + program.getId() + " " +
             "and psi.organisationunitid is not null " +
             "and psi.executiondate is not null " +
             "and psi.deleted is false ";
@@ -180,7 +180,7 @@ public class JdbcEventAnalyticsTableManager
         final String dbl = statementBuilder.getDoubleColumnType();
         final String numericClause = " and value " + statementBuilder.getRegexpMatch() + " '" + NUMERIC_LENIENT_REGEXP + "'";
         final String dateClause = " and value " + statementBuilder.getRegexpMatch() + " '" + DATE_REGEXP + "'";
-        
+
         //TODO dateClause regular expression
 
         List<AnalyticsTableColumn> columns = new ArrayList<>();
@@ -188,7 +188,7 @@ public class JdbcEventAnalyticsTableManager
         if ( program.hasCategoryCombo() )
         {
             List<Category> categories = program.getCategoryCombo().getCategories();
-            
+
             for ( Category category : categories )
             {
                 if ( category.isDataDimension() )
@@ -198,10 +198,10 @@ public class JdbcEventAnalyticsTableManager
             }
         }
 
-        List<OrganisationUnitLevel> levels = 
+        List<OrganisationUnitLevel> levels =
             organisationUnitService.getFilledOrganisationUnitLevels();
 
-        List<OrganisationUnitGroupSet> orgUnitGroupSets = 
+        List<OrganisationUnitGroupSet> orgUnitGroupSets =
             idObjectManager.getDataDimensionsNoAcl( OrganisationUnitGroupSet.class );
 
         List<CategoryOptionGroupSet> attributeCategoryOptionGroupSets =
@@ -212,7 +212,7 @@ public class JdbcEventAnalyticsTableManager
             String column = quote( PREFIX_ORGUNITLEVEL + level.getLevel() );
             columns.add( new AnalyticsTableColumn( column, "character(11)", "ous." + column, level.getCreated() ) );
         }
-        
+
         for ( OrganisationUnitGroupSet groupSet : orgUnitGroupSets )
         {
             columns.add( new AnalyticsTableColumn( quote( groupSet.getUid() ), "character(11)", "ougs." + quote( groupSet.getUid() ), groupSet.getCreated() ) );
@@ -268,12 +268,12 @@ public class JdbcEventAnalyticsTableManager
             String select = getSelectClause( attribute.getValueType() );
             boolean skipIndex = NO_INDEX_VAL_TYPES.contains( attribute.getValueType() ) && !attribute.hasOptionSet();
 
-            String sql = "(select " + select + " from trackedentityattributevalue where trackedentityinstanceid=pi.trackedentityinstanceid " + 
+            String sql = "(select " + select + " from trackedentityattributevalue where trackedentityinstanceid=pi.trackedentityinstanceid " +
                 "and trackedentityattributeid=" + attribute.getId() + dataClause + ") as " + quote( attribute.getUid() );
 
             columns.add( new AnalyticsTableColumn( quote( attribute.getUid() ), dataType, sql, skipIndex ) );
         }
-        
+
         for ( TrackedEntityAttribute attribute : program.getNonConfidentialTrackedEntityAttributesWithLegendSet() )
         {
             for ( LegendSet legendSet : attribute.getLegendSets() )
@@ -314,18 +314,18 @@ public class JdbcEventAnalyticsTableManager
         columns.add( new AnalyticsTableColumn( quote( "ouname" ), "text not null", "ou.name" ) );
         columns.add( new AnalyticsTableColumn( quote( "oucode" ), "text", "ou.code" ) );
 
-        
+
         if ( program.isRegistration() )
         {
             columns.add( new AnalyticsTableColumn( quote( "tei" ), "character(11)", "tei.uid" ) );
         }
-                
+
         return filterDimensionColumns( columns );
     }
 
     private List<Integer> getDataYears( Program program, Date earliest )
     {
-        String sql = 
+        String sql =
             "select distinct(extract(year from psi.executiondate)) " +
             "from programstageinstance psi " +
             "inner join programinstance pi on psi.programinstanceid = pi.programinstanceid " +
@@ -337,7 +337,7 @@ public class JdbcEventAnalyticsTableManager
         {
             sql += "and psi.executiondate >= '" + DateUtils.getMediumDateString( earliest ) + "'";
         }
-        
+
         return jdbcTemplate.queryForList( sql, Integer.class );
-    }   
+    }
 }

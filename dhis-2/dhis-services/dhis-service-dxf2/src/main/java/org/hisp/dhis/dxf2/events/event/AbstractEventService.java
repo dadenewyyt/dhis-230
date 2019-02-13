@@ -28,9 +28,38 @@ package org.hisp.dhis.dxf2.events.event;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ATTRIBUTE_OPTION_COMBO_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_COMPLETED_BY_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_COMPLETED_DATE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_CREATED_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_DELETED;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_DUE_DATE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ENROLLMENT_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_EXECUTION_DATE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_GEOMETRY;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_LAST_UPDATED_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ORG_UNIT_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ORG_UNIT_NAME;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_PROGRAM_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_PROGRAM_STAGE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_STATUS_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_STORED_BY_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.PAGER_META_KEY;
+import static org.hisp.dhis.system.notification.NotificationLevel.ERROR;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,7 +143,7 @@ import org.hisp.dhis.system.util.GeoUtils;
 import org.hisp.dhis.system.util.ValidationUtils;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
-import org.hisp.dhis.trackedentity.TrackerOwnershipAccessManager;
+import org.hisp.dhis.trackedentity.TrackerOwnershipManager;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityCommentService;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValue;
@@ -128,38 +157,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ATTRIBUTE_OPTION_COMBO_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_COMPLETED_BY_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_COMPLETED_DATE_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_CREATED_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_DELETED;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_DUE_DATE_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ENROLLMENT_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_EXECUTION_DATE_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_GEOMETRY;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_LAST_UPDATED_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ORG_UNIT_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ORG_UNIT_NAME;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_PROGRAM_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_PROGRAM_STAGE_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_STATUS_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_STORED_BY_ID;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.PAGER_META_KEY;
-import static org.hisp.dhis.system.notification.NotificationLevel.ERROR;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -243,7 +243,7 @@ public abstract class AbstractEventService
     protected TrackerAccessManager trackerAccessManager;
 
     @Autowired
-    protected TrackerOwnershipAccessManager trackerOwnershipAccessManager;
+    protected TrackerOwnershipManager trackerOwnershipAccessManager;
 
     @Autowired
     protected AclService aclService;
@@ -292,9 +292,7 @@ public abstract class AbstractEventService
     private CachingMap<String, TrackedEntityInstance> trackedEntityInstanceCache = new CachingMap<>();
 
     private CachingMap<Class<? extends IdentifiableObject>, IdentifiableObject> defaultObjectsCache = new CachingMap<>();
-    
-    private Set<ProgramInstance> programInstancesToUpdate = new HashSet<>();
-    
+
     private Set<TrackedEntityInstance> trackedEntityInstancesToUpdate = new HashSet<>();
 
     // -------------------------------------------------------------------------
@@ -1813,7 +1811,10 @@ public abstract class AbstractEventService
                 programNotificationPublisher.publishEvent( programStageInstance, ProgramNotificationEventType.PROGRAM_STAGE_COMPLETION );
             }
 
-            enginePublisher.publishProgramRuleEvent( new ProgramStageInstanceScheduledEvent( this, programStageInstance ) );
+            if ( EventStatus.SCHEDULE.equals( programStageInstance.getStatus() ) )
+            {
+                enginePublisher.publishProgramRuleEvent( new ProgramStageInstanceScheduledEvent( this, programStageInstance ) );
+            }
         }
     }
 
@@ -1967,12 +1968,12 @@ public abstract class AbstractEventService
         {
             validUsername = User.getSafeUsername( fallbackUsername );
         }
-        else if ( validUsername.length() >= 31 )
+        else if ( validUsername.length() > UserCredentials.USERNAME_MAX_LENGTH )
         {
             if ( importSummary != null )
             {
                 importSummary.getConflicts().add( new ImportConflict( "Username",
-                    validUsername + " is more than 31 characters, using current username instead" ) );
+                    validUsername + " is more than " + UserCredentials.USERNAME_MAX_LENGTH + " characters, using current username instead" ) );
             }
 
             validUsername = User.getSafeUsername( fallbackUsername );
@@ -2276,10 +2277,7 @@ public abstract class AbstractEventService
     
     private void updateEntities( User user )
     {
-        programInstancesToUpdate.forEach( pi -> manager.update( pi, user ) );
         trackedEntityInstancesToUpdate.forEach( tei -> manager.update( tei, user ) );
-        
-        programInstancesToUpdate.clear();
         trackedEntityInstancesToUpdate.clear();
     }
 
@@ -2335,8 +2333,6 @@ public abstract class AbstractEventService
             {
                 if ( !bulkUpdate )
                 {
-                    manager.update( programStageInstance.getProgramInstance(), user );
-                    
                     if ( programStageInstance.getProgramInstance().getEntityInstance() != null )
                     {                        
                         manager.update( programStageInstance.getProgramInstance().getEntityInstance(), user );
@@ -2344,8 +2340,6 @@ public abstract class AbstractEventService
                 }
                 else
                 {
-                    programInstancesToUpdate.add( programStageInstance.getProgramInstance() );
-                    
                     if ( programStageInstance.getProgramInstance().getEntityInstance() != null )
                     {                        
                         trackedEntityInstancesToUpdate.add( programStageInstance.getProgramInstance().getEntityInstance() );

@@ -174,7 +174,7 @@ public class DefaultResourceTableService
     {
         resourceTableStore.generateResourceTable( new OrganisationUnitGroupSetResourceTable(
             idObjectManager.getDataDimensionsNoAcl( OrganisationUnitGroupSet.class ),
-            statementBuilder.supportsPartialIndexes() ) );
+            statementBuilder.supportsPartialIndexes(), organisationUnitService.getNumberOfOrganisationalLevels() ) );
     }
 
     @Override
@@ -205,20 +205,6 @@ public class DefaultResourceTableService
     public void generatePeriodTable()
     {
         resourceTableStore.generateResourceTable( new PeriodResourceTable( periodService.getAllPeriods() ) );
-    }
-    
-    @Override
-    @Transactional
-    public void generateLastPeriodTable()
-    {
-        resourceTableStore.generateResourceTable( new LastPeriodResourceTable( periodService.getAllPeriods() ) );
-    }
-    
-    @Override
-    @Transactional
-    public void generateOverflowPeriodTable()
-    {
-        resourceTableStore.generateResourceTable( new OverflowPeriodResourceTable( periodService.getAllPeriods() ) );
     }
 
     @Override

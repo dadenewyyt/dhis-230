@@ -102,7 +102,7 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
         {
             return minusDays( dateTimeUnit, Math.abs( days ) );
         }
-        
+
         int curYear = dateTimeUnit.getYear();
         int curMonth = dateTimeUnit.getMonth();
         int curDay = dateTimeUnit.getDay();
