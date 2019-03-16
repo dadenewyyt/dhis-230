@@ -63,6 +63,8 @@ import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.query.Query;
 import org.hisp.dhis.render.DefaultRenderService;
 import org.hisp.dhis.schema.descriptors.DataSetSchemaDescriptor;
+import org.hisp.dhis.user.User;
+import org.hisp.dhis.webapi.controller.exception.NotAuthenticatedException;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.utils.FormUtils;
 import org.hisp.dhis.webapi.view.ClassPathUriResolver;
@@ -90,6 +92,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -439,6 +442,41 @@ public class DataSetController
         }
 
         return exportService.getMetadataWithDependenciesAsNode( dataSet );
+    }
+    
+    @RequestMapping( value = "/assigned", method = RequestMethod.GET )
+    public @ResponseBody RootNode getAssignedDataSets( HttpServletRequest request,
+        TranslateParams translateParams, HttpServletResponse response ) throws IOException, NotAuthenticatedException
+    {
+        setUserContext( translateParams );
+        
+        User user = currentUserService.getCurrentUser();
+
+        if ( user == null )
+        {
+            throw new NotAuthenticatedException();
+        }
+        
+        List<DataSet> dataSets = new ArrayList<>();
+        
+        if ( user.getUserCredentials().getAllAuthorities().contains( "ALL" ) )
+        {
+                dataSets = Lists.newArrayList( dataSetService.getAllDataSets() );
+        }
+        else
+        {
+                dataSets = Lists.newArrayList( dataSetService.getUserDataWrite( user ) );
+        }
+        
+        Collections.sort( dataSets );
+
+        List<String> fields = Lists.newArrayList( contextService.getParameterValues( "fields" ) );
+
+        RootNode rootNode = NodeUtils.createMetadata();
+        rootNode.addChild( fieldFilterService.toCollectionNode( DataSet.class,
+            new FieldFilterParams( dataSets, fields ) ) );
+
+        return rootNode;       
     }
 
     /**
