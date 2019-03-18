@@ -523,7 +523,6 @@ diseaseRegistration.controller('dataEntryController',
     };
     
     $scope.setSelectedCase = function(deId){
-        console.log('deId:  ', deId);
         ContextMenuSelectedItem.setSelectedItem(deId);        
     };
     
@@ -540,6 +539,12 @@ diseaseRegistration.controller('dataEntryController',
         if( deId && $scope.model.dataElements[deId] )
         {
             console.log( 'case to be deleted:  ', ContextMenuSelectedItem.getSelectedItem());
+        }
+    };
+    
+    $scope.toggleDimensionInput = function(){
+        if( !$scope.model.sde ){
+            $scope.newDataValue = {};
         }
     };
 });

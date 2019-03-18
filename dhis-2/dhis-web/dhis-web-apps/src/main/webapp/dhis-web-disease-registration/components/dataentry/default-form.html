@@ -44,7 +44,7 @@
                                    tabindex={{$index}} 
                                    d2-tab-index 
                                    input-field-id={{eventGridColumn.id}}                                    
-                                   on-select="activateDimesionInput()"
+                                   on-select="toggleDimensionInput()"
                                    style="width:100%;">
                             <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_or_search' | translate}}">{{$select.selected.displayFormName  || $select.selected}}</ui-select-match>
                             <ui-select-choices  repeat="de in model.selectedDataSet.dataElements | filter: $select.search | limitTo:maxOptionSize | orderBy:'displayFormName' ">
