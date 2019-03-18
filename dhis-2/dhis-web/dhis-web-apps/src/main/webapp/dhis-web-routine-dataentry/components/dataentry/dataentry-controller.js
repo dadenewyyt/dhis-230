@@ -24,6 +24,7 @@ routineDataEntry.controller('dataEntryController',
                 DialogService) {
     $scope.periodOffset = 0;
     $scope.maxOptionSize = 30;
+    $scope.dataElementSize = 50;
     $scope.saveStatus = {};    
     $scope.model = {invalidDimensions: false,
                     selectedAttributeCategoryCombo: null,
@@ -163,7 +164,7 @@ routineDataEntry.controller('dataEntryController',
         });
     }
     
-    /*$scope.checkDisabled = function (section,de,oco){
+    $scope.checkDisabled = function (section,de,oco){
         if($scope.model && $scope.model.dataSetCompletness && $scope.model.dataSetCompletness[$scope.model.selectedAttributeOptionCombo]){//if dataset is complete return true (disabled) without checking anything.
             return true;
         }
@@ -182,7 +183,7 @@ routineDataEntry.controller('dataEntryController',
         //if the above conditions are not fullfilled return false;
         return false;
         //return (section.greyedFields.indexOf(de.id+'.'+oco.id) !== -1 || $scope.controllingDataElementGroups[$scope.groupsByMember[de.id]].isDisabled) && !de.controlling_data_element || $scope.model.dataSetCompletness[$scope.model.selectedAttributeOptionCombo];
-    }*/
+    }
     
     $scope.performAutoZero = function(section){
         var dataValueSet = {
@@ -816,5 +817,13 @@ routineDataEntry.controller('dataEntryController',
                 DataEntryUtils.errorNotifier( response );
             });
         });        
+    };
+    
+    $scope.nextPage = function( size ){
+        if ($scope.dataElementSize + 5 < size ) {
+            $scope.dataElementSize += 5;
+        } else {
+            $scope.dataElementSize = size;
+        }
     };
 });

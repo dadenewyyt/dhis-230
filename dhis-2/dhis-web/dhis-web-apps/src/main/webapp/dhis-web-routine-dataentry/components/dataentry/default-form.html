@@ -15,7 +15,9 @@
                             </button>
 
                         </div>
-                        <table class="report-table" ng-if="section.dataElements.length > 0">
+                        <table class="report-table" 
+                               infinite-scroll="nextPage( section.dataElements.length )"  infinite-scroll-distance="1" infinite-scroll-parent="true"
+                               ng-if="section.dataElements.length > 0 && section.active">
                             <thead>                            
                                 <tr> 
                                     <th class="col-sm-3 pull-center de-table-hdr">
@@ -29,7 +31,7 @@
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody ng-repeat="dataElement in section.dataElements"
+                            <tbody ng-repeat="dataElement in section.dataElements | limitTo:dataElementSize"
                                    ng-init="de = model.dataElements[dataElement.id];
                                        ocos = model.categoryCombos[de.categoryCombo.id].categoryOptionCombos">
                                 <tr ng-if="de.displayTitle">
@@ -65,11 +67,11 @@
                                     </td>
                                 </tr>
                                 <tr class="de-style" ng-repeat="oco in ocos">
-                                    <td ng-show="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">
+                                    <td ng-if="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">
                                         <!-- serial number location-->
                                         {{(de.serial_number && ocos.length >= 1) ? (de.serial_number + ".") : ''}} {{ocos.length <=1? ' ' : $index+1 }}
                                     </td>
-                                    <td ng-show="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">
+                                    <td ng-if="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">
                                         <div class="oco-left-padding" ng-if="ocos.length > 1" ng-bind="oco.displayName">
                                         </div>
                                         <div ng-if="ocos.length === 1" ng-bind="de.displayFormName">                                            
@@ -78,7 +80,7 @@
                                             {{vr.instruction ? vr.instruction : vr.displayName}}
                                         </div>
                                     </td>
-                                    <td ng-show="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">                                        
+                                    <td ng-if="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">                                        
                                         <ng-form name="innerForm">                                            
                                             <span ng-if="de.optionSetValue">
                                                 <ui-select theme="select2" 
@@ -267,7 +269,9 @@
         </div>
     </div>
     <div class="col-sm-12" ng-if="model.selectedDataSet.sections.length === 0">
-        <table class="report-table" ng-if="model.selectedDataSet.dataElements.length > 0">
+        <table class="report-table" 
+               nfinite-scroll="nextPage( model.selectedDataSet.sections.length )"  infinite-scroll-distance="1" infinite-scroll-parent="true"
+               ng-if="model.selectedDataSet.dataElements.length > 0">
             <thead>                            
                 <tr> 
                     <th class="col-sm-3 pull-center de-table-hdr">
@@ -281,7 +285,7 @@
                     </th>
                 </tr>
             </thead>
-            <tbody ng-repeat="de in model.selectedDataSet.dataElements"
+            <tbody ng-repeat="de in model.selectedDataSet.dataElements | limitTo:dataElementSize"
                    ng-init="ocos = model.categoryCombos[de.categoryCombo.id].categoryOptionCombos">
                 <tr ng-if="de.displayTitle">
                     <td class="ind-style">
@@ -316,11 +320,11 @@
                 </tr>
                 <tr class="de-style" ng-repeat="oco in ocos">
                     
-                    <td ng-show="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">
+                    <td ng-if="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">
                         <!-- serial number location-->
                         {{(de.serial_number && ocos.length >= 1) ? (de.serial_number + ".") : ''}} {{ocos.length <=1? ' ' : $index+1 }}
                     </td>
-                    <td ng-show="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">
+                    <td ng-if="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">
                         <div class="oco-left-padding" ng-if="ocos.length > 1" ng-bind="oco.displayName">                            
                         </div>
                         <div ng-if="ocos.length === 1" ng-bind="de.displayFormName">
@@ -329,7 +333,7 @@
 							{{vr.instruction ? vr.instruction : vr.displayName}}
 						</div>
                     </td>
-                    <td ng-show="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">                        
+                    <td ng-if="section.greyedFields.indexOf(de.id+'.'+oco.id) === -1">                        
                         <ng-form name="innerForm">
                             <span ng-if="de.optionSetValue">
                                 <ui-select theme="select2" 
@@ -509,7 +513,6 @@
             </tbody>                        
         </table>
     </div>
-    
 
     <div class="col-sm-12">
         <button type="button" 
