@@ -251,10 +251,7 @@ public class QuarterlyPeriodType
     // --------------------------------------------------
     private Period getEthiopianQuarterPeriod( org.hisp.dhis.calendar.Calendar calendar, DateTimeUnit dateTimeUnit )
     {
-        int diff = dateTimeUnit.getMonth() - 2;
-        int mod = diff < 1 ? 3 - Math.abs( diff ) : diff % 3;
-        
-        int startMonth = ( diff - mod ) + 2;
+        int startMonth = ((dateTimeUnit.getMonth() - 2) - ((dateTimeUnit.getMonth() - 2) % 3)) + 2;
         int startYear = dateTimeUnit.getYear();
         
         if ( startMonth > 12 )
@@ -275,6 +272,5 @@ public class QuarterlyPeriodType
         end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
 
         return toIsoPeriod( start, end, calendar );
-
     }
 }
