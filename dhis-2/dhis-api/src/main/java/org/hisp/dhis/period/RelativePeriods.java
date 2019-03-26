@@ -535,12 +535,10 @@ public class RelativePeriods
      *                           and should be one of the values in the enum {@link AnalyticsFinancialYearStartKey}
      * @return a list of relative Periods.
      */
-    public List<Period> getRelativePeriods( Date date, I18nFormat format, boolean dynamicNames,
+    public List<Period> getRelativePeriods( Date _date, I18nFormat format, boolean dynamicNames,
         AnalyticsFinancialYearStartKey financialYearStart )
     {        
-        Date calendarDate = date != null ? date : PeriodType.getCalendar().today().toJdkDate();
-        
-        date = ( date != null ) ? date : new Date();        
+        Date date = ( _date != null ) ? _date : new Date();        
 
         List<Period> periods = new ArrayList<>();
 
@@ -553,11 +551,13 @@ public class RelativePeriods
 
         if ( isThisDay() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new DailyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new DailyPeriodType(), THISDAY, calendarDate, dynamicNames, format ) );
         }
 
         if ( isYesterday() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new DailyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new DailyPeriodType(), YESTERDAY, new DateTime( calendarDate ).minusDays( 1 ).toDate(), dynamicNames, format ) );
         }
 
@@ -578,16 +578,19 @@ public class RelativePeriods
 
         if ( isThisWeek() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new WeeklyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new WeeklyPeriodType(), LAST_WEEK, calendarDate, dynamicNames, format ) );
         }
 
         if ( isLastWeek() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new WeeklyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new WeeklyPeriodType(), LAST_WEEK, new DateTime( calendarDate ).minusWeeks( 1 ).toDate(), dynamicNames, format ) );
         }
 
         if ( isThisBiWeek() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new BiWeeklyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new BiWeeklyPeriodType(),  LAST_BIWEEK, calendarDate, dynamicNames, format ) );
         }
 
@@ -598,41 +601,49 @@ public class RelativePeriods
 
         if ( isThisMonth() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new MonthlyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new MonthlyPeriodType(), LAST_MONTH, calendarDate, dynamicNames, format ) );
         }
 
         if ( isLastMonth() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new MonthlyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new MonthlyPeriodType(), LAST_MONTH, new DateTime( calendarDate ).minusMonths( 1 ).toDate(), dynamicNames, format ) );
         }
 
         if ( isThisBimonth() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new BiMonthlyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new BiMonthlyPeriodType(), LAST_BIMONTH, calendarDate, dynamicNames, format ) );
         }
 
         if ( isLastBimonth() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new BiMonthlyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new BiMonthlyPeriodType(), LAST_BIMONTH, new DateTime( calendarDate ).minusMonths( 2 ).toDate(), dynamicNames, format ) );
         }
 
         if ( isThisQuarter() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new QuarterlyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new QuarterlyPeriodType(), LAST_QUARTER, calendarDate, dynamicNames, format ) );
         }
 
         if ( isLastQuarter() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new QuarterlyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new QuarterlyPeriodType(), LAST_QUARTER, new DateTime( calendarDate ).minusMonths( 3 ).toDate(), dynamicNames, format ) );
         }
 
         if ( isThisSixMonth() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new SixMonthlyNovemberPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new SixMonthlyNovemberPeriodType(), LAST_SIXMONTH, calendarDate, dynamicNames, format ) );
         }
 
         if ( isLastSixMonth() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new SixMonthlyNovemberPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new SixMonthlyNovemberPeriodType(), LAST_SIXMONTH, new DateTime( calendarDate ).minusMonths( 6 ).toDate(), dynamicNames, format ) );
         }
 
@@ -658,6 +669,7 @@ public class RelativePeriods
 
         if ( isThisYear() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new YearlyPeriodType() ).toJdkDate();
             periods.add( getRelativePeriod( new YearlyPeriodType(), THIS_YEAR, calendarDate, dynamicNames, format ) );
         }
 
@@ -683,11 +695,13 @@ public class RelativePeriods
 
         if ( isLast4Quarters() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new QuarterlyPeriodType() ).toJdkDate();
             periods.addAll( getRollingRelativePeriodList( new QuarterlyPeriodType(), QUARTERS_THIS_YEAR, new DateTime( calendarDate ).minusMonths( 3 ).toDate(), dynamicNames, format ) );
         }
 
         if ( isLast2SixMonths() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new SixMonthlyNovemberPeriodType() ).toJdkDate();
             periods.addAll( getRollingRelativePeriodList( new SixMonthlyNovemberPeriodType(), SIXMONHTS_LAST_2, new DateTime( calendarDate ).minusMonths( 6 ).toDate(), dynamicNames, format ) );
         }
 
@@ -712,8 +726,6 @@ public class RelativePeriods
         }
 
         date = new DateTime( date ).minusMonths( MONTHS_IN_YEAR ).toDate(); // Rewind one year
-        
-        calendarDate = new DateTime( calendarDate ).minusMonths( MONTHS_IN_YEAR ).toDate(); //Rewind one year
 
         if ( isMonthsLastYear() )
         {
@@ -727,6 +739,8 @@ public class RelativePeriods
 
         if ( isLastYear() )
         {
+            Date calendarDate = _date != null ? _date : PeriodType.getCalendar().today( new YearlyPeriodType() ).toJdkDate();
+            calendarDate = new DateTime( calendarDate ).minusMonths( MONTHS_IN_YEAR ).toDate(); //Rewind one year            
             periods.add( getRelativePeriod( new YearlyPeriodType(), LAST_YEAR, calendarDate, dynamicNames, format ) );
         }
 
@@ -749,8 +763,9 @@ public class RelativePeriods
     private List<Period> getRelativeFinancialPeriods( FinancialPeriodType financialPeriodType, I18nFormat format,
         boolean dynamicNames )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( YearlyPeriodType.NAME );
         Date date = new Date();        
-        Date calendarDate = PeriodType.getCalendar().today().toJdkDate();
+        Date calendarDate = PeriodType.getCalendar().today( periodType ).toJdkDate();
         
         List<Period> periods = new ArrayList<>();
 

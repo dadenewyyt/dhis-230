@@ -86,7 +86,7 @@ public class SixMonthlyPeriodType
 
         if ( dateTimeUnit.isIso8601() )
         {
-            month = calendar.fromIso( dateTimeUnit ).getMonth();
+            month = calendar.fromIso( this, dateTimeUnit ).getMonth();
         }
 
         switch ( month )

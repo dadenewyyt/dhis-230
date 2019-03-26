@@ -96,8 +96,8 @@ public class QuarterlyPeriodType
         }
 
         DateTimeUnit end = new DateTimeUnit( start );
-        end = calendar.plusMonths( end, 2 );
-        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+        end = calendar.plusMonths( this, end, 2 );
+        end.setDay( calendar.daysInMonth( this, end.getYear(), end.getMonth() ) );
 
         return toIsoPeriod( start, end, calendar );
     }
@@ -115,7 +115,7 @@ public class QuarterlyPeriodType
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
-        return calendar.plusMonths( dateTimeUnit, offset * 3 );
+        return calendar.plusMonths( this, dateTimeUnit, offset * 3 );
     }
 
     /**
@@ -136,7 +136,7 @@ public class QuarterlyPeriodType
         while ( year == dateTimeUnit.getYear() )
         {
             periods.add( createPeriod( dateTimeUnit, cal ) );
-            dateTimeUnit = cal.plusMonths( dateTimeUnit, 3 );
+            dateTimeUnit = cal.plusMonths( this, dateTimeUnit, 3 );
         }
 
         return periods;
@@ -151,7 +151,7 @@ public class QuarterlyPeriodType
     {
         date = createPeriod( date ).getStartDate();
 
-        return generateRollingPeriods( createLocalDateUnitInstance( date ), getCalendar() );
+        return generateRollingPeriods( createLocalDateUnitInstance( this, date ), getCalendar() );
     }
 
     @Override
@@ -159,14 +159,14 @@ public class QuarterlyPeriodType
     {
         dateTimeUnit.setDay( 1 );
 
-        DateTimeUnit iterationDateTimeUnit = calendar.minusMonths( dateTimeUnit, 9 );
+        DateTimeUnit iterationDateTimeUnit = calendar.minusMonths( this, dateTimeUnit, 9 );
 
         List<Period> periods = Lists.newArrayList();
 
         for ( int i = 0; i < 4; i++ )
         {
             periods.add( createPeriod( iterationDateTimeUnit, calendar ) );
-            iterationDateTimeUnit = calendar.plusMonths( iterationDateTimeUnit, 3 );
+            iterationDateTimeUnit = calendar.plusMonths( this, iterationDateTimeUnit, 3 );
         }
 
         return periods;
@@ -179,7 +179,7 @@ public class QuarterlyPeriodType
         
         if ( !calendar.name().equals( ISO_CALENDAR_NAME ) && newUnit.isIso8601() )
         {
-            newUnit = calendar.fromIso( newUnit );
+            newUnit = calendar.fromIso( this, newUnit );
         }
         
         if ( calendar instanceof EthiopianCalendar )
@@ -240,10 +240,10 @@ public class QuarterlyPeriodType
         date = date != null ? date : new Date();
         rewindedPeriods = rewindedPeriods != null ? rewindedPeriods : 1;
 
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( date );
-        dateTimeUnit = cal.minusMonths( dateTimeUnit, rewindedPeriods * 3 );
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, date );
+        dateTimeUnit = cal.minusMonths( this, dateTimeUnit, rewindedPeriods * 3 );
 
-        return cal.toIso( dateTimeUnit ).toJdkDate();
+        return cal.toIso( this, dateTimeUnit ).toJdkDate();
     }
     
     // --------------------------------------------------
@@ -268,8 +268,8 @@ public class QuarterlyPeriodType
         DateTimeUnit start = new DateTimeUnit( startYear, startMonth, 1, dateTimeUnit.isIso8601() );        
 
         DateTimeUnit end = new DateTimeUnit( start );
-        end = calendar.plusMonths( end, 2 );
-        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+        end = calendar.plusMonths( this, end, 2 );
+        end.setDay( calendar.daysInMonth( this, end.getYear(), end.getMonth() ) );
 
         return toIsoPeriod( start, end, calendar );
     }

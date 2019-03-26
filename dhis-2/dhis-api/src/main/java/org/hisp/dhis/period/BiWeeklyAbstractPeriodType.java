@@ -103,7 +103,7 @@ public class BiWeeklyAbstractPeriodType
     {
         DateTimeUnit start = adjustToStartOfBiWeek( new DateTimeUnit( dateTimeUnit ), calendar );
         DateTimeUnit end = new DateTimeUnit( start );
-        end = calendar.plusDays( end, calendar.daysInWeek() * 2 - 1 );
+        end = calendar.plusDays( this, end, calendar.daysInWeek() * 2 - 1 );
 
         return toIsoPeriod( start, end, calendar );
     }
@@ -111,7 +111,7 @@ public class BiWeeklyAbstractPeriodType
     @Override
     protected DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
-        return calendar.plusWeeks( dateTimeUnit, 2 * offset );
+        return calendar.plusWeeks( this, dateTimeUnit, 2 * offset );
     }
 
     /**
@@ -124,12 +124,12 @@ public class BiWeeklyAbstractPeriodType
         Calendar calendar = getCalendar();
         List<Period> periods = new ArrayList<>();
         DateTimeUnit date = adjustToStartOfBiWeek( start, calendar );
-        date = adjustToStartOfBiWeek( calendar.fromIso( date.getYear(), 1, 1 ), calendar );
+        date = adjustToStartOfBiWeek( calendar.fromIso( this, date.getYear(), 1, 1 ), calendar );
 
         for ( int i = 0; i < calendar.weeksInYear( start.getYear() ) / 2; i++ )
         {
             periods.add( createPeriod( date, calendar ) );
-            date = calendar.plusWeeks( date, 2 );
+            date = calendar.plusWeeks( this, date, 2 );
         }
 
         return periods;
@@ -144,12 +144,12 @@ public class BiWeeklyAbstractPeriodType
     {
         List<Period> periods = Lists.newArrayList();
         DateTimeUnit date = adjustToStartOfBiWeek( end, calendar );
-        date = calendar.minusDays( date, 350 );
+        date = calendar.minusDays( this, date, 350 );
 
         for ( int i = 0; i < 26; i++ )
         {
             periods.add( createPeriod( date, calendar ) );
-            date = calendar.plusWeeks( date, 2 );
+            date = calendar.plusWeeks( this, date, 2 );
         }
 
         return periods;
@@ -172,9 +172,9 @@ public class BiWeeklyAbstractPeriodType
         else
         {
             DateTimeUnit date = adjustToStartOfBiWeek( dateTimeUnit, calendar );
-            week = calendar.week( date );
+            week = calendar.week( this, date );
 
-            if ( week == 1 && date.getMonth() == calendar.monthsInYear() )
+            if ( week == 1 && date.getMonth() == calendar.monthsInYear( this ) )
             {
                 date.setYear( date.getYear() + 1 );
             }
@@ -193,24 +193,24 @@ public class BiWeeklyAbstractPeriodType
         Date rewindedDate = date != null ? date : new Date();
         rewindedPeriods = rewindedPeriods != null ? rewindedPeriods : 1;
 
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( rewindedDate );
-        dateTimeUnit = cal.minusWeeks( dateTimeUnit, rewindedPeriods * 2);
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, rewindedDate );
+        dateTimeUnit = cal.minusWeeks( this, dateTimeUnit, rewindedPeriods * 2);
 
-        return cal.toIso( dateTimeUnit ).toJdkDate();
+        return cal.toIso( this, dateTimeUnit ).toJdkDate();
     }
 
     public DateTimeUnit adjustToStartOfBiWeek( DateTimeUnit dateTimeUnit, Calendar calendar )
     {
-        int biWeekday = calendar.weekday( dateTimeUnit ) +
-            ( 1 - ( calendar.week( dateTimeUnit ) % 2 ) ) * 7;
+        int biWeekday = calendar.weekday( this, dateTimeUnit ) +
+            ( 1 - ( calendar.week( this, dateTimeUnit ) % 2 ) ) * 7;
 
         if ( biWeekday > startOfWeek )
         {
-            dateTimeUnit = calendar.minusDays( dateTimeUnit, biWeekday - startOfWeek );
+            dateTimeUnit = calendar.minusDays( this, dateTimeUnit, biWeekday - startOfWeek );
         }
         else if ( biWeekday < startOfWeek )
         {
-            dateTimeUnit = calendar.minusDays( dateTimeUnit, biWeekday + (frequencyOrder - startOfWeek) );
+            dateTimeUnit = calendar.minusDays( this, dateTimeUnit, biWeekday + (frequencyOrder - startOfWeek) );
         }
 
         return dateTimeUnit;

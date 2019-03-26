@@ -442,7 +442,7 @@ public class ValidationUtils
             return "value_not_true_only";
         }
 
-        if ( ValueType.DATE == valueType && !DateUtils.dateIsValid( value ) )
+        if ( ValueType.DATE == valueType && !DateUtils.dateIsValid( null, value ) )
         {
             return "value_not_valid_date";
         }

@@ -81,8 +81,8 @@ public class YearlyPeriodType
         start.setDay( 1 );
         start.setMonth( 1 );
 
-        end.setMonth( calendar.monthsInYear() );
-        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+        end.setMonth( calendar.monthsInYear( this ) );
+        end.setDay( calendar.daysInMonth( this, end.getYear(), end.getMonth() ) );
 
         return toIsoPeriod( start, end, calendar );
     }
@@ -100,7 +100,7 @@ public class YearlyPeriodType
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
-        return calendar.plusYears( dateTimeUnit, offset );
+        return calendar.plusYears( this, dateTimeUnit, offset );
     }
 
     /**
@@ -111,7 +111,7 @@ public class YearlyPeriodType
     {
         Calendar calendar = getCalendar();
 
-        dateTimeUnit = calendar.minusYears( dateTimeUnit, 5 );
+        dateTimeUnit = calendar.minusYears( this, dateTimeUnit, 5 );
         dateTimeUnit.setDay( 1 );
         dateTimeUnit.setMonth( 1 );
 
@@ -120,7 +120,7 @@ public class YearlyPeriodType
         for ( int i = 0; i < 11; ++i )
         {
             periods.add( createPeriod( dateTimeUnit, calendar ) );
-            dateTimeUnit = calendar.plusYears( dateTimeUnit, 1 );
+            dateTimeUnit = calendar.plusYears( this, dateTimeUnit, 1 );
         }
 
         return periods;
@@ -139,7 +139,7 @@ public class YearlyPeriodType
     @Override
     public List<Period> generateRollingPeriods( DateTimeUnit dateTimeUnit, Calendar calendar )
     {
-        return generateLast5Years( calendar.toIso( dateTimeUnit ).toJdkDate() );
+        return generateLast5Years( calendar.toIso( this, dateTimeUnit ).toJdkDate() );
     }
 
     /**
@@ -151,8 +151,8 @@ public class YearlyPeriodType
     {
         Calendar calendar = getCalendar();
 
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( date );
-        dateTimeUnit = calendar.minusYears( dateTimeUnit, 4 );
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, date );
+        dateTimeUnit = calendar.minusYears( this, dateTimeUnit, 4 );
         dateTimeUnit.setDay( 1 );
         dateTimeUnit.setMonth( 1 );
 
@@ -161,7 +161,7 @@ public class YearlyPeriodType
         for ( int i = 0; i < 5; ++i )
         {
             periods.add( createPeriod( dateTimeUnit, calendar ) );
-            dateTimeUnit = calendar.plusYears( dateTimeUnit, 1 );
+            dateTimeUnit = calendar.plusYears( this, dateTimeUnit, 1 );
         }
 
         return periods;
@@ -193,9 +193,9 @@ public class YearlyPeriodType
         date = date != null ? date : new Date();
         rewindedPeriods = rewindedPeriods != null ? rewindedPeriods : 1;
 
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( date );
-        dateTimeUnit = calendar.minusYears( dateTimeUnit, rewindedPeriods );
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, date );
+        dateTimeUnit = calendar.minusYears( this, dateTimeUnit, rewindedPeriods );
 
-        return calendar.toIso( dateTimeUnit ).toJdkDate();
+        return calendar.toIso( this, dateTimeUnit ).toJdkDate();
     }
 }

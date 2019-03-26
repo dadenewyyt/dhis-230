@@ -31,6 +31,8 @@ package org.hisp.dhis.calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.hisp.dhis.period.PeriodType;
+
 /**
  * Generic interface for representing a Calendar.
  *
@@ -88,7 +90,7 @@ public interface Calendar
      * @return Default date format
      * @see #getDateFormat()
      */
-    String formattedIsoDate( DateTimeUnit dateTimeUnit );
+    String formattedIsoDate( PeriodType periodType, DateTimeUnit dateTimeUnit );
 
     /**
      * Convert local calendar to an ISO 8601 DateUnit.
@@ -99,7 +101,7 @@ public interface Calendar
      * @return DateUnit representing local date in ISO 8601
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      */
-    DateTimeUnit toIso( int year, int month, int day );
+    DateTimeUnit toIso( PeriodType periodType, int year, int month, int day );
 
     /**
      * Convert local calendar to an ISO 8601 DateUnit.
@@ -108,7 +110,7 @@ public interface Calendar
      * @return DateUnit representing local date in ISO 8601
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      */
-    DateTimeUnit toIso( String date );
+    DateTimeUnit toIso( PeriodType periodType, String date );
 
     /**
      * Convert local calendar to an ISO 8601 DateUnit.
@@ -117,7 +119,7 @@ public interface Calendar
      * @return DateUnit representing local date in ISO 8601
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      */
-    DateTimeUnit toIso( DateTimeUnit dateTimeUnit );
+    DateTimeUnit toIso( PeriodType periodType, DateTimeUnit dateTimeUnit );
 
     /**
      * Convert from ISO 8601 to local DateUnit.
@@ -128,7 +130,7 @@ public interface Calendar
      * @return DateUnit representing ISO 8601 in local
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      */
-    DateTimeUnit fromIso( int year, int month, int day );
+    DateTimeUnit fromIso( PeriodType periodType, int year, int month, int day );
 
     /**
      * Convert from ISO 8601 to local DateUnit.
@@ -137,7 +139,7 @@ public interface Calendar
      * @return DateUnit representing ISO 8601 in local
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      */
-    DateTimeUnit fromIso( DateTimeUnit dateTimeUnit );
+    DateTimeUnit fromIso( PeriodType periodType, DateTimeUnit dateTimeUnit );
 
     /**
      * Convert from ISO 8601 Jdk Date to local DateUnit.
@@ -146,7 +148,7 @@ public interface Calendar
      * @return DateUnit representing ISO 8601 in local
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      */
-    DateTimeUnit fromIso( Date date );
+    DateTimeUnit fromIso( PeriodType periodType, Date date );
 
     /**
      * Gets interval of type based on DateUnit
@@ -177,7 +179,7 @@ public interface Calendar
      * @return Interval for interval type based on dateUnit
      * @see DateIntervalType
      */
-    DateInterval toInterval( DateIntervalType type );
+    DateInterval toInterval( PeriodType periodType, DateIntervalType type );
 
     /**
      * Gets interval of type based on today's date
@@ -188,7 +190,7 @@ public interface Calendar
      * @return Interval for interval type based on dateUnit
      * @see DateIntervalType
      */
-    DateInterval toInterval( DateIntervalType type, int offset, int length );
+    DateInterval toInterval( PeriodType periodType, DateIntervalType type, int offset, int length );
 
     /**
      * Gets interval of type based on DateUnit
@@ -208,14 +210,14 @@ public interface Calendar
      *
      * @return Today date as local DateUnit
      */
-    DateTimeUnit today();
+    DateTimeUnit today( PeriodType periodType );
 
     /**
      * Gets the number of months in a calendar year.
      *
      * @return Number of months in a year
      */
-    int monthsInYear();
+    int monthsInYear( PeriodType periodType );
 
     /**
      * Gets the number of days in a calendar week.
@@ -236,7 +238,7 @@ public interface Calendar
      *
      * @return Number of days in this calendar year/month
      */
-    int daysInMonth( int year, int month );
+    int daysInMonth( PeriodType periodType, int year, int month );
 
     /**
      * Gets the number of weeks in a calendar year.
@@ -254,7 +256,7 @@ public interface Calendar
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      * @see <a href="http://en.wikipedia.org/wiki/ISO_week_date">http://en.wikipedia.org/wiki/ISO_week_date</a>
      */
-    int isoWeek( DateTimeUnit dateTimeUnit );
+    int isoWeek( PeriodType periodType, DateTimeUnit dateTimeUnit );
 
     /**
      * Returns week number using local DateUnit, week number is calculated based on local calendar.
@@ -262,7 +264,7 @@ public interface Calendar
      * @param dateTimeUnit DateUnit representing local year, month, day
      * @return Week number
      */
-    int week( DateTimeUnit dateTimeUnit );
+    int week( PeriodType periodType, DateTimeUnit dateTimeUnit );
 
     /**
      * Gets the ISO 8601 weekday for this local DateUnit, using ISO 8601 day numbering,
@@ -273,7 +275,7 @@ public interface Calendar
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      * @see <a href="http://en.wikipedia.org/wiki/ISO_week_date">http://en.wikipedia.org/wiki/ISO_week_date</a>
      */
-    int isoWeekday( DateTimeUnit dateTimeUnit );
+    int isoWeekday( PeriodType periodType, DateTimeUnit dateTimeUnit );
 
     /**
      * Gets the local weekday for this local DateUnit, using ISO 8601 day numbering,
@@ -284,7 +286,7 @@ public interface Calendar
      * @see <a href="http://en.wikipedia.org/wiki/ISO_8601">http://en.wikipedia.org/wiki/ISO_8601</a>
      * @see <a href="http://en.wikipedia.org/wiki/ISO_week_date">http://en.wikipedia.org/wiki/ISO_week_date</a>
      */
-    int weekday( DateTimeUnit dateTimeUnit );
+    int weekday( PeriodType periodType, DateTimeUnit dateTimeUnit );
 
     /**
      * Gets the (untranslated) I18n key for local month
@@ -329,7 +331,7 @@ public interface Calendar
      * @param days         Days to add
      * @return dateUnit + days
      */
-    DateTimeUnit plusDays( DateTimeUnit dateTimeUnit, int days );
+    DateTimeUnit plusDays( PeriodType periodType, DateTimeUnit dateTimeUnit, int days );
 
     /**
      * Returns a new dateUnit with specified number of days subtracted
@@ -338,7 +340,7 @@ public interface Calendar
      * @param days         Days to subtract
      * @return dateUnit - days
      */
-    DateTimeUnit minusDays( DateTimeUnit dateTimeUnit, int days );
+    DateTimeUnit minusDays( PeriodType periodType, DateTimeUnit dateTimeUnit, int days );
 
     /**
      * Returns a new dateUnit with specified number of weeks added
@@ -347,7 +349,7 @@ public interface Calendar
      * @param weeks        Weeks to add
      * @return dateUnit + weeks
      */
-    DateTimeUnit plusWeeks( DateTimeUnit dateTimeUnit, int weeks );
+    DateTimeUnit plusWeeks( PeriodType periodType, DateTimeUnit dateTimeUnit, int weeks );
 
     /**
      * Returns a new dateUnit with specified number of weeks subtracted
@@ -356,7 +358,7 @@ public interface Calendar
      * @param weeks        Weeks to subtract
      * @return dateUnit - weeks
      */
-    DateTimeUnit minusWeeks( DateTimeUnit dateTimeUnit, int weeks );
+    DateTimeUnit minusWeeks( PeriodType periodType, DateTimeUnit dateTimeUnit, int weeks );
 
     /**
      * Returns a new dateUnit with specified number of months added
@@ -365,7 +367,7 @@ public interface Calendar
      * @param months       Months to add
      * @return dateUnit + months
      */
-    DateTimeUnit plusMonths( DateTimeUnit dateTimeUnit, int months );
+    DateTimeUnit plusMonths( PeriodType periodType, DateTimeUnit dateTimeUnit, int months );
 
     /**
      * Returns a new dateUnit with specified number of months subtracted
@@ -374,7 +376,7 @@ public interface Calendar
      * @param months       Months to subtract
      * @return dateUnit - months
      */
-    DateTimeUnit minusMonths( DateTimeUnit dateTimeUnit, int months );
+    DateTimeUnit minusMonths( PeriodType periodType, DateTimeUnit dateTimeUnit, int months );
 
     /**
      * Returns a new dateUnit with specified number of years added
@@ -383,7 +385,7 @@ public interface Calendar
      * @param years        Years to add
      * @return dateUnit + years
      */
-    DateTimeUnit plusYears( DateTimeUnit dateTimeUnit, int years );
+    DateTimeUnit plusYears( PeriodType periodType, DateTimeUnit dateTimeUnit, int years );
 
     /**
      * Returns a new dateUnit with specified number of years subtracted
@@ -392,7 +394,7 @@ public interface Calendar
      * @param years        Years to subtract
      * @return dateUnit - years
      */
-    DateTimeUnit minusYears( DateTimeUnit dateTimeUnit, int years );
+    DateTimeUnit minusYears( PeriodType periodType, DateTimeUnit dateTimeUnit, int years );
 
     /**
      * Is this calendar based on ISO 8601 (Iso8601 / Gregorian)
@@ -406,7 +408,7 @@ public interface Calendar
      *
      * @return the start of year.
      */
-    DateTimeUnit isoStartOfYear( int year );
+    DateTimeUnit isoStartOfYear( PeriodType periodType, int year );
 
     /**
      * Is DateTimeUnit valid for this calendar.
@@ -414,5 +416,5 @@ public interface Calendar
      * @param dateTime DateTime to check
      * @return true if valid, false if not
      */
-    boolean isValid( DateTimeUnit dateTime );
+    boolean isValid( PeriodType periodType, DateTimeUnit dateTime );
 }

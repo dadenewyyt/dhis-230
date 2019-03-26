@@ -81,14 +81,14 @@ public abstract class CalendarPeriodType
      */
     public List<Period> generatePeriods( Date date )
     {
-        return generatePeriods( createLocalDateUnitInstance( date ) );
+        return generatePeriods( createLocalDateUnitInstance( this, date ) );
     }
 
     public abstract List<Period> generatePeriods( DateTimeUnit dateTimeUnit );
 
     public List<Period> generateRollingPeriods( Date date )
     {
-        DateTimeUnit dateTime = createLocalDateUnitInstance( date );
+        DateTimeUnit dateTime = createLocalDateUnitInstance( this, date );
 
         return generateRollingPeriods( dateTime, getCalendar() );
     }
@@ -105,8 +105,8 @@ public abstract class CalendarPeriodType
      */
     public List<Period> generateLast5Years( Date date )
     {
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( date );
-        dateTimeUnit = getCalendar().minusYears( dateTimeUnit, 4 );
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, date );
+        dateTimeUnit = getCalendar().minusYears( this, dateTimeUnit, 4 );
         List<Period> periods = Lists.newArrayList();
 
         Calendar calendar = getCalendar();
@@ -114,7 +114,7 @@ public abstract class CalendarPeriodType
         for ( int i = 0; i < 5; i++ )
         {
             periods.addAll( generatePeriods( dateTimeUnit ) );
-            dateTimeUnit = calendar.plusYears( dateTimeUnit, 1 );
+            dateTimeUnit = calendar.plusYears( this, dateTimeUnit, 1 );
         }
 
         return periods;

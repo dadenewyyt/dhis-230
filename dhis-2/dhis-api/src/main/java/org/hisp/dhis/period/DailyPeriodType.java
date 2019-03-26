@@ -90,7 +90,7 @@ public class DailyPeriodType
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
-        return calendar.plusDays( dateTimeUnit, offset );
+        return calendar.plusDays( this, dateTimeUnit, offset );
     }
 
     /**
@@ -112,7 +112,7 @@ public class DailyPeriodType
         while ( year == dateTimeUnit.getYear() )
         {
             periods.add( createPeriod( dateTimeUnit, calendar ) );
-            dateTimeUnit = calendar.plusDays( dateTimeUnit, 1 );
+            dateTimeUnit = calendar.plusDays( this, dateTimeUnit, 1 );
         }
 
         return periods;
@@ -127,14 +127,14 @@ public class DailyPeriodType
     {
         Calendar cal = getCalendar();
 
-        DateTimeUnit iterationDateTimeUnit = cal.minusDays( dateTimeUnit, 364 );
+        DateTimeUnit iterationDateTimeUnit = cal.minusDays( this, dateTimeUnit, 364 );
 
         List<Period> periods = Lists.newArrayList();
 
         for ( int i = 0; i < 365; i++ )
         {
             periods.add( createPeriod( iterationDateTimeUnit, calendar ) );
-            iterationDateTimeUnit = cal.plusDays( iterationDateTimeUnit, 1 );
+            iterationDateTimeUnit = cal.plusDays( this, iterationDateTimeUnit, 1 );
         }
 
         return periods;
@@ -166,9 +166,9 @@ public class DailyPeriodType
         date = date != null ? date : new Date();
         rewindedPeriods = rewindedPeriods != null ? rewindedPeriods : 1;
 
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( date, cal );
-        dateTimeUnit = cal.minusDays( dateTimeUnit, rewindedPeriods );
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, date, cal );
+        dateTimeUnit = cal.minusDays( this, dateTimeUnit, rewindedPeriods );
 
-        return cal.toIso( dateTimeUnit ).toJdkDate();
+        return cal.toIso( this, dateTimeUnit ).toJdkDate();
     }
 }

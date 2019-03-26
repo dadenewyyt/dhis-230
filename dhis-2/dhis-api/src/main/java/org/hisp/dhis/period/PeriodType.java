@@ -227,14 +227,32 @@ public abstract class PeriodType
         
         for ( PeriodType type : PeriodType.PERIOD_TYPES )
         {
-            if ( periodType.getFrequencyOrder() < type.getFrequencyOrder() || periodType.equals( type ) )
-            {
-                periods.add( IdentifiableObjectUtils.getPeriodByPeriodType( period, type, calendar ) );
-            }
-            else
+            if ( periodType instanceof DailyPeriodType )
             {
                 periods.add( null );
             }
+            else if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) ) 
+            {
+                if ( periodType.equals( type ) )
+                {
+                    periods.add( IdentifiableObjectUtils.getPeriodByPeriodType( period, type, calendar ) );
+                }
+                else
+                {
+                    periods.add( null );
+                }
+            }
+            else
+            {
+                if ( periodType.getFrequencyOrder() < type.getFrequencyOrder() || periodType.equals( type ) )
+                {
+                    periods.add( IdentifiableObjectUtils.getPeriodByPeriodType( period, type, calendar ) );
+                }
+                else
+                {
+                    periods.add( null );
+                }
+            }            
         }
 
         return periods;
@@ -275,7 +293,7 @@ public abstract class PeriodType
      */
     public Period createPeriod()
     {
-        return createPeriod( createCalendarInstance() );
+        return createPeriod( createCalendarInstance( this ) );
     }
 
     /**
@@ -294,7 +312,7 @@ public abstract class PeriodType
     {
         org.hisp.dhis.calendar.Calendar calendar = getCalendar();
 
-        return createPeriod( calendar.fromIso( DateTimeUnit.fromJdkCalendar( cal ) ), calendar );
+        return createPeriod( calendar.fromIso( this, DateTimeUnit.fromJdkCalendar( cal ) ), calendar );
     }
 
     /**
@@ -309,7 +327,7 @@ public abstract class PeriodType
      */
     public Period createPeriod( final Date date, final org.hisp.dhis.calendar.Calendar calendar )
     {
-        return PERIOD_CACHE.get( getCacheKey( calendar, date ), p -> createPeriod( calendar.fromIso( DateTimeUnit.fromJdkDate( date ) ), calendar ) );
+        return PERIOD_CACHE.get( getCacheKey( calendar, date ), p -> createPeriod( calendar.fromIso( this, DateTimeUnit.fromJdkDate( date ) ), calendar ) );
     }
 
     public Period toIsoPeriod( DateTimeUnit start, DateTimeUnit end )
@@ -319,8 +337,8 @@ public abstract class PeriodType
 
     protected Period toIsoPeriod( DateTimeUnit start, DateTimeUnit end, org.hisp.dhis.calendar.Calendar calendar )
     {
-        DateTimeUnit from = calendar.toIso( start );
-        DateTimeUnit to = calendar.toIso( end );
+        DateTimeUnit from = calendar.toIso( this, start );
+        DateTimeUnit to = calendar.toIso( this, end );
 
         return new Period( this, from.toJdkDate(), to.toJdkDate(), getIsoDate( start, calendar ) );
     }
@@ -359,11 +377,11 @@ public abstract class PeriodType
      *
      * @return an instance of a Calendar without any time of day.
      */
-    public static Calendar createCalendarInstance()
+    public static Calendar createCalendarInstance( PeriodType periodType )
     {
         org.hisp.dhis.calendar.Calendar cal = getCalendar();
 
-        return cal.toIso( cal.today() ).toJdkCalendar();
+        return cal.toIso( periodType, cal.today( periodType ) ).toJdkCalendar();
     }
 
     /**
@@ -389,9 +407,9 @@ public abstract class PeriodType
      * @param date date of calendar in local calendar
      * @return an instance of a Calendar without any time of day.
      */
-    public static DateTimeUnit createLocalDateUnitInstance( Date date )
+    public static DateTimeUnit createLocalDateUnitInstance( PeriodType periodType, Date date )
     {
-        return createLocalDateUnitInstance( date, getCalendar() );
+        return createLocalDateUnitInstance( periodType, date, getCalendar() );
     }
 
     /**
@@ -400,9 +418,9 @@ public abstract class PeriodType
      * @param date date of calendar in local calendar
      * @return an instance of a Calendar without any time of day.
      */
-    public static DateTimeUnit createLocalDateUnitInstance( Date date, org.hisp.dhis.calendar.Calendar calendar )
+    public static DateTimeUnit createLocalDateUnitInstance( PeriodType periodType, Date date, org.hisp.dhis.calendar.Calendar calendar )
     {
-        return calendar.fromIso( date );
+        return calendar.fromIso( periodType, date );
     }
 
     /**
@@ -514,8 +532,8 @@ public abstract class PeriodType
 
         org.hisp.dhis.calendar.Calendar cal = getCalendar();
 
-        final DateTimeUnit from = cal.toIso( dateInterval.getFrom() );
-        final DateTimeUnit to = cal.toIso( dateInterval.getTo() );
+        final DateTimeUnit from = cal.toIso( this, dateInterval.getFrom() );
+        final DateTimeUnit to = cal.toIso( this, dateInterval.getTo() );
         
         if ( cal instanceof EthiopianCalendar )
         {
@@ -533,7 +551,7 @@ public abstract class PeriodType
      */
     public String getIsoDate( Period period )
     {
-        return getIsoDate( createLocalDateUnitInstance( period.getStartDate() ) );
+        return getIsoDate( createLocalDateUnitInstance( period.getPeriodType(), period.getStartDate() ) );
     }
 
     /**
@@ -627,7 +645,7 @@ public abstract class PeriodType
      */
     public Period getNextPeriod( Period period, org.hisp.dhis.calendar.Calendar calendar )
     {
-        DateTimeUnit dateWithOffset = getDateWithOffset( createLocalDateUnitInstance( period.getStartDate(), calendar ),
+        DateTimeUnit dateWithOffset = getDateWithOffset( createLocalDateUnitInstance( period.getPeriodType(), period.getStartDate(), calendar ),
             1, calendar );
 
         return createPeriod( dateWithOffset, calendar );
@@ -682,7 +700,7 @@ public abstract class PeriodType
      */
     public Period getPreviousPeriod( Period period, org.hisp.dhis.calendar.Calendar calendar )
     {
-        DateTimeUnit dateWithOffset = getDateWithOffset( createLocalDateUnitInstance( period.getStartDate(), calendar ),
+        DateTimeUnit dateWithOffset = getDateWithOffset( createLocalDateUnitInstance( period.getPeriodType(), period.getStartDate(), calendar ),
             -1, calendar );
         
         return createPeriod( dateWithOffset, calendar );
@@ -727,7 +745,7 @@ public abstract class PeriodType
     public Date getDateWithOffset( Date date, int offset )
     {
         org.hisp.dhis.calendar.Calendar calendar = getCalendar();
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( date, calendar );
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, date, calendar );
         return getDateWithOffset( dateTimeUnit, offset, calendar ).toJdkDate();
     }
 

@@ -292,7 +292,7 @@ public class DefaultReportService
 
         if ( date != null && !calendar.isIso8601() )
         {
-            dateString = calendar.formattedDate( calendar.fromIso( date ) );
+            dateString = calendar.formattedDate( calendar.fromIso( null, date ) );
         }
 
         final VelocityContext context = new VelocityContext();

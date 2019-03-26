@@ -52,15 +52,15 @@ public class NepaliCalendarTest
     @Test
     public void testToIso()
     {
-        Assert.assertEquals( new DateTimeUnit( 2014, 4, 14, true ), calendar.toIso( new DateTimeUnit( 2071, 1, 1 ) ) );
-        Assert.assertEquals( new DateTimeUnit( 2014, 4, 14, true ), calendar.toIso( 2071, 1, 1 ) );
+        Assert.assertEquals( new DateTimeUnit( 2014, 4, 14, true ), calendar.toIso( null, new DateTimeUnit( 2071, 1, 1 ) ) );
+        Assert.assertEquals( new DateTimeUnit( 2014, 4, 14, true ), calendar.toIso( null, 2071, 1, 1 ) );
     }
 
     @Test
     public void testFromIso()
     {
-        Assert.assertEquals( new DateTimeUnit( 2071, 1, 1, false ), calendar.fromIso( new DateTimeUnit( 2014, 4, 14, true ) ) );
-        Assert.assertEquals( new DateTimeUnit( 2071, 1, 1, false ), calendar.fromIso( 2014, 4, 14 ) );
+        Assert.assertEquals( new DateTimeUnit( 2071, 1, 1, false ), calendar.fromIso( null, new DateTimeUnit( 2014, 4, 14, true ) ) );
+        Assert.assertEquals( new DateTimeUnit( 2071, 1, 1, false ), calendar.fromIso( null, 2014, 4, 14 ) );
     }
 
     @Test
@@ -68,14 +68,14 @@ public class NepaliCalendarTest
     {
         DateTimeUnit dateTimeUnit = new DateTimeUnit( 2014, 12, 30 );
 
-        DateTimeUnit testDateTimeUnit = calendar.plusDays( dateTimeUnit, -1 );
+        DateTimeUnit testDateTimeUnit = calendar.plusDays( null, dateTimeUnit, -1 );
         assertEquals( 2014, testDateTimeUnit.getYear() );
         assertEquals( 12, testDateTimeUnit.getMonth() );
         assertEquals( 29, testDateTimeUnit.getDay() );
 
         dateTimeUnit = new DateTimeUnit( 2014, 1, 1 );
 
-        testDateTimeUnit = calendar.plusDays( dateTimeUnit, - 1 );
+        testDateTimeUnit = calendar.plusDays( null, dateTimeUnit, - 1 );
         assertEquals( 2013, testDateTimeUnit.getYear() );
         assertEquals( 12, testDateTimeUnit.getMonth() );
         assertEquals( 30, testDateTimeUnit.getDay() );

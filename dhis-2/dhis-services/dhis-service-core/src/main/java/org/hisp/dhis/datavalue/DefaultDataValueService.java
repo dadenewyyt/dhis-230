@@ -36,6 +36,7 @@ import org.hisp.dhis.common.AuditType;
 import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.period.DailyPeriodType;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.system.util.DateUtils;
@@ -332,7 +333,8 @@ public class DefaultDataValueService
     @Override
     public int getDataValueCount( int days )
     {
-        Calendar cal = PeriodType.createCalendarInstance();
+        PeriodType periodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );
+        Calendar cal = PeriodType.createCalendarInstance( periodType );
         cal.add( Calendar.DAY_OF_YEAR, (days * -1) );
 
         return dataValueStore.getDataValueCountLastUpdatedBetween( cal.getTime(), null, false );

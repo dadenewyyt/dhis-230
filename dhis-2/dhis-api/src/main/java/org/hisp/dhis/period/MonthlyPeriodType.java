@@ -76,11 +76,13 @@ public class MonthlyPeriodType
     @Override
     public Period createPeriod( DateTimeUnit dateTimeUnit, Calendar calendar )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( MonthlyPeriodType.NAME );
+        
         DateTimeUnit start = new DateTimeUnit( dateTimeUnit );
         start.setDay( 1 );
 
         DateTimeUnit end = new DateTimeUnit( dateTimeUnit );
-        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+        end.setDay( calendar.daysInMonth( periodType, end.getYear(), end.getMonth() ) );
 
         return toIsoPeriod( start, end, calendar );
     }
@@ -98,7 +100,9 @@ public class MonthlyPeriodType
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
-        return calendar.plusMonths( dateTimeUnit, offset );
+        PeriodType periodType = PeriodType.getPeriodTypeByName( MonthlyPeriodType.NAME );
+        
+        return calendar.plusMonths( periodType, dateTimeUnit, offset );
     }
 
     /**
@@ -116,11 +120,13 @@ public class MonthlyPeriodType
         List<Period> periods = Lists.newArrayList();
 
         int year = dateTimeUnit.getYear();
+        
+        PeriodType periodType = PeriodType.getPeriodTypeByName( MonthlyPeriodType.NAME );
 
         while ( dateTimeUnit.getYear() == year )
         {
             periods.add( createPeriod( dateTimeUnit, cal ) );
-            dateTimeUnit = cal.plusMonths( dateTimeUnit, 1 );
+            dateTimeUnit = cal.plusMonths( periodType, dateTimeUnit, 1 );
         }
 
         return periods;
@@ -133,15 +139,17 @@ public class MonthlyPeriodType
     @Override
     public List<Period> generateRollingPeriods( DateTimeUnit dateTimeUnit, Calendar calendar )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( MonthlyPeriodType.NAME );
+        
         dateTimeUnit.setDay( 1 );
-        DateTimeUnit iterationDateTimeUnit = calendar.minusMonths( dateTimeUnit, 11 );
+        DateTimeUnit iterationDateTimeUnit = calendar.minusMonths( periodType, dateTimeUnit, 11 );
 
         List<Period> periods = Lists.newArrayList();
 
         for ( int i = 0; i < 12; i++ )
         {
             periods.add( createPeriod( iterationDateTimeUnit, calendar ) );
-            iterationDateTimeUnit = calendar.plusMonths( iterationDateTimeUnit, 1 );
+            iterationDateTimeUnit = calendar.plusMonths( periodType, iterationDateTimeUnit, 1 );
         }
 
         return periods;
@@ -169,14 +177,16 @@ public class MonthlyPeriodType
     @Override
     public Date getRewindedDate( Date date, Integer rewindedPeriods )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( MonthlyPeriodType.NAME );
+        
         Calendar cal = getCalendar();
 
         date = date != null ? date : new Date();
         rewindedPeriods = rewindedPeriods != null ? rewindedPeriods : 1;
 
-        DateTimeUnit dateTimeUnit = cal.fromIso( DateTimeUnit.fromJdkDate( date ) );
-        dateTimeUnit = cal.minusMonths( dateTimeUnit, rewindedPeriods );
+        DateTimeUnit dateTimeUnit = cal.fromIso( periodType, DateTimeUnit.fromJdkDate( date ) );
+        dateTimeUnit = cal.minusMonths( periodType, dateTimeUnit, rewindedPeriods );
 
-        return cal.toIso( dateTimeUnit ).toJdkDate();
+        return cal.toIso( periodType, dateTimeUnit ).toJdkDate();
     }
 }

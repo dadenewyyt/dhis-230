@@ -72,8 +72,8 @@ public class BiMonthlyPeriodType
 
         DateTimeUnit end = new DateTimeUnit( start );
 
-        end = calendar.plusMonths( end, 1 );
-        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+        end = calendar.plusMonths( this, end, 1 );
+        end.setDay( calendar.daysInMonth( this, end.getYear(), end.getMonth() ) );
 
         return toIsoPeriod( start, end, calendar );
     }
@@ -90,7 +90,7 @@ public class BiMonthlyPeriodType
     @Override
     public DateTimeUnit getDateWithOffset(  DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
-        return calendar.plusMonths( dateTimeUnit, 2 * offset );
+        return calendar.plusMonths( this, dateTimeUnit, 2 * offset );
     }
 
     /**
@@ -112,7 +112,7 @@ public class BiMonthlyPeriodType
         while ( dateTimeUnit.getYear() == year )
         {
             periods.add( createPeriod( dateTimeUnit, cal ) );
-            dateTimeUnit = cal.plusMonths( dateTimeUnit, 2 );
+            dateTimeUnit = cal.plusMonths( this, dateTimeUnit, 2 );
         }
 
         return periods;
@@ -126,14 +126,14 @@ public class BiMonthlyPeriodType
     public List<Period> generateRollingPeriods( DateTimeUnit dateTimeUnit, Calendar calendar )
     {
         dateTimeUnit.setDay( 1 );
-        DateTimeUnit iterationDateTimeUnit = calendar.minusMonths( dateTimeUnit, (dateTimeUnit.getMonth() % 2) + 10 );
+        DateTimeUnit iterationDateTimeUnit = calendar.minusMonths( this, dateTimeUnit, (dateTimeUnit.getMonth() % 2) + 10 );
 
         List<Period> periods = Lists.newArrayList();
 
         for ( int i = 0; i < 6; i++ )
         {
             periods.add( createPeriod( iterationDateTimeUnit, calendar ) );
-            iterationDateTimeUnit = calendar.plusMonths( iterationDateTimeUnit, 2 );
+            iterationDateTimeUnit = calendar.plusMonths( this, iterationDateTimeUnit, 2 );
         }
 
         return periods;
@@ -159,10 +159,10 @@ public class BiMonthlyPeriodType
         date = date != null ? date : new Date();
         rewindedPeriods = rewindedPeriods != null ? rewindedPeriods : 1;
 
-        DateTimeUnit dateTimeUnit = cal.fromIso( DateTimeUnit.fromJdkDate( date ) );
-        dateTimeUnit = cal.minusMonths( dateTimeUnit, rewindedPeriods );
+        DateTimeUnit dateTimeUnit = cal.fromIso( this, DateTimeUnit.fromJdkDate( date ) );
+        dateTimeUnit = cal.minusMonths( this, dateTimeUnit, rewindedPeriods );
 
-        return cal.toIso( dateTimeUnit ).toJdkDate();
+        return cal.toIso( this, dateTimeUnit ).toJdkDate();
     }
 
     @Override

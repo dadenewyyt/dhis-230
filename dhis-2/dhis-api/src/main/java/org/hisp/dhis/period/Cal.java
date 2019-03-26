@@ -65,7 +65,7 @@ public class Cal
 
     public Cal()
     {
-        dateTimeUnit = getCalendar().today();
+        dateTimeUnit = getCalendar().today( null );
     }
 
     /**
@@ -102,7 +102,7 @@ public class Cal
      */
     public Cal now()
     {
-        dateTimeUnit = getCalendar().today();
+        dateTimeUnit = getCalendar().today( null );
         return this;
     }
 
@@ -117,12 +117,12 @@ public class Cal
         switch ( field )
         {
             case Calendar.YEAR:
-                dateTimeUnit = getCalendar().plusYears( dateTimeUnit, amount );
+                dateTimeUnit = getCalendar().plusYears( null, dateTimeUnit, amount );
             case Calendar.MONTH:
-                dateTimeUnit = getCalendar().plusMonths( dateTimeUnit, amount );
+                dateTimeUnit = getCalendar().plusMonths( null, dateTimeUnit, amount );
             case Calendar.DAY_OF_MONTH:
             case Calendar.DAY_OF_YEAR:
-                dateTimeUnit = getCalendar().plusDays( dateTimeUnit, amount );
+                dateTimeUnit = getCalendar().plusDays( null, dateTimeUnit, amount );
             break;
             default:
                 throw new UnsupportedOperationException();
@@ -142,12 +142,12 @@ public class Cal
         switch ( field )
         {
             case Calendar.YEAR:
-                dateTimeUnit = getCalendar().minusYears( dateTimeUnit, amount );
+                dateTimeUnit = getCalendar().minusYears( null, dateTimeUnit, amount );
             case Calendar.MONTH:
-                dateTimeUnit = getCalendar().minusMonths( dateTimeUnit, amount );
+                dateTimeUnit = getCalendar().minusMonths( null, dateTimeUnit, amount );
             case Calendar.DAY_OF_MONTH:
             case Calendar.DAY_OF_YEAR:
-                dateTimeUnit = getCalendar().minusDays( dateTimeUnit, amount );
+                dateTimeUnit = getCalendar().minusDays( null, dateTimeUnit, amount );
             break;
             default:
                 throw new UnsupportedOperationException();
@@ -163,7 +163,7 @@ public class Cal
      */
     public int get( int field )
     {
-        return getCalendar().toIso( dateTimeUnit ).toJdkCalendar().get( field );
+        return getCalendar().toIso( null, dateTimeUnit ).toJdkCalendar().get( field );
     }
 
     /**
@@ -173,7 +173,7 @@ public class Cal
      */
     public int getYear()
     {
-        return getCalendar().toIso( dateTimeUnit ).toJdkCalendar().get( Calendar.YEAR );
+        return getCalendar().toIso( null, dateTimeUnit ).toJdkCalendar().get( Calendar.YEAR );
     }
 
     /**
@@ -209,7 +209,7 @@ public class Cal
      */
     public Cal set( Date date )
     {
-        dateTimeUnit = getCalendar().fromIso( DateTimeUnit.fromJdkDate( date ) );
+        dateTimeUnit = getCalendar().fromIso( null, DateTimeUnit.fromJdkDate( date ) );
         return this;
     }
 
@@ -218,6 +218,6 @@ public class Cal
      */
     public Date time()
     {
-        return getCalendar().toIso( dateTimeUnit ).toJdkDate();
+        return getCalendar().toIso( null, dateTimeUnit ).toJdkDate();
     }
 }

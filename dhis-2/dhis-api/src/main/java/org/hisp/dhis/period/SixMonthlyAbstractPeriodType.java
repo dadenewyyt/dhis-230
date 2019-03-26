@@ -76,8 +76,8 @@ public abstract class SixMonthlyAbstractPeriodType
         start.setDay( 1 );
 
         DateTimeUnit end = new DateTimeUnit( start );
-        end = calendar.plusMonths( end, 5 );
-        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+        end = calendar.plusMonths( this, end, 5 );
+        end.setDay( calendar.daysInMonth( this, end.getYear(), end.getMonth() ) );
 
         return toIsoPeriod( start, end, calendar );
     }
@@ -94,7 +94,7 @@ public abstract class SixMonthlyAbstractPeriodType
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
-        return calendar.plusMonths( dateTimeUnit, offset * 6 );
+        return calendar.plusMonths( this, dateTimeUnit, offset * 6 );
     }
 
     /**
@@ -107,7 +107,7 @@ public abstract class SixMonthlyAbstractPeriodType
         Calendar cal = getCalendar();
 
         Period period = createPeriod( dateTimeUnit, cal );
-        dateTimeUnit = createLocalDateUnitInstance( period.getStartDate(), cal );
+        dateTimeUnit = createLocalDateUnitInstance( period.getPeriodType(), period.getStartDate(), cal );
 
         List<Period> periods = Lists.newArrayList();
 
@@ -145,7 +145,7 @@ public abstract class SixMonthlyAbstractPeriodType
     @Override
     public List<Period> generateRollingPeriods( DateTimeUnit dateTimeUnit, Calendar calendar )
     {
-        return generateRollingPeriods( calendar.toIso( dateTimeUnit ).toJdkDate() );
+        return generateRollingPeriods( calendar.toIso( this, dateTimeUnit ).toJdkDate() );
     }
 
     @Override
@@ -156,9 +156,9 @@ public abstract class SixMonthlyAbstractPeriodType
         date = date != null ? date : new Date();
         rewindedPeriods = rewindedPeriods != null ? rewindedPeriods : 1;
 
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( date );
-        cal.minusMonths( dateTimeUnit, rewindedPeriods * 6 );
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, date );
+        cal.minusMonths( this, dateTimeUnit, rewindedPeriods * 6 );
 
-        return cal.toIso( dateTimeUnit ).toJdkDate();
+        return cal.toIso( this, dateTimeUnit ).toJdkDate();
     }
 }

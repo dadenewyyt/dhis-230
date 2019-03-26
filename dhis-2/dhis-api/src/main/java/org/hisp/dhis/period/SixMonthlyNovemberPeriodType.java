@@ -115,8 +115,8 @@ public class SixMonthlyNovemberPeriodType
         start.setDay( 1 );        
 
         DateTimeUnit end = new DateTimeUnit( start );
-        end = calendar.plusMonths( end, 5 );
-        end.setDay( calendar.daysInMonth( end.getYear(), end.getMonth() ) );
+        end = calendar.plusMonths( this, end, 5 );
+        end.setDay( calendar.daysInMonth( this, end.getYear(), end.getMonth() ) );
 
         return toIsoPeriod( start, end, calendar );
     }

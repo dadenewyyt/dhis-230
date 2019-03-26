@@ -50,25 +50,25 @@ public class DateUtilsTest
     @Test
     public void testDateIsValid()
     {
-        assertTrue( dateIsValid( "2000-01-01" ) );
-        assertTrue( dateIsValid( "1067-04-28" ) );
-        assertFalse( dateIsValid( "07-07-2000" ) );
-        assertFalse( dateIsValid( "2000-03-40" ) );
-        assertFalse( dateIsValid( "20d20-03-01" ) );
-        assertTrue( dateIsValid( "2014-01-01" ) );
-        assertFalse( dateIsValid( "2014-12-33" ) );
-        assertFalse( dateIsValid( "2014-13-32" ) );
-        assertFalse( dateIsValid( "2014-ab-cd" ) );
-        assertFalse( dateIsValid( "201-01-01" ) );
-        assertFalse( dateIsValid( "01-01-01" ) );
-        assertFalse( dateIsValid( "abcd-01-01" ) );
-        assertFalse( dateIsValid( "2017-04-31" ) );
-        assertFalse( dateIsValid( "2017-04-32" ) );
-        assertFalse( dateIsValid( "2016-09-31" ) );
+        assertTrue( dateIsValid( null, "2000-01-01" ) );
+        assertTrue( dateIsValid( null, "1067-04-28" ) );
+        assertFalse( dateIsValid( null, "07-07-2000" ) );
+        assertFalse( dateIsValid( null, "2000-03-40" ) );
+        assertFalse( dateIsValid( null, "20d20-03-01" ) );
+        assertTrue( dateIsValid( null, "2014-01-01" ) );
+        assertFalse( dateIsValid( null, "2014-12-33" ) );
+        assertFalse( dateIsValid( null, "2014-13-32" ) );
+        assertFalse( dateIsValid( null, "2014-ab-cd" ) );
+        assertFalse( dateIsValid( null, "201-01-01" ) );
+        assertFalse( dateIsValid( null, "01-01-01" ) );
+        assertFalse( dateIsValid( null, "abcd-01-01" ) );
+        assertFalse( dateIsValid( null, "2017-04-31" ) );
+        assertFalse( dateIsValid( null, "2017-04-32" ) );
+        assertFalse( dateIsValid( null, "2016-09-31" ) );
 
-        assertTrue( dateIsValid( NepaliCalendar.getInstance(), "2074-04-32" ) );
-        assertFalse( dateIsValid( NepaliCalendar.getInstance(), "2074-03-32" ) );
-        assertFalse( dateIsValid( NepaliCalendar.getInstance(), "2074-04-33" ) );
+        assertTrue( dateIsValid( null, NepaliCalendar.getInstance(), "2074-04-32" ) );
+        assertFalse( dateIsValid( null, NepaliCalendar.getInstance(), "2074-03-32" ) );
+        assertFalse( dateIsValid( null, NepaliCalendar.getInstance(), "2074-04-33" ) );
     }
 
     @Test

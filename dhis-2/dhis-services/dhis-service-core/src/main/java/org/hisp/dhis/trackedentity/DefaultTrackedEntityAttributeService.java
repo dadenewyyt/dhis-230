@@ -258,7 +258,7 @@ public class DefaultTrackedEntityAttributeService
                 return "Value '" + errorValue + "' is not a valid username for attribute " + trackedEntityAttribute.getUid();
             }
         }
-        else if ( ValueType.DATE == valueType && !DateUtils.dateIsValid( value ) )
+        else if ( ValueType.DATE == valueType && !DateUtils.dateIsValid( null, value ) )
         {
             return "Value '" + errorValue + "' is not a valid date for attribute " + trackedEntityAttribute.getUid();
         }

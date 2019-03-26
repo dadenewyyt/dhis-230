@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import org.hisp.dhis.calendar.DateTimeUnit;
 import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.indicator.Indicator;
+import org.hisp.dhis.period.DailyPeriodType;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.joda.time.DateTime;
@@ -485,9 +486,9 @@ public class DateUtils
      * @param dateString the string to be checked.
      * @return true/false depending on whether the string is a date according to the format "yyyy-MM-dd".
      */
-    public static boolean dateIsValid( String dateString )
+    public static boolean dateIsValid( PeriodType periodType, String dateString )
     {
-        return dateIsValid( PeriodType.getCalendar(), dateString );
+        return dateIsValid( periodType, PeriodType.getCalendar(), dateString );
     }
 
     /**
@@ -498,7 +499,7 @@ public class DateUtils
      * @param dateString the string to be checked.
      * @return true/false depending on whether the string is a date according to the format "yyyy-MM-dd".
      */
-    public static boolean dateIsValid( org.hisp.dhis.calendar.Calendar calendar, String dateString )
+    public static boolean dateIsValid( PeriodType periodType, org.hisp.dhis.calendar.Calendar calendar, String dateString )
     {
         Matcher matcher = DEFAULT_DATE_REGEX_PATTERN.matcher( dateString );
 
@@ -513,7 +514,7 @@ public class DateUtils
             Integer.valueOf( matcher.group( "day" ) )
         );
 
-        return calendar.isValid( dateTime );
+        return calendar.isValid( periodType, dateTime );
     }
 
     /**
@@ -556,7 +557,8 @@ public class DateUtils
      */
     public static Date getDateForTomorrow( int hour )
     {
-        Calendar cal = PeriodType.createCalendarInstance();
+        PeriodType periodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );        
+        Calendar cal = PeriodType.createCalendarInstance( periodType );
         cal.add( Calendar.DAY_OF_YEAR, 1 );
         cal.set( Calendar.HOUR_OF_DAY, hour );
         return cal.getTime();

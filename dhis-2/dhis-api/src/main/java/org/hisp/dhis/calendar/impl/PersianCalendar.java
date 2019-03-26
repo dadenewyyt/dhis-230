@@ -34,6 +34,11 @@ import org.hisp.dhis.calendar.DateInterval;
 import org.hisp.dhis.calendar.DateIntervalType;
 import org.hisp.dhis.calendar.DateTimeUnit;
 import org.hisp.dhis.calendar.exception.InvalidCalendarParametersException;
+import org.hisp.dhis.period.DailyPeriodType;
+import org.hisp.dhis.period.MonthlyPeriodType;
+import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.WeeklyPeriodType;
+import org.hisp.dhis.period.YearlyPeriodType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
@@ -73,7 +78,7 @@ public class PersianCalendar extends AbstractCalendar
     }
 
     @Override
-    public DateTimeUnit toIso( DateTimeUnit dateTimeUnit )
+    public DateTimeUnit toIso( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
 
         if ( dateTimeUnit.getYear() >= START_ISO.getYear() && dateTimeUnit.getYear() <= STOP_ISO.getYear() )
@@ -112,13 +117,13 @@ public class PersianCalendar extends AbstractCalendar
     }
 
     @Override
-    public DateTimeUnit fromIso( Date date )
+    public DateTimeUnit fromIso( PeriodType periodType, Date date )
     {
-        return fromIso( DateTimeUnit.fromJdkDate( date ) );
+        return fromIso( periodType, DateTimeUnit.fromJdkDate( date ) );
     }
 
     @Override
-    public DateTimeUnit fromIso( DateTimeUnit dateTimeUnit )
+    public DateTimeUnit fromIso( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
         if ( dateTimeUnit.getYear() >= START_PERSIAN.getYear() &&
             dateTimeUnit.getYear() <= STOP_PERSIAN.getYear() )
@@ -137,7 +142,7 @@ public class PersianCalendar extends AbstractCalendar
         DateTime start = START_ISO.toJodaDateTime();
         DateTime end = dateTimeUnit.toJodaDateTime();
 
-        return plusDays( START_PERSIAN, Days.daysBetween( start, end ).getDays() );
+        return plusDays( periodType, START_PERSIAN, Days.daysBetween( start, end ).getDays() );
     }
 
     @Override
@@ -165,7 +170,7 @@ public class PersianCalendar extends AbstractCalendar
     }
 
     @Override
-    public int daysInMonth( int year, int month )
+    public int daysInMonth( PeriodType periodType, int year, int month )
     {
         int newYear = year;
 
@@ -194,33 +199,33 @@ public class PersianCalendar extends AbstractCalendar
     }
 
     @Override
-    public int isoWeek( DateTimeUnit dateTimeUnit )
+    public int isoWeek( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
-        DateTime dateTime = toIso( dateTimeUnit )
+        DateTime dateTime = toIso( periodType, dateTimeUnit )
             .toJodaDateTime( ISOChronology.getInstance( DateTimeZone.getDefault() ) );
         return dateTime.getWeekOfWeekyear();
     }
 
     @Override
-    public int week( DateTimeUnit dateTimeUnit )
+    public int week( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
-        return isoWeek( dateTimeUnit );
+        return isoWeek( periodType, dateTimeUnit );
     }
 
     @Override
-    public int isoWeekday( DateTimeUnit dateTimeUnit )
+    public int isoWeekday( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
 
-        DateTime dateTime = toIso( dateTimeUnit )
+        DateTime dateTime = toIso( periodType, dateTimeUnit )
             .toJodaDateTime( ISOChronology.getInstance( DateTimeZone.getDefault() ) );
         return dateTime.getDayOfWeek();
     }
 
     @Override
-    public int weekday( DateTimeUnit dateTimeUnit )
+    public int weekday( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
 
-        int dayOfWeek = (isoWeekday( dateTimeUnit ) + 1);
+        int dayOfWeek = (isoWeekday( periodType, dateTimeUnit ) + 1);
 
         if ( dayOfWeek > 7 )
         {
@@ -275,17 +280,17 @@ public class PersianCalendar extends AbstractCalendar
     }
 
     @Override
-    public DateTimeUnit minusYears( DateTimeUnit dateTimeUnit, int years )
+    public DateTimeUnit minusYears( PeriodType periodType, DateTimeUnit dateTimeUnit, int years )
     {
         DateTimeUnit result = new DateTimeUnit( dateTimeUnit.getYear() - years, dateTimeUnit.getMonth(),
             dateTimeUnit.getDay(), dateTimeUnit.getDayOfWeek() );
-        updateDateUnit( result );
+        updateDateUnit( periodType, result );
 
         return result;
     }
 
     @Override
-    public DateTimeUnit minusMonths( DateTimeUnit dateTimeUnit, int months )
+    public DateTimeUnit minusMonths( PeriodType periodType, DateTimeUnit dateTimeUnit, int months )
     {
         DateTimeUnit result = new DateTimeUnit( dateTimeUnit );
         int newMonths = months;
@@ -296,26 +301,26 @@ public class PersianCalendar extends AbstractCalendar
 
             if ( result.getMonth() < 1 )
             {
-                result.setMonth( monthsInYear() );
+                result.setMonth( monthsInYear( periodType ) );
                 result.setYear( result.getYear() - 1 );
             }
 
             newMonths--;
         }
 
-        updateDateUnit( result );
+        updateDateUnit( periodType, result );
 
         return result;
     }
 
     @Override
-    public DateTimeUnit minusWeeks( DateTimeUnit dateTimeUnit, int weeks )
+    public DateTimeUnit minusWeeks( PeriodType periodType, DateTimeUnit dateTimeUnit, int weeks )
     {
-        return minusDays( dateTimeUnit, weeks * daysInWeek() );
+        return minusDays( periodType, dateTimeUnit, weeks * daysInWeek() );
     }
 
     @Override
-    public DateTimeUnit minusDays( DateTimeUnit dateTimeUnit, int days )
+    public DateTimeUnit minusDays( PeriodType periodType, DateTimeUnit dateTimeUnit, int days )
     {
         int curYear = dateTimeUnit.getYear();
         int curMonth = dateTimeUnit.getMonth();
@@ -354,21 +359,21 @@ public class PersianCalendar extends AbstractCalendar
     }
 
     @Override
-    public DateTimeUnit plusYears( DateTimeUnit dateTimeUnit, int years )
+    public DateTimeUnit plusYears( PeriodType periodType, DateTimeUnit dateTimeUnit, int years )
     {
         DateTimeUnit result = new DateTimeUnit( dateTimeUnit.getYear() + years, dateTimeUnit.getMonth(),
             dateTimeUnit.getDay(), dateTimeUnit.getDayOfWeek() );
-        updateDateUnit( result );
+        updateDateUnit( periodType, result );
 
         return result;
     }
 
     @Override
-    public DateTimeUnit plusMonths( DateTimeUnit dateTimeUnit, int months )
+    public DateTimeUnit plusMonths( PeriodType periodType, DateTimeUnit dateTimeUnit, int months )
     {
         if ( months < 0 )
         {
-            return minusMonths( dateTimeUnit, Math.abs( months ) );
+            return minusMonths( periodType, dateTimeUnit, Math.abs( months ) );
         }
 
         DateTimeUnit result = new DateTimeUnit( dateTimeUnit );
@@ -378,7 +383,7 @@ public class PersianCalendar extends AbstractCalendar
         {
             result.setMonth( result.getMonth() + 1 );
 
-            if ( result.getMonth() > monthsInYear() )
+            if ( result.getMonth() > monthsInYear( periodType ) )
             {
                 result.setMonth( 1 );
                 result.setYear( result.getYear() + 1 );
@@ -387,23 +392,23 @@ public class PersianCalendar extends AbstractCalendar
             newMonths--;
         }
 
-        updateDateUnit( result );
+        updateDateUnit( periodType, result );
 
         return result;
     }
 
     @Override
-    public DateTimeUnit plusWeeks( DateTimeUnit dateTimeUnit, int weeks )
+    public DateTimeUnit plusWeeks( PeriodType periodType, DateTimeUnit dateTimeUnit, int weeks )
     {
-        return plusDays( dateTimeUnit, weeks * daysInWeek() );
+        return plusDays( periodType, dateTimeUnit, weeks * daysInWeek() );
     }
 
     @Override
-    public DateTimeUnit plusDays( DateTimeUnit dateTimeUnit, int days )
+    public DateTimeUnit plusDays( PeriodType periodType, DateTimeUnit dateTimeUnit, int days )
     {
         if ( days < 0 )
         {
-            return minusDays( dateTimeUnit, Math.abs( days ) );
+            return minusDays( periodType, dateTimeUnit, Math.abs( days ) );
         }
 
         int curYear = dateTimeUnit.getYear();
@@ -440,7 +445,7 @@ public class PersianCalendar extends AbstractCalendar
     }
 
     @Override
-    public DateTimeUnit isoStartOfYear( int year )
+    public DateTimeUnit isoStartOfYear( PeriodType periodType, int year )
     {
         int day = 21;
         int[] twenties = new int[]{ 1375, 1379, 1383, 1387, 1391, 1395, 1399, 1403, 1407, 1408, 1411, 1412,
@@ -493,91 +498,99 @@ public class PersianCalendar extends AbstractCalendar
 
     private DateInterval toYearIsoInterval( DateTimeUnit dateTimeUnit, int offset, int length )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( YearlyPeriodType.NAME );
+        
         DateTimeUnit from = new DateTimeUnit( dateTimeUnit );
 
         if ( offset > 0 )
         {
-            from = plusYears( from, offset );
+            from = plusYears( periodType, from, offset );
         }
         else if ( offset < 0 )
         {
-            from = minusYears( from, -offset );
+            from = minusYears( periodType, from, -offset );
         }
 
         DateTimeUnit to = new DateTimeUnit( from );
-        to = plusYears( to, length );
-        to = minusDays( to, length );
+        to = plusYears( periodType, to, length );
+        to = minusDays( periodType, to, length );
 
-        from = toIso( from );
-        to = toIso( to );
+        from = toIso( periodType, from );
+        to = toIso( periodType, to );
 
         return new DateInterval( from, to, DateIntervalType.ISO8601_YEAR );
     }
 
     private DateInterval toMonthIsoInterval( DateTimeUnit dateTimeUnit, int offset, int length )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( MonthlyPeriodType.NAME );
+        
         DateTimeUnit from = new DateTimeUnit( dateTimeUnit );
 
         if ( offset > 0 )
         {
-            from = plusMonths( from, offset );
+            from = plusMonths( periodType, from, offset );
         }
         else if ( offset < 0 )
         {
-            from = minusMonths( from, -offset );
+            from = minusMonths( periodType, from, -offset );
         }
 
         DateTimeUnit to = new DateTimeUnit( from );
-        to = plusMonths( to, length );
-        to = minusDays( to, 1 );
+        to = plusMonths( periodType, to, length );
+        to = minusDays( periodType, to, 1 );
 
-        from = toIso( from );
-        to = toIso( to );
+        from = toIso( periodType, from );
+        to = toIso( periodType, to );
 
         return new DateInterval( from, to, DateIntervalType.ISO8601_MONTH );
     }
 
     private DateInterval toWeekIsoInterval( DateTimeUnit dateTimeUnit, int offset, int length )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( WeeklyPeriodType.NAME );
+        
         DateTimeUnit from = new DateTimeUnit( dateTimeUnit );
 
         if ( offset > 0 )
         {
-            from = plusWeeks( from, offset );
+            from = plusWeeks( periodType, from, offset );
         }
         else if ( offset < 0 )
         {
-            from = minusWeeks( from, -offset );
+            from = minusWeeks( periodType, from, -offset );
         }
 
         DateTimeUnit to = new DateTimeUnit( from );
-        to = plusWeeks( to, length );
-        to = minusDays( to, 1 );
+        to = plusWeeks( periodType, to, length );
+        to = minusDays( periodType, to, 1 );
 
-        from = toIso( from );
-        to = toIso( to );
+        from = toIso( periodType, from );
+        to = toIso( periodType, to );
 
         return new DateInterval( from, to, DateIntervalType.ISO8601_WEEK );
     }
 
     private DateInterval toDayIsoInterval( DateTimeUnit dateTimeUnit, int offset, int length )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );
+        
         DateTimeUnit from = new DateTimeUnit( dateTimeUnit );
 
         if ( offset >= 0 )
         {
-            from = plusDays( from, offset );
+            from = plusDays( periodType, from, offset );
         }
         else if ( offset < 0 )
         {
-            from = minusDays( from, -offset );
+            from = minusDays( periodType, from, -offset );
         }
 
         DateTimeUnit to = new DateTimeUnit( from );
-        to = plusDays( to, length );
+        to = plusDays( periodType, to, length );
 
-        from = toIso( from );
-        to = toIso( to );
+        from = toIso( periodType, from );
+        to = toIso( periodType, to );
 
         return new DateInterval( from, to, DateIntervalType.ISO8601_DAY );
     }
@@ -589,7 +602,7 @@ public class PersianCalendar extends AbstractCalendar
 
     // check if day is more than current maximum for month, don't overflow, just set to maximum
     // set day of week
-    private void updateDateUnit( DateTimeUnit result )
+    private void updateDateUnit( PeriodType periodType, DateTimeUnit result )
     {
         int dm = getDaysFromMap( result.getYear(), result.getMonth() );
 
@@ -598,7 +611,7 @@ public class PersianCalendar extends AbstractCalendar
             result.setDay( dm );
         }
 
-        result.setDayOfWeek( weekday( result ) );
+        result.setDayOfWeek( weekday( periodType, result ) );
     }
 
 

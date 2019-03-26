@@ -37,6 +37,7 @@ import org.hisp.dhis.commons.filter.FilterUtils;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.feedback.ErrorReport;
+import org.hisp.dhis.period.DailyPeriodType;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.security.PasswordManager;
 import org.hisp.dhis.setting.SettingKey;
@@ -237,7 +238,8 @@ public class DefaultUserService
 
         if ( params.getInactiveMonths() != null )
         {
-            Calendar cal = PeriodType.createCalendarInstance();
+            PeriodType periodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );
+            Calendar cal = PeriodType.createCalendarInstance( periodType );
             cal.add( Calendar.MONTH, (params.getInactiveMonths() * -1) );
             params.setInactiveSince( cal.getTime() );
         }
@@ -532,7 +534,8 @@ public class DefaultUserService
     @Override
     public int getActiveUsersCount( int days )
     {
-        Calendar cal = PeriodType.createCalendarInstance();
+        PeriodType periodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );
+        Calendar cal = PeriodType.createCalendarInstance( periodType );
         cal.add( Calendar.DAY_OF_YEAR, (days * -1) );
 
         return getActiveUsersCount( cal.getTime() );

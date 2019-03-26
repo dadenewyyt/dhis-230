@@ -102,7 +102,7 @@ public abstract class WeeklyAbstractPeriodType extends CalendarPeriodType
     {
         DateTimeUnit start = adjustToStartOfWeek( new DateTimeUnit( dateTimeUnit ), calendar );
         DateTimeUnit end = new DateTimeUnit( start );
-        end = calendar.plusDays( end, calendar.daysInWeek() - 1 );
+        end = calendar.plusDays( this, end, calendar.daysInWeek() - 1 );
 
         return toIsoPeriod( start, end, calendar );
     }
@@ -110,7 +110,7 @@ public abstract class WeeklyAbstractPeriodType extends CalendarPeriodType
     @Override
     public DateTimeUnit getDateWithOffset( DateTimeUnit dateTimeUnit, int offset, Calendar calendar )
     {
-        return calendar.plusWeeks( dateTimeUnit, offset );
+        return calendar.plusWeeks( this, dateTimeUnit, offset );
     }
 
     /**
@@ -133,7 +133,7 @@ public abstract class WeeklyAbstractPeriodType extends CalendarPeriodType
             DateInterval interval = calendar.toInterval( start, DateIntervalType.ISO8601_WEEK );
             periods.add( new Period( this, interval.getFrom().toJdkDate(), interval.getTo().toJdkDate() ) );
 
-            start = calendar.plusWeeks( start, 1 );
+            start = calendar.plusWeeks( this, start, 1 );
         }
 
         return periods;
@@ -148,12 +148,12 @@ public abstract class WeeklyAbstractPeriodType extends CalendarPeriodType
     {
         List<Period> periods = Lists.newArrayList();
         DateTimeUnit iterationDateTimeUnit = adjustToStartOfWeek( end, calendar );
-        iterationDateTimeUnit = calendar.minusDays( iterationDateTimeUnit, 357 );
+        iterationDateTimeUnit = calendar.minusDays( this, iterationDateTimeUnit, 357 );
 
         for ( int i = 0; i < 52; i++ )
         {
             periods.add( createPeriod( iterationDateTimeUnit, calendar ) );
-            iterationDateTimeUnit = calendar.plusWeeks( iterationDateTimeUnit, 1 );
+            iterationDateTimeUnit = calendar.plusWeeks( this, iterationDateTimeUnit, 1 );
         }
 
         return periods;
@@ -175,10 +175,11 @@ public abstract class WeeklyAbstractPeriodType extends CalendarPeriodType
         }
         else
         {
+            year = dateTimeUnit.getYear();
             dateTimeUnit = adjustToStartOfWeek( dateTimeUnit, calendar );
-            week = calendar.week( dateTimeUnit );
+            week = calendar.week( this, dateTimeUnit );
 
-            if ( week == 1 && dateTimeUnit.getMonth() == calendar.monthsInYear() )
+            if ( week == 1 && dateTimeUnit.getMonth() == calendar.monthsInYear( this ) || year > dateTimeUnit.getYear() )
             {
                 dateTimeUnit.setYear( dateTimeUnit.getYear() + 1 );
             }
@@ -197,23 +198,23 @@ public abstract class WeeklyAbstractPeriodType extends CalendarPeriodType
         date = date != null ? date : new Date();
         rewindedPeriods = rewindedPeriods != null ? rewindedPeriods : 1;
 
-        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( date );
-        dateTimeUnit = cal.minusWeeks( dateTimeUnit, rewindedPeriods );
+        DateTimeUnit dateTimeUnit = createLocalDateUnitInstance( this, date );
+        dateTimeUnit = cal.minusWeeks( this, dateTimeUnit, rewindedPeriods );
 
-        return cal.toIso( dateTimeUnit ).toJdkDate();
+        return cal.toIso( this, dateTimeUnit ).toJdkDate();
     }
 
     public DateTimeUnit adjustToStartOfWeek( DateTimeUnit dateTimeUnit, Calendar calendar )
     {
-        int weekday = calendar.weekday( dateTimeUnit );
+        int weekday = calendar.weekday( this, dateTimeUnit );
 
         if ( weekday > startOfWeek )
         {
-            dateTimeUnit = calendar.minusDays( dateTimeUnit, weekday - startOfWeek );
+            dateTimeUnit = calendar.minusDays( this, dateTimeUnit, weekday - startOfWeek );
         }
         else if ( weekday < startOfWeek )
         {
-            dateTimeUnit = calendar.minusDays( dateTimeUnit, weekday + (frequencyOrder - startOfWeek) );
+            dateTimeUnit = calendar.minusDays( this, dateTimeUnit, weekday + (frequencyOrder - startOfWeek) );
         }
 
         return dateTimeUnit;

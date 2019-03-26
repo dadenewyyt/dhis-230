@@ -31,6 +31,8 @@ package org.hisp.dhis.calendar.impl;
 import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.calendar.ChronologyBasedCalendar;
 import org.hisp.dhis.calendar.DateTimeUnit;
+import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.WeeklyAbstractPeriodType;
 import org.joda.time.DateTimeZone;
 import org.joda.time.chrono.EthiopicChronology;
 import org.springframework.stereotype.Component;
@@ -62,8 +64,13 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     }
 
     @Override
-    public DateTimeUnit toIso( DateTimeUnit dateTimeUnit )
+    public DateTimeUnit toIso( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
+        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        {
+            return super.toIso( periodType, dateTimeUnit );
+        }
+        
         dateTimeUnit = bumpPagume( dateTimeUnit );
         
         if ( dateTimeUnit.getMonth() > 12 )
@@ -71,13 +78,18 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
             throw new RuntimeException( "Illegal month, must be between 1 and 12, was given " + dateTimeUnit.getMonth() );
         }
 
-        return super.toIso( dateTimeUnit );
+        return super.toIso( periodType, dateTimeUnit );
     }
 
     @Override
-    public DateTimeUnit fromIso( Date date )
+    public DateTimeUnit fromIso( PeriodType periodType, Date date )
     {
-        DateTimeUnit dateTimeUnit = super.fromIso( date );
+        DateTimeUnit dateTimeUnit = super.fromIso( periodType, date );
+        
+        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        {
+            return dateTimeUnit;
+        }
         
         dateTimeUnit = bumpPagume( dateTimeUnit );
 
@@ -90,17 +102,38 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     }
 
     @Override
-    public DateTimeUnit fromIso( DateTimeUnit dateTimeUnit )
+    public DateTimeUnit fromIso( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
-        return super.fromIso( dateTimeUnit );
+        return super.fromIso( periodType, dateTimeUnit );
     }
 
     @Override
-    public DateTimeUnit plusDays( DateTimeUnit dateTimeUnit, int days )
+    public DateTimeUnit plusDays( PeriodType periodType, DateTimeUnit dateTimeUnit, int days )
     {
         if ( days < 0 )
         {
-            return minusDays( dateTimeUnit, Math.abs( days ) );
+            return minusDays( periodType, dateTimeUnit, Math.abs( days ) );
+        }
+        
+        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        {
+            if ( dateTimeUnit.isIso8601() )
+            {
+                return super.plusDays( periodType, dateTimeUnit, days );                
+            }
+            else
+            {
+                dateTimeUnit = super.toIso( periodType, dateTimeUnit );
+                
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                
+                cal.setTime( dateTimeUnit.toJdkDate() );
+                cal.add( java.util.Calendar.DATE, days );
+                
+                dateTimeUnit = DateTimeUnit.fromJdkDate( cal.getTime() );
+                
+                return super.fromIso( periodType, dateTimeUnit );
+            }
         }
 
         int curYear = dateTimeUnit.getYear();
@@ -138,8 +171,29 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     }
 
     @Override
-    public DateTimeUnit minusDays( DateTimeUnit dateTimeUnit, int days )
+    public DateTimeUnit minusDays( PeriodType periodType, DateTimeUnit dateTimeUnit, int days )
     {
+        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        {
+            if ( dateTimeUnit.isIso8601() )
+            {
+                return super.minusDays( periodType, dateTimeUnit, days );                
+            }
+            else
+            {
+                dateTimeUnit = super.toIso( periodType, dateTimeUnit );
+                
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                
+                cal.setTime( dateTimeUnit.toJdkDate() );
+                cal.add( java.util.Calendar.DATE, 0 - days );
+                
+                dateTimeUnit = DateTimeUnit.fromJdkDate( cal.getTime() );
+                
+                return super.fromIso( periodType, dateTimeUnit );
+            }
+        }
+        
         int curYear = dateTimeUnit.getYear();
         int curMonth = dateTimeUnit.getMonth();
         int curDay = dateTimeUnit.getDay();
@@ -176,39 +230,39 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     }
 
     @Override
-    public DateTimeUnit plusWeeks( DateTimeUnit dateTimeUnit, int weeks )
+    public DateTimeUnit plusWeeks( PeriodType periodType, DateTimeUnit dateTimeUnit, int weeks )
     {
-        return plusDays( dateTimeUnit, weeks * 7 );
+        return plusDays( periodType, dateTimeUnit, weeks * 7 );
     }
 
     @Override
-    public DateTimeUnit minusWeeks( DateTimeUnit dateTimeUnit, int weeks )
+    public DateTimeUnit minusWeeks( PeriodType periodType, DateTimeUnit dateTimeUnit, int weeks )
     {
-        return minusDays( dateTimeUnit, weeks * 7 );
+        return minusDays( periodType, dateTimeUnit, weeks * 7 );
     }
 
     @Override
-    public DateTimeUnit plusMonths( DateTimeUnit dateTimeUnit, int months )
+    public DateTimeUnit plusMonths( PeriodType periodType, DateTimeUnit dateTimeUnit, int months )
     {
-        return plusDays( dateTimeUnit, months * 30 );
+        return plusDays( periodType, dateTimeUnit, months * 30 );
     }
 
     @Override
-    public DateTimeUnit minusMonths( DateTimeUnit dateTimeUnit, int months )
+    public DateTimeUnit minusMonths( PeriodType periodType, DateTimeUnit dateTimeUnit, int months )
     {
-        return minusDays( dateTimeUnit, months * 30 );
+        return minusDays( periodType, dateTimeUnit, months * 30 );
     }
 
     @Override
-    public DateTimeUnit plusYears( DateTimeUnit dateTimeUnit, int years )
+    public DateTimeUnit plusYears( PeriodType periodType, DateTimeUnit dateTimeUnit, int years )
     {
-        return plusDays( dateTimeUnit, years * (12 * 30) );
+        return plusDays( periodType, dateTimeUnit, years * (12 * 30) );
     }
 
     @Override
-    public DateTimeUnit minusYears( DateTimeUnit dateTimeUnit, int years )
+    public DateTimeUnit minusYears( PeriodType periodType, DateTimeUnit dateTimeUnit, int years )
     {
-        return minusDays( dateTimeUnit, years * (12 * 30) );
+        return minusDays( periodType, dateTimeUnit, years * (12 * 30) );
     }
 
     @Override
@@ -216,10 +270,36 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     {
         return 12 * 30;
     }
+    
+    @Override
+    public int monthsInYear( PeriodType periodType )
+    {
+        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        {
+            return 13;
+        }
+        
+        return 12;
+    }
 
     @Override
-    public int daysInMonth( int year, int month )
+    public int daysInMonth( PeriodType periodType, int year, int month )
     {
+        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        {
+            if ( month < 12 )
+            {
+               return 30; 
+            }
+            
+            else if ( month == 13 )
+            {
+                return 5;
+            }
+            
+            throw new RuntimeException( "Illegal month, must be between 1 and 13, was given " + month );
+        }
+        
         if ( month > 12 )
         {
             throw new RuntimeException( "Illegal month, must be between 1 and 12, was given " + month );
@@ -235,9 +315,9 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     }
 
     @Override
-    public DateTimeUnit isoStartOfYear( int year )
+    public DateTimeUnit isoStartOfYear( PeriodType periodType, int year )
     {
-        return fromIso( super.isoStartOfYear( year ) );
+        return fromIso( periodType, super.isoStartOfYear( periodType, year ) );
     }
     
     private DateTimeUnit bumpPagume( DateTimeUnit dateTimeUnit )

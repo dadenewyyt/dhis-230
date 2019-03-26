@@ -137,7 +137,7 @@ public class RuleActionScheduleMessageImplementer extends NotificationRuleAction
     {
         if ( !date.isEmpty() )
         {
-            if ( DateUtils.dateIsValid( date ) )
+            if ( DateUtils.dateIsValid( null, date ) )
             {
                 return true;
             }

@@ -1,5 +1,7 @@
 package org.hisp.dhis.i18n;
 
+import org.hisp.dhis.calendar.Calendar;
+
 /*
  * Copyright (c) 2004-2018, University of Oslo
  * All rights reserved.
@@ -231,7 +233,7 @@ public class I18nFormat
 
         if ( periodType instanceof WeeklyAbstractPeriodType ) // Use ISO dates due to potential week confusion
         {
-            DateTime dateTime = new DateTime( period.getStartDate() );
+            /*DateTime dateTime = new DateTime( period.getStartDate() );
             LocalDate date = Instant.ofEpochMilli( period.getStartDate().getTime() ).atZone( ZoneId.systemDefault() ).toLocalDate();
             WeekFields weekFields = WeekFields.of( PeriodType.MAP_WEEK_TYPE.get( periodType.getName() ), 4 );
 
@@ -245,7 +247,13 @@ public class I18nFormat
 
             year += dateTime.dayOfWeek().getAsShortText() + " " + year;
 
-            return String.format( "W%s %s", week, year );
+            return String.format( "W%s %s", week, year );*/
+            
+            Calendar calendar = PeriodType.getCalendar();
+            
+            DateTimeUnit dateTimeUnit = calendar.fromIso( periodType, period.getStartDate() );
+            
+            return periodType.getIsoDate( dateTimeUnit, calendar );
         }
 
         String keyStartDate = "format." + typeName + ".startDate";
@@ -259,8 +267,8 @@ public class I18nFormat
         Date periodStartDate = period.getStartDate();
         Date periodEndDate = period.getEndDate();
 
-        DateTimeUnit start = PeriodType.getCalendar().fromIso( periodStartDate );
-        DateTimeUnit end = PeriodType.getCalendar().fromIso( periodEndDate );
+        DateTimeUnit start = PeriodType.getCalendar().fromIso( periodType, periodStartDate );
+        DateTimeUnit end = PeriodType.getCalendar().fromIso( periodType, periodEndDate );
 
         String startDate;
         String endDate;

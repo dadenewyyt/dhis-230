@@ -86,10 +86,12 @@ public class DatePeriodResourceTable
     @Override
     public Optional<List<Object[]>> getPopulateTempTableContent()
     {
-        List<PeriodType> periodTypes = PeriodType.getAvailablePeriodTypes();
-
         List<Object[]> batchArgs = new ArrayList<>();
 
+        /*List<PeriodType> periodTypes = PeriodType.getAvailablePeriodTypes();
+        
+        PeriodType dailPeriodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );
+        
         Date startDate = new Cal( 1975, 1, 1, true ).time(); //TODO
         Date endDate = new Cal( 2025, 1, 1, true ).time();
         
@@ -103,7 +105,7 @@ public class DatePeriodResourceTable
         {
             List<Object> values = new ArrayList<>();
 
-            final int year = PeriodType.getCalendar().fromIso( day ).getYear();
+            final int year = PeriodType.getCalendar().fromIso( dailPeriodType, day ).getYear();
             
             values.add( day );
             values.add( year );
@@ -114,7 +116,7 @@ public class DatePeriodResourceTable
             }
 
             batchArgs.add( values.toArray() );
-        }
+        }*/
 
         return Optional.of( batchArgs );
     }

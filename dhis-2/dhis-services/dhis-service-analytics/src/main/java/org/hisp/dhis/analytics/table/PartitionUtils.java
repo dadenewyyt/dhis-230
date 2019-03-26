@@ -43,6 +43,7 @@ import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.ListMap;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.YearlyPeriodType;
 import org.hisp.dhis.program.Program;
 
 import com.google.common.collect.Lists;
@@ -65,7 +66,9 @@ public class PartitionUtils
      */
     public static Date getStartDate( Calendar calendar, Integer year )
     {
-        return calendar.isoStartOfYear( year ).toJdkDate();
+        PeriodType periodType = PeriodType.getPeriodTypeByName( YearlyPeriodType.NAME );
+        
+        return calendar.isoStartOfYear( periodType, year ).toJdkDate();
     }
 
     /**
@@ -93,12 +96,14 @@ public class PartitionUtils
     public static Date getStartDate( Integer lastYears )
     {
         Date earliest = null;
+        
+        PeriodType periodType = PeriodType.getPeriodTypeByName( YearlyPeriodType.NAME );
 
         if ( lastYears != null )
         {
             Calendar calendar = PeriodType.getCalendar();
-            DateTimeUnit dateTimeUnit = calendar.today();
-            dateTimeUnit = calendar.minusYears( dateTimeUnit, lastYears - 1 );
+            DateTimeUnit dateTimeUnit = calendar.today( periodType );
+            dateTimeUnit = calendar.minusYears( periodType, dateTimeUnit, lastYears - 1 );
             dateTimeUnit.setMonth( 1 );
             dateTimeUnit.setDay( 1 );
 

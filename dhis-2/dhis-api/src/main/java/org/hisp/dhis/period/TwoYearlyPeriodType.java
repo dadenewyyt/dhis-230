@@ -149,7 +149,7 @@ public class TwoYearlyPeriodType
     @Override
     public List<Period> generateRollingPeriods( DateTimeUnit dateTimeUnit, org.hisp.dhis.calendar.Calendar calendar )
     {
-        return generateLast5Years( calendar.toIso( dateTimeUnit ).toJdkDate() );
+        return generateLast5Years( calendar.toIso( this, dateTimeUnit ).toJdkDate() );
     }
 
     @Override

@@ -29,6 +29,8 @@ package org.hisp.dhis.calendar;
  */
 
 import com.google.common.collect.Lists;
+
+import org.hisp.dhis.period.PeriodType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.chrono.ISOChronology;
@@ -127,9 +129,9 @@ public abstract class AbstractCalendar implements Calendar
     }
 
     @Override
-    public String formattedIsoDate( DateTimeUnit dateTimeUnit )
+    public String formattedIsoDate( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
-        dateTimeUnit = toIso( dateTimeUnit );
+        dateTimeUnit = toIso( periodType, dateTimeUnit );
         DateTime dateTime = dateTimeUnit.toJodaDateTime();
         DateTimeFormatter format = DateTimeFormat.forPattern( getDateFormat() );
 
@@ -137,30 +139,30 @@ public abstract class AbstractCalendar implements Calendar
     }
 
     @Override
-    public DateTimeUnit toIso( int year, int month, int day )
+    public DateTimeUnit toIso( PeriodType periodType, int year, int month, int day )
     {
-        return toIso( new DateTimeUnit( year, month, day ) );
+        return toIso( periodType, new DateTimeUnit( year, month, day ) );
     }
 
     @Override
-    public DateTimeUnit toIso( String date )
+    public DateTimeUnit toIso( PeriodType periodType, String date )
     {
         DateTimeFormatter format = DateTimeFormat.forPattern( getDateFormat() );
         DateTime dateTime = format.parseDateTime( date );
 
-        return toIso( DateTimeUnit.fromJodaDateTime( dateTime ) );
+        return toIso( periodType, DateTimeUnit.fromJodaDateTime( dateTime ) );
     }
 
     @Override
-    public DateTimeUnit fromIso( int year, int month, int day )
+    public DateTimeUnit fromIso( PeriodType periodType, int year, int month, int day )
     {
-        return fromIso( new DateTimeUnit( year, month, day, true ) );
+        return fromIso( periodType, new DateTimeUnit( year, month, day, true ) );
     }
 
     @Override
-    public DateInterval toInterval( DateIntervalType type )
+    public DateInterval toInterval( PeriodType periodType, DateIntervalType type )
     {
-        return toInterval( today(), type );
+        return toInterval( today( periodType ), type );
     }
 
     @Override
@@ -170,9 +172,9 @@ public abstract class AbstractCalendar implements Calendar
     }
 
     @Override
-    public DateInterval toInterval( DateIntervalType type, int offset, int length )
+    public DateInterval toInterval( PeriodType periodType, DateIntervalType type, int offset, int length )
     {
-        return toInterval( today(), type, offset, length );
+        return toInterval( today( periodType ), type, offset, length );
     }
 
     @Override
@@ -189,15 +191,15 @@ public abstract class AbstractCalendar implements Calendar
     }
 
     @Override
-    public DateTimeUnit today()
+    public DateTimeUnit today( PeriodType periodType )
     {
         DateTime dateTime = DateTime.now( ISOChronology.getInstance( DateTimeZone.getDefault() ) );
         DateTimeUnit dateTimeUnit = new DateTimeUnit( dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(), true );
-        return fromIso( dateTimeUnit );
+        return fromIso( periodType, dateTimeUnit );
     }
 
     @Override
-    public int monthsInYear()
+    public int monthsInYear( PeriodType periodType )
     {
         return 12;
     }
@@ -259,20 +261,20 @@ public abstract class AbstractCalendar implements Calendar
     }
 
     @Override
-    public DateTimeUnit isoStartOfYear( int year )
+    public DateTimeUnit isoStartOfYear( PeriodType periodType, int year )
     {
         return new DateTimeUnit( year, 1, 1 );
     }
 
     @Override
-    public boolean isValid( DateTimeUnit dateTime )
+    public boolean isValid( PeriodType periodType, DateTimeUnit dateTime )
     {
-        if ( dateTime.getMonth() < 1 || dateTime.getMonth() > monthsInYear() )
+        if ( dateTime.getMonth() < 1 || dateTime.getMonth() > monthsInYear( periodType ) )
         {
             return false;
         }
 
-        if ( dateTime.getDay() < 1 || dateTime.getDay() > daysInMonth( dateTime.getYear(), dateTime.getMonth() ) )
+        if ( dateTime.getDay() < 1 || dateTime.getDay() > daysInMonth( periodType, dateTime.getYear(), dateTime.getMonth() ) )
         {
             return false;
         }

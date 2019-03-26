@@ -522,7 +522,7 @@ public class AnalyticsUtils
                 if ( DimensionType.PERIOD.equals( dimension.getDimensionType() ) && !calendar.isIso8601() )
                 {
                     Period period = (Period) item;
-                    DateTimeUnit dateTimeUnit = calendar.fromIso( period.getStartDate() );
+                    DateTimeUnit dateTimeUnit = calendar.fromIso( period.getPeriodType(), period.getStartDate() );
 
                     map.put( period.getPeriodType().getIsoDate( dateTimeUnit ), period.getDisplayName() );
                 }
@@ -568,7 +568,7 @@ public class AnalyticsUtils
                 if ( DimensionType.PERIOD == dimension.getDimensionType() && !calendar.isIso8601() )
                 {
                     Period period = (Period) item;
-                    DateTimeUnit dateTimeUnit = calendar.fromIso( period.getStartDate() );
+                    DateTimeUnit dateTimeUnit = calendar.fromIso( period.getPeriodType(), period.getStartDate() );
                     map.put( period.getPeriodType().getIsoDate( dateTimeUnit ), new MetadataItem( period.getDisplayName(), includeMetadataDetails ? period : null ) );
                 }
                 else

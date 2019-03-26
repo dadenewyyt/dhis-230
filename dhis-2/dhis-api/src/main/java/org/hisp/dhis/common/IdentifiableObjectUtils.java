@@ -156,7 +156,7 @@ public class IdentifiableObjectUtils
         for ( IdentifiableObject object : periods )
         {
             Period period = (Period) object;
-            DateTimeUnit dateTimeUnit = calendar.fromIso( period.getStartDate() );
+            DateTimeUnit dateTimeUnit = calendar.fromIso( period.getPeriodType(), period.getStartDate() );
             localIdentifiers.add( period.getPeriodType().getIsoDate( dateTimeUnit ) );
         }
 
@@ -177,7 +177,7 @@ public class IdentifiableObjectUtils
             return period.getIsoDate();
         }
 
-        return period.getPeriodType().getIsoDate( calendar.fromIso( period.getStartDate() ) );
+        return period.getPeriodType().getIsoDate( calendar.fromIso( period.getPeriodType(), period.getStartDate() ) );
     }
     
     /**
