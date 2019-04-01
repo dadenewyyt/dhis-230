@@ -409,6 +409,13 @@ dhis2.period.PeriodGenerator.prototype.sixMonthlyApril = function(offset) {
 };
 
 /**
+ * Convenience method to get SixMonthlyANov generator
+ */
+dhis2.period.PeriodGenerator.prototype.sixMonthlyNovember = function(offset) {
+  return this.get( 'SixMonthlyNov' ).generatePeriods( offset );
+};
+
+/**
  * Convenience method to get Yearly generator
  */
 dhis2.period.PeriodGenerator.prototype.yearly = function(offset) {
@@ -420,6 +427,13 @@ dhis2.period.PeriodGenerator.prototype.yearly = function(offset) {
  */
 dhis2.period.PeriodGenerator.prototype.financialOct = function(offset) {
   return this.get( 'FinancialOct' ).generatePeriods( offset );
+};
+
+/**
+ * Convenience method to get FinancialNov generator
+ */
+dhis2.period.PeriodGenerator.prototype.financialNov = function(offset) {
+  return this.get( 'FinancialNov' ).generatePeriods( offset );
 };
 
 /**
@@ -491,7 +505,7 @@ dhis2.period.PeriodGenerator.prototype.getPeriodForTheDate = function(date, type
   var offset = 0, eventDate, allPeriods, periodWithDate = null;
 
   if ( type === 'FinancialNov' ) {
-	  offset = monh <= 10 ? 4: 5;
+	  offset = month <= 10 ? 4: 5;
   }
   else if ( type === 'FinancialOct' ) {
     offset = month <= 9 ? 4 : 5;
