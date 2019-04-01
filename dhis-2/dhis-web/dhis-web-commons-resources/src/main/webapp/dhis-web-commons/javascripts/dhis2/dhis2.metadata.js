@@ -240,7 +240,8 @@ dhis2.metadata.getMetaObjects = function( store, objs, url, filter, storage, db,
         type: 'GET',
         data: filter
     }).done(function(response) {
-        if(response[objs]){            
+        if(response[objs]){
+            var count = 0;
             _.each( _.values( response[objs] ), function ( obj ) {        
                 obj = dhis2.metadata.processMetaDataAttribute( obj );
                 if( func ) {
@@ -312,6 +313,10 @@ dhis2.metadata.getMetaObjects = function( store, objs, url, filter, storage, db,
                     obj = dhis2.metadata.expressionMatcher(obj, 'leftSide', 'params',dhis2.metadata.expressionRegex, dhis2.metadata.operatorRegex, 'expression');
                     obj = dhis2.metadata.expressionMatcher(obj, 'rightSide', 'params',dhis2.metadata.expressionRegex, dhis2.metadata.operatorRegex, 'expression');
                 }
+                else if( store === 'periodTypes' ){
+                    obj.id = count;
+                }
+                count++;
             });            
             
             if(storage === 'idb'){
