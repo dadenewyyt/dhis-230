@@ -32,6 +32,8 @@ import org.apache.commons.io.IOUtils;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.cache.CacheStrategy;
+import org.hisp.dhis.commons.util.TextUtils;
+import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.DataSetService;
 import org.hisp.dhis.dataset.FormType;
@@ -39,12 +41,19 @@ import org.hisp.dhis.datasetreport.DataSetReportService;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
 import org.hisp.dhis.i18n.I18nManager;
+import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.system.grid.GridUtils;
+import org.hisp.dhis.system.grid.ListGrid;
+import org.hisp.dhis.util.ObjectUtils;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
+import org.hisp.dhis.analytics.AnalyticsService;
+import org.hisp.dhis.analytics.DataQueryParams;
+import org.hisp.dhis.analytics.DataQueryService;
+import org.hisp.dhis.common.DataQueryRequest;
 import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.webapi.service.WebMessageService;
 import org.hisp.dhis.webapi.utils.ContextUtils;
@@ -53,10 +62,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -93,14 +105,16 @@ public class DataSetReportController
     @Autowired
     IdentifiableObjectManager idObjectManager;
 
+    @Autowired
+    private DataQueryService dataQueryService;
+
+    @Autowired
+    private AnalyticsService analyticsService;
+
     @RequestMapping( method = RequestMethod.GET )
-    public void getDataSetReport( HttpServletResponse response,
-        @RequestParam String ds,
-        @RequestParam String pe,
-        @RequestParam String ou,
-        @RequestParam( required = false ) Set<String> dimension,
-        @RequestParam( required = false ) boolean selectedUnitOnly,
-        @RequestParam( required = false ) String type )
+    public void getDataSetReport( HttpServletResponse response, @RequestParam String ds, @RequestParam String pe,
+        @RequestParam String ou, @RequestParam( required = false ) Set<String> dimension,
+        @RequestParam( required = false ) boolean selectedUnitOnly, @RequestParam( required = false ) String type )
         throws Exception
     {
         OrganisationUnit selectedOrgunit = idObjectManager.get( OrganisationUnit.class, ou );
@@ -133,7 +147,8 @@ public class DataSetReportController
         // Configure response
         // ---------------------------------------------------------------------
 
-        contextUtils.configureResponse( response, ContextUtils.CONTENT_TYPE_HTML, CacheStrategy.RESPECT_SYSTEM_SETTING );
+        contextUtils.configureResponse( response, ContextUtils.CONTENT_TYPE_HTML,
+            CacheStrategy.RESPECT_SYSTEM_SETTING );
 
         // ---------------------------------------------------------------------
         // Assemble report
@@ -143,28 +158,24 @@ public class DataSetReportController
         {
             if ( type != null )
             {
-                grids = dataSetReportService.getCustomDataSetReportAsGrid(
-                    selectedDataSet, selectedPeriod, selectedOrgunit, dimension,
-                    selectedUnitOnly, i18nManager.getI18nFormat() );
+                grids = dataSetReportService.getCustomDataSetReportAsGrid( selectedDataSet, selectedPeriod,
+                    selectedOrgunit, dimension, selectedUnitOnly, i18nManager.getI18nFormat() );
             }
             else
             {
-                customDataEntryFormCode = dataSetReportService.getCustomDataSetReport(
-                    selectedDataSet, selectedPeriod, selectedOrgunit, dimension,
-                    selectedUnitOnly, i18nManager.getI18nFormat() );
+                customDataEntryFormCode = dataSetReportService.getCustomDataSetReport( selectedDataSet, selectedPeriod,
+                    selectedOrgunit, dimension, selectedUnitOnly, i18nManager.getI18nFormat() );
             }
         }
         else if ( formType.isSection() )
         {
-            grids = dataSetReportService.getSectionDataSetReport(
-                selectedDataSet, selectedPeriod, selectedOrgunit, dimension, selectedUnitOnly,
-                i18nManager.getI18nFormat(), i18nManager.getI18n() );
+            grids = dataSetReportService.getSectionDataSetReport( selectedDataSet, selectedPeriod, selectedOrgunit,
+                dimension, selectedUnitOnly, i18nManager.getI18nFormat(), i18nManager.getI18n() );
         }
         else
         {
-            grids = dataSetReportService.getDefaultDataSetReport(
-                selectedDataSet, selectedPeriod, selectedOrgunit, dimension, selectedUnitOnly,
-                i18nManager.getI18nFormat(), i18nManager.getI18n() );
+            grids = dataSetReportService.getDefaultDataSetReport( selectedDataSet, selectedPeriod, selectedOrgunit,
+                dimension, selectedUnitOnly, i18nManager.getI18nFormat(), i18nManager.getI18n() );
         }
 
         // ---------------------------------------------------------------------
@@ -184,5 +195,85 @@ public class DataSetReportController
                 GridUtils.toHtmlCss( grid, output );
             }
         }
+    }
+
+    @RequestMapping( value = "/custom", method = RequestMethod.GET, produces = { "application/json",
+        "application/javascript" } )
+    public @ResponseBody Grid getCustomDataSetReport( HttpServletResponse response, @RequestParam String ds,
+        @RequestParam( required = false ) Set<String> dimension, @RequestParam( required = false ) Set<String> filter,
+        @RequestParam( required = false ) boolean selectedUnitOnly )
+        throws Exception
+    {
+        Set<String> deDimension = new HashSet<>();
+        Set<String> dtDimension = new HashSet<>();
+        Set<String> inDimension = new HashSet<>();
+        
+        Grid grid = new ListGrid();
+        Grid dtGrid = new ListGrid();
+        Grid inGrid = new ListGrid();
+        
+        if ( !dimension.isEmpty() )
+        {
+            for( String dim : dimension )
+            {
+                deDimension.add( dim );
+                dtDimension.add( dim );
+                inDimension.add( dim );
+            }
+        }
+        
+        DataSet selectedDataSet = dataSetService.getDataSet( ds );
+
+        if ( selectedDataSet == null )
+        {
+            throw new WebMessageException( WebMessageUtils.conflict( "Illegal data set identifier: " + ds ) );
+        }
+
+        Set<DataElement> dataElements = selectedDataSet.getDataElements();
+
+        Set<Indicator> indicators = selectedDataSet.getIndicators();
+
+        if ( dataElements.isEmpty() )
+        {
+            throw new WebMessageException( WebMessageUtils.conflict( "Data set has no data elements: " + ds ) );
+        }
+
+        String dataElementIds = ObjectUtils.join( dataElements, TextUtils.SEMICOLON, de -> de.getUid() );
+        String indicatorIds = ObjectUtils.join( indicators, TextUtils.SEMICOLON, ind -> ind.getUid() );
+        
+        deDimension.add( "dx:" + dataElementIds );
+        deDimension.add( "co" );
+        
+        dtDimension.add( "dx:" + dataElementIds );
+        
+        inDimension.add( "dx:" + indicatorIds );
+
+        DataQueryRequest deRequest = DataQueryRequest.newBuilder().dimension( deDimension ).filter( filter ).build();
+        DataQueryRequest dtRequest = DataQueryRequest.newBuilder().dimension( dtDimension ).filter( filter ).build();
+        DataQueryRequest inRequest = DataQueryRequest.newBuilder().dimension( inDimension ).filter( filter ).build();
+
+        DataQueryParams deParams = dataQueryService.getFromRequest( deRequest );
+        DataQueryParams dtParams = dataQueryService.getFromRequest( dtRequest );
+        DataQueryParams inParams = dataQueryService.getFromRequest( inRequest );        
+        
+        grid = analyticsService.getAggregatedDataValues( deParams );
+        dtGrid = analyticsService.getAggregatedDataValues( dtParams );
+        inGrid = analyticsService.getAggregatedDataValues( inParams );
+        
+        Object dummyColumn = new String("total");
+        
+        for( List<Object> row : dtGrid.getRows() )
+        {
+            row.add( 1, dummyColumn );
+        }
+        grid.addRows( dtGrid );
+        
+        for( List<Object> row : inGrid.getRows() )
+        {
+            row.add( 1, dummyColumn );
+        }
+        grid.addRows( inGrid );
+        
+        return grid;
     }
 }
