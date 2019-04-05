@@ -45,6 +45,8 @@ public class StreamingJsonDataValueSet extends DataValueSet
     private JsonGenerator generator;
 
     private boolean startedArray;
+    
+    private boolean completeDataSetArrayStarted;
 
     public StreamingJsonDataValueSet( OutputStream out )
     {
@@ -81,36 +83,6 @@ public class StreamingJsonDataValueSet extends DataValueSet
     {
         writeObjectField( FIELD_DATASETIDSCHEME, dataSetIdScheme );
     }
-    
-    @Override
-    public void setDataSet( String dataSet )
-    {
-        writeObjectField( FIELD_DATASET, dataSet );
-    }
-
-    @Override
-    public void setCompleteDate( String completeDate )
-    {
-        writeObjectField( FIELD_COMPLETEDATE, completeDate );
-    }
-
-    @Override
-    public void setPeriod( String period )
-    {
-        writeObjectField( FIELD_PERIOD, period );
-    }
-
-    @Override
-    public void setOrgUnit( String orgUnit )
-    {
-        writeObjectField( FIELD_ORGUNIT, orgUnit );
-    }
-
-    @Override
-    public void setAttributeOptionCombo( String attributeOptionCombo )
-    {
-        writeObjectField( FIELD_ATTRIBUTE_OPTION_COMBO, attributeOptionCombo );
-    }
 
     @Override
     public DataValue getDataValueInstance()
@@ -128,6 +100,24 @@ public class StreamingJsonDataValueSet extends DataValueSet
         }
 
         return new StreamingJsonDataValue( generator );
+    }
+    
+    @Override
+    public CompleteDataSet getCompleteDataSetInstance()
+    {
+        if ( !completeDataSetArrayStarted )
+        {
+            try
+            {
+                generator.writeArrayFieldStart( "completeDataSets" );
+                completeDataSetArrayStarted = true;
+            }
+            catch ( IOException ignored )
+            {
+            }
+        }
+
+        return new StreamingJsonCompleteDataSet( generator );
     }
 
     @Override
@@ -153,6 +143,32 @@ public class StreamingJsonDataValueSet extends DataValueSet
         finally
         {
             IOUtils.closeQuietly( generator );
+        }
+    }
+    
+    @Override
+    public void closeCompleteDataSet()
+    {
+        if ( generator == null )
+        {
+            return;
+        }
+
+        try
+        {
+            if ( completeDataSetArrayStarted )
+            {
+                generator.writeEndArray();
+            }
+
+            //generator.writeEndObject();
+        }
+        catch ( IOException ignored )
+        {
+        }
+        finally
+        {
+            //IOUtils.closeQuietly( generator );
         }
     }
 

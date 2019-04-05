@@ -142,6 +142,11 @@ public class DataExportParams
         return dataElementOperands != null && !dataElementOperands.isEmpty();
     }
 
+    public boolean hasDataSets()
+    {
+        return dataSets != null && !dataSets.isEmpty();
+    }
+
     public DataSet getFirstDataSet()
     {
         return dataSets != null && !dataSets.isEmpty() ? dataSets.iterator().next() : null;
