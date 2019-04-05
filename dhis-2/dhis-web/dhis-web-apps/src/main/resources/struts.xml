@@ -56,6 +56,12 @@
             </result>
         </action>
 	</package>
+    
+    <package name="dhis-web-custom-report" extends="dhis-web-commons" namespace="/dhis-web-custom-report">
+		<action name="index" class="org.hisp.dhis.commons.action.NoAction">
+		    <result name="success" type="redirect">index.html</result>
+		</action>
+	</package>
 	
 	<!-- Apps pulled from offline maven repository -->
 	
