@@ -66,7 +66,7 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     @Override
     public DateTimeUnit toIso( PeriodType periodType, DateTimeUnit dateTimeUnit )
     {
-        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        if ( periodType != null && WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
         {
             return super.toIso( periodType, dateTimeUnit );
         }
@@ -86,7 +86,7 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     {
         DateTimeUnit dateTimeUnit = super.fromIso( periodType, date );
         
-        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        if ( periodType != null && WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
         {
             return dateTimeUnit;
         }
@@ -115,7 +115,7 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
             return minusDays( periodType, dateTimeUnit, Math.abs( days ) );
         }
         
-        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        if ( periodType != null && WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
         {
             if ( dateTimeUnit.isIso8601() )
             {
@@ -173,7 +173,7 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     @Override
     public DateTimeUnit minusDays( PeriodType periodType, DateTimeUnit dateTimeUnit, int days )
     {
-        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        if ( periodType != null && WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
         {
             if ( dateTimeUnit.isIso8601() )
             {
@@ -274,7 +274,7 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     @Override
     public int monthsInYear( PeriodType periodType )
     {
-        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        if ( periodType != null && WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
         {
             return 13;
         }
@@ -285,7 +285,7 @@ public class EthiopianCalendar extends ChronologyBasedCalendar
     @Override
     public int daysInMonth( PeriodType periodType, int year, int month )
     {
-        if ( WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
+        if ( periodType != null && WeeklyAbstractPeriodType.class.isAssignableFrom( periodType.getClass() ) )
         {
             if ( month < 12 )
             {
