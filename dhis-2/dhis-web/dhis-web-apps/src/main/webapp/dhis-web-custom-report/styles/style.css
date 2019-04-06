@@ -253,7 +253,7 @@ input[type=date]::-webkit-inner-spin-button, input[type=date]::-webkit-outer-spi
 }
 
 div#leftBar {
-    width: 236px;
+    width: 240px !important;
 }
 
 .pull-center {
@@ -388,6 +388,14 @@ div#orgUnitTree {
     border: 1px solid #e3e3e3;
 }
 
+div#selectionTree {    
+    height:50%; 
+    width: 240px !important;
+    overflow:auto; 
+    border:1px solid #ccc; 
+    margin-bottom: 8px;
+}
+
 .calendars-popup {
     z-index: 2000 !important;
 }
@@ -442,12 +450,6 @@ div#orgUnitTree {
 .select2-container .select2-choice {
     padding: 5px !important;
     color: #555 !important;
-}
-
-.form-control{
-    height: 30px !important;
-    color: black;
-    padding: 2px !important;
 }
 
 .bold {

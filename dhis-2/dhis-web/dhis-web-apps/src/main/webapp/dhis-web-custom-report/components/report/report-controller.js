@@ -5,19 +5,22 @@
 var customReport = angular.module('customReport');
 
 //Controller for settings page
-customReport.controller('dataEntryController',
+customReport.controller('customReportController',
         function($scope,
+                $modal,
                 orderByFilter,
                 SessionStorageService,
                 PeriodService,
                 MetaDataFactory,
                 CustomFormService,
                 DataElementGroupFactory,
+                DataEntryUtils,
                 Analytics,
                 ModalService,
                 DialogService) { 
-    $scope.periodOffset = 0;    
+    $scope.periodOffset = 0;
     $scope.model = {dataSets: [],
+                    reportColumn: 'PERIOD',
                     categoryCombos: [],
                     periods: [],
                     selectedPeriods: [],
@@ -29,43 +32,35 @@ customReport.controller('dataEntryController',
                     showReportFilters: true,                    
                     selectedPeriodType: null,
                     valueExists: false};
-    
-    var resetParams = function()
-    {
-        $scope.model.periods = [];
-        $scope.model.dataSets = [];
-        $scope.model.selectedDataSet = null;
-        $scope.model.selectedPeriods = [];
-        $scope.model.includeChildren = false;
-        $scope.model.selectedPeriodType = null;
-        $scope.model.valueExists = false;
-        $scope.model.reportReady = false;
-        $scope.model.reportStarted = false;
-        $scope.model.showReportFilters = true;
-    };
-    //watch for selection of org unit from tree
-    $scope.$watch('selectedOrgUnit', function() {
-        
-        resetParams();
-        if( angular.isObject($scope.selectedOrgUnit)){
-            SessionStorageService.set('SELECTED_OU', $scope.selectedOrgUnit);
-            MetaDataFactory.getAll('dataSets').then(function(ds){
-                $scope.model.dataSets = ds;
                 
-                MetaDataFactory.getAll('periodTypes').then(function(pts){
-                    pts = orderByFilter(pts, '-frequencyOrder').reverse();
-                    $scope.model.periodTypes = pts;
-                    MetaDataFactory.getAll('categoryCombos').then(function(ccs){
-                        angular.forEach(ccs, function(cc){
-                            $scope.model.categoryCombos[cc.id] = cc;
-                        });
+    downloadMetaData().then(function(){
+        MetaDataFactory.getAll('dataSets').then(function(ds){
+            $scope.model.dataSets = ds;
+
+            MetaDataFactory.getAll('periodTypes').then(function(pts){
+                pts = orderByFilter(pts, '-frequencyOrder').reverse();
+                $scope.model.periodTypes = pts;
+                MetaDataFactory.getAll('categoryCombos').then(function(ccs){
+                    angular.forEach(ccs, function(cc){
+                        $scope.model.categoryCombos[cc.id] = cc;
+                    });
+
+                    DataElementGroupFactory.getNonControllingDataElementGroups().then(function (degs) {
+                        $scope.dataElementGroups = degs;
                         
-                        DataElementGroupFactory.getNonControllingDataElementGroups().then(function (degs) {
-                            $scope.dataElementGroups = degs;
-                        });
+                        selectionTreeSelection.setMultipleSelectionAllowed( true );
+                        selectionTree.clearSelectedOrganisationUnitsAndBuildTree();
                     });
                 });
             });
+        });
+    });
+    //watch for selection of org unit from tree
+    $scope.$watch('selectedOrgUnits', function() {
+        if( angular.isObject($scope.selectedOrgUnits)){
+            if( !$scope.selectedOrgUnits || $scope.selectedOrgUnits.length > 1 ){
+                $scope.model.includeChildren = false;
+            }
         }
     });
     
@@ -150,29 +145,45 @@ customReport.controller('dataEntryController',
     
     $scope.generateReport = function(){
         
-        var ds = $scope.model.selectedDataSet.id;        
+        $scope.model.reportStarted = true;
+        $scope.model.reportReady = false;
+        $scope.model.showReportFilters = false;
+        $scope.model.columns = [];
+        $scope.dataValues = {};
+        
+        if( !$scope.selectedOrgUnits || $scope.selectedOrgUnits.length < 1 ){
+            DataEntryUtils.notify('error', 'please_select_orgunit');
+            return;
+        }
+        
+        if( !$scope.model.periods || $scope.model.periods.length < 1 ){
+            DataEntryUtils.notify('error', 'please_select_period');
+            return;
+        }
+
+        var ds = $scope.model.selectedDataSet.id;
+        
         var periods = [], dimension, filter;
         
         angular.forEach($scope.model.selectedPeriods, function(pe){
             periods.push(pe.id);
         });
         
-        dimension = "pe:" + periods.join(';');
         
-        filter = "ou:" + $scope.selectedOrgUnit.id;
-        
-        $scope.model.reportStarted = true;
-        $scope.model.showReportFilters = false;
-        
-        $scope.dataValues = {};
-        
-        //orderByFilter(dataSets, '-displayName').reverse();
-        $scope.model.columns = orderByFilter( $scope.model.selectedPeriods, '-id').reverse();
+        if( $scope.model.reportColumn === 'ORGUNIT' ){
+            dimension = "ou:" + $scope.selectedOrgUnits.join(';');        
+            filter = "pe:" + periods.join(';');
+        }
+        else{
+            dimension = "pe:" + periods.join(';');
+            filter = "ou:" + $scope.selectedOrgUnits.join(';');
+            $scope.model.columns = orderByFilter( $scope.model.selectedPeriods, '-id').reverse();
+        }
         
         Analytics.get(ds, dimension, filter).then(function(data){
             $scope.model.reportReady = true;
             $scope.model.reportStarted = false;
-            if( data.rows ){
+            if( data.rows && data.headers && data.metaData && data.metaData.items ){
                 angular.forEach(data.rows, function(row){
                     if(!$scope.dataValues[row[0]]){
                         $scope.dataValues[row[0]] = {};
@@ -182,9 +193,15 @@ customReport.controller('dataEntryController',
                     }
                     $scope.dataValues[row[0]][row[1]][row[2]] = row[3];
                 });
-                console.log('dataValues:  ', $scope.dataValues);
-                console.log('periods:  ', $scope.model.selectedPeriods);
-                $scope.customDataEntryForm = CustomFormService.getForDataSet($scope.model.selectedDataSet, $scope.model.dataElements, $scope.dataValues, $scope.model.selectedPeriods.reverse());
+                
+                if( $scope.model.reportColumn === 'ORGUNIT'){
+                    $scope.model.columns = [];
+                    angular.forEach($scope.selectedOrgUnits, function(ou){
+                        $scope.model.columns.push({id: ou, name: data.metaData.items[ou].name});
+                    });
+                    
+                    $scope.model.columns = orderByFilter( $scope.model.columns, '-name').reverse();
+                }
             }
         });
     };

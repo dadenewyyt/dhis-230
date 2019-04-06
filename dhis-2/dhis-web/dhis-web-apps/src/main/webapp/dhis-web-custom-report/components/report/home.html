@@ -6,171 +6,159 @@
 
     <d2-left-bar></d2-left-bar>
 
-    <div class="ou-search-left-bar">
-        <div class="input-group">
-            <input type="text" id="searchField" name="key" class="form-control" placeholder="{{'search'| translate}}">
-            <span class="input-group-btn">
-                <button class="btn btn-primary" type="button" onclick="selection.findByName()">{{'go'| translate}}</button>
-            </span>
-        </div>
-        <!--<img id="searchIcon" src="../images/search.png" style="cursor: pointer" title="{{searchOusLabel}}">
-        <span id="searchSpan" style="width:100%;display:none;">
-            <input type="text" id="searchField" name="key"/>
-            <input type="button" value="{{findLabel}}" onclick="selection.findByName()"/>
-        </span>-->
+    <div class="ou-search-left-bar">        
     </div>
 
-    <div id="orgUnitTree">
-        <ul>
-        </ul>
-    </div>
-
-    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
-
-    <div class="small-horizontal-spacing" ng-if="!treeLoaded">
-        {{'loading_tree'| translate}}
+    <div id="selectionTree" selected-org-units>
     </div>
 
 </div>
 
 
 <div class="page" id="mainPage">
+    <h2>
+        {{'custom_dataset_report'| translate}}
+    </h2>
 
-    <div ng-if="!selectedOrgUnit">
-        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}" ng-if="!selectedOrgUnit"/><br>
-        {{'loading_metadata'| translate}}
-    </div>
+    <!-- selection begins-->
+    <div class="row remove-left-padding">
+        <form class="form-horizontal col-sm-9" role="form" name="reportForm" novalidate>
+            <div class="panel report-panel-color">
+                <div class="panel-heading mouse-pointer" ng-click="model.showReportFilters = !model.showReportFilters">
+                    {{'report_filters'| translate}}
+                    <div class="pull-right">
+                        <a class="small-horizontal-spacing" href ng-click="model.showReportFilters = !model.showReportFilters">
+                            <span ng-show="model.showReportFilters" class="white-color"><i class="fa fa-chevron-up vertical-center" title="{{'collapse'| translate}}"></i></span>
+                            <span ng-show="!model.showReportFilters" class="white-color"><i class="fa fa-chevron-down vertical-center" title="{{'expand'| translate}}"></i></span>
+                        </a>
+                    </div>
+                </div>
+                <div ng-show="model.showReportFilters" class="panel panel-body selectionArea-no-radius remove-bottom-margin">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            {{'org_unit'| translate}}
+                        </div>
+                        <div class="col-sm-9 vertical-center">
 
-    <div ng-show="selectedOrgUnit">
-        <h2>
-            {{'custom_dataset_report'| translate}}
-        </h2>
+                            <input type="checkbox" 
+                                   id="includechildren" 
+                                   ng-disabled="!selectedOrgUnits || selectedOrgUnits.length !== 1"
+                                   ng-model="model.includeChildren">
+                            <label for="includechildren">{{'data_for_selected_unit_only'|translate}}</label>
 
-        <!-- selection begins-->
-        <div class="row remove-left-padding">
-            <form class="form-horizontal col-sm-9" role="form" name="reportForm" novalidate>
-                <div class="panel report-panel-color">
-                    <div class="panel-heading mouse-pointer" ng-click="model.showReportFilters = !model.showReportFilters">
-                        {{'report_filters'| translate}}
-                        <div class="pull-right">
-                            <a class="small-horizontal-spacing" href ng-click="model.showReportFilters = !model.showReportFilters">
-                                <span ng-show="model.showReportFilters" class="white-color"><i class="fa fa-chevron-up vertical-center" title="{{'collapse'| translate}}"></i></span>
-                                <span ng-show="!model.showReportFilters" class="white-color"><i class="fa fa-chevron-down vertical-center" title="{{'expand'| translate}}"></i></span>
-                            </a>
+                            <!--<input type="text" class="form-control" selected-org-unit ng-model="selectedOrgUnit.displayName"
+                                   value="{{selectedOrgUnit.displayName|| pleaseSelectLabel}}" disabled="">
+                            <div class="row small-vertical-spacing" ng-if="selectedOrgUnit.c && selectedOrgUnit.c.length">
+                                <div class="col-sm-12">
+                                    <input type="checkbox" id="includechildren" ng-model="model.includeChildren"> <label for="includechildren">{{'data_for_selected_unit_only'|translate}}</label>
+                                </div>
+                            </div>-->
                         </div>
                     </div>
-                    <div ng-show="model.showReportFilters" class="panel panel-body selectionArea-no-radius remove-bottom-margin">
-                        <div class="row">
-                            <div class="col-sm-3">
-                                {{'org_unit'| translate}}
-                            </div>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" selected-org-unit ng-model="selectedOrgUnit.displayName"
-                                       value="{{selectedOrgUnit.displayName|| pleaseSelectLabel}}" disabled="">
-                                <div class="row small-vertical-spacing" ng-if="selectedOrgUnit.c && selectedOrgUnit.c.length">
-                                    <div class="col-sm-12">
-                                        <input type="checkbox" id="includechildren" ng-model="model.includeChildren"> <label for="includechildren">{{'data_for_selected_unit_only'|translate}}</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>                
-                        <div class="row small-vertical-spacing">
-                            <div class="col-sm-3">
-                                {{'data_set'| translate}}
-                            </div>
-                            <div class="col-sm-9">                        
-                                <ui-select ng-model="model.selectedDataSet" 
-                                           theme="select2"                                 
-                                           style="width:100%;">
-                                    <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.dataSets && model.dataSets.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
-                                    <ui-select-choices repeat="dataSet in model.dataSets | filter: $select.search | limitTo:maxOptionSize">
-                                        <span ng-bind-html="dataSet.displayName | highlight: $select.search"></span>
-                                    </ui-select-choices>
-                                </ui-select>
-                            </div>
+                    <div class="row small-vertical-spacing">
+                        <div class="col-sm-3">
+                            {{'report_columns'| translate}}
                         </div>
-                        <div class="row small-vertical-spacing">
-                            <div class="col-sm-3">
-                                {{'period_type'| translate}}
-                            </div>
-                            <div class="col-sm-9">                        
-                                <ui-select ng-model="model.selectedPeriodType" 
-                                           theme="select2"                                 
-                                           style="width:100%;">
-                                    <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.periodTypes && model.periodTypes.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.name|| $select.selected}}</ui-select-match>
-                                    <ui-select-choices repeat="periodType in model.periodTypes | filter: $select.search | limitTo:maxOptionSize">
-                                        <span ng-bind-html="periodType.name | highlight: $select.search"></span>
-                                    </ui-select-choices>
-                                </ui-select>
-                            </div>
+                        <div class="col-sm-9 vertical-center">
+                            <label class="radio-inline"><input type="radio" ng-model="model.reportColumn" name="reportCol" value='PERIOD'>{{'periods'| translate}}</label>
+                            <label class="radio-inline"><input type="radio" ng-model="model.reportColumn" name="reportCol" value='ORGUNIT'>{{'org_units'| translate}}</label>
                         </div>
-                        <div class="row small-vertical-spacing" ng-if="model.selectedDataSet && model.selectedPeriodType">
-                            <div class="col-sm-12">
-                                <d2-multi-select 
-                                    ng-model="model.selectedPeriods" 
-                                    available="model.periods" 
-                                    available-label="{{'available_periods'| translate}}" 
-                                    selected-label="{{'selected_periods'| translate}}"                     
-                                    display-attr="name">
-                                </d2-multi-select>
-                            </div>
-                            <div class="small-vertical-spacing">
-                                <div class="col-sm-6">
-                                    <div class="pull-left">                                    
-                                        <button type="button" 
-                                                class="btn btn-default" 
-                                                ng-click="getPeriods('PRV')" 
-                                                title="{{'previous_periods'| translate}}">
-                                            {{'previous_year'| translate}}
-                                        </button>
+                    </div>
+                    <div class="row small-vertical-spacing">
+                        <div class="col-sm-3">
+                            {{'data_set'| translate}}
+                        </div>
+                        <div class="col-sm-9">                        
+                            <ui-select ng-model="model.selectedDataSet" 
+                                       theme="select2"                                 
+                                       style="width:100%;">
+                                <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.dataSets && model.dataSets.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                <ui-select-choices repeat="dataSet in model.dataSets | filter: $select.search | limitTo:maxOptionSize">
+                                    <span ng-bind-html="dataSet.displayName | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="row small-vertical-spacing">
+                        <div class="col-sm-3">
+                            {{'period_type'| translate}}
+                        </div>
+                        <div class="col-sm-9">                        
+                            <ui-select ng-model="model.selectedPeriodType" 
+                                       theme="select2"                                 
+                                       style="width:100%;">
+                                <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.periodTypes && model.periodTypes.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.name|| $select.selected}}</ui-select-match>
+                                <ui-select-choices repeat="periodType in model.periodTypes | filter: $select.search | limitTo:maxOptionSize">
+                                    <span ng-bind-html="periodType.name | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="row small-vertical-spacing" ng-if="model.selectedDataSet && model.selectedPeriodType">
+                        <div class="col-sm-12">
+                            <d2-multi-select 
+                                ng-model="model.selectedPeriods" 
+                                available="model.periods" 
+                                available-label="{{'available_periods'| translate}}" 
+                                selected-label="{{'selected_periods'| translate}}"                     
+                                display-attr="name">
+                            </d2-multi-select>
+                        </div>
+                        <div class="small-vertical-spacing">
+                            <div class="col-sm-6">
+                                <div class="pull-left">                                    
+                                    <button type="button" 
+                                            class="btn btn-default" 
+                                            ng-click="getPeriods('PRV')" 
+                                            title="{{'previous_periods'| translate}}">
+                                        {{'previous_year'| translate}}
+                                    </button>
 
-                                        <button type="button" 
-                                                class="btn btn-default" 
-                                                ng-disabled="periodOffset > -1" 
-                                                ng-click="getPeriods('NXT')" 
-                                                title="{{'next_periods'| translate}}">
-                                            {{'next_year'| translate}}
-                                        </button>                                    
-                                    </div>
+                                    <button type="button" 
+                                            class="btn btn-default" 
+                                            ng-disabled="periodOffset > -1" 
+                                            ng-click="getPeriods('NXT')" 
+                                            title="{{'next_periods'| translate}}">
+                                        {{'next_year'| translate}}
+                                    </button>                                    
                                 </div>
                             </div>
                         </div>
-                        <div class="row small-vertical-spacing" ng-if="model.selectedDataSet && model.selectedPeriodType && model.selectedPeriods.length > 0">                    
-                            <div class="col-sm-12">
-                                <button type="button" 
-                                        class="btn btn-primary" 
-                                        ng-click="generateReport()">
-                                    {{'generate_report'| translate}}
-                                </button>
-                            </div>
+                    </div>
+                    <div class="row small-vertical-spacing" ng-if="model.selectedDataSet && model.selectedPeriodType && model.selectedPeriods.length > 0">                    
+                        <div class="col-sm-12">
+                            <button type="button" 
+                                    class="btn btn-primary pull-right" 
+                                    ng-click="generateReport()">
+                                {{'generate_report'| translate}}
+                            </button>
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-        <!-- selection ends -->
-
-        <!-- report progress indicator begins -->
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="alert alert-info" ng-if="model.reportStarted && !model.reportReady">
-                    {{'generating_report'| translate}}
-                    <span class="small-horizontal-spacing"><i class="fa fa-spinner fa-spin fa-2x"></i></span>
-                </div>
-            </div>                
-        </div>
-        <!-- report progress indicator ends -->
-
-        <!-- report begins -->
-        <div class="row">
-            <div class="col-sm-12">
-                <div ng-if="model.reportReady" ng-include="'components/report/defaultForm.html'"></div>
-                <!--<div ng-if="!model.selectedDataSet.dataEntryForm" ng-include="'components/report/defaultForm.html'"></div>
-                <div ng-if="model.selectedDataSet.dataEntryForm" ng-include="'components/report/customForm.html'"></div>-->
             </div>
-        </div>
-        <!-- report ends -->
-
+        </form>
     </div>
+    <!-- selection ends -->
+
+    <!-- report progress indicator begins -->
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="alert alert-info" ng-if="model.reportStarted && !model.reportReady">
+                {{'generating_report'| translate}}
+                <span class="small-horizontal-spacing"><i class="fa fa-spinner fa-spin fa-2x"></i></span>
+            </div>
+        </div>                
+    </div>
+    <!-- report progress indicator ends -->
+
+    <!-- report begins -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div ng-if="model.reportReady" ng-include="'components/report/defaultForm.html'"></div>
+            <!--<div ng-if="!model.selectedDataSet.dataEntryForm" ng-include="'components/report/defaultForm.html'"></div>
+            <div ng-if="model.selectedDataSet.dataEntryForm" ng-include="'components/report/customForm.html'"></div>-->
+        </div>
+    </div>
+    <!-- report ends -->
 
 </div>

@@ -29,7 +29,7 @@ var customReport = angular.module('customReport',
     
     $routeProvider.when('/report', {
         templateUrl:'components/report/home.html',
-        controller: 'dataEntryController'
+        controller: 'customReportController'
     }).otherwise({
         redirectTo : '/report'
     });  

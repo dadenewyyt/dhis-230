@@ -149,7 +149,25 @@ function ajax_login()
 function downloadMetaData()
 {
     console.log('Loading required meta-data');
-    var def = $.Deferred();
+    
+    return dhis2.customReport.store.open()
+        .then( getUserRoles )
+        .then( getSystemSetting )
+        .then( getPeriodTypes )
+
+        .then( getMetaCategoryCombos )
+        .then( filterMissingCategoryCombos )
+        .then( getCategoryCombos )
+
+        .then( getMetaDataElementGroups )
+        .then( filterMissingDataElementGroups )
+        .then( getDataElementGroups )
+
+        .then( getMetaDataSets )
+        .then( filterMissingDataSets )
+        .then( getDataSets );
+    
+    /*var def = $.Deferred();
     var promise = def.promise();
 
     promise = promise.then( dhis2.customReport.store.open );
@@ -181,7 +199,7 @@ function downloadMetaData()
         selection.responseReceived(); 
     });
 
-    def.resolve();    
+    def.resolve();*/    
 }
 function getUserRoles(){
     /*var SessionStorageService = angular.element('body').injector().get('SessionStorageService');    
