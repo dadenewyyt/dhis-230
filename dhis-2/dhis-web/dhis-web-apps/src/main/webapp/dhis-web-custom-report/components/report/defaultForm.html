@@ -105,8 +105,13 @@
                         <div ng-if="ocos.length === 1" ng-bind="de.displayFormName">
                         </div>
                     </td>
-                    <td class="pull-center" ng-repeat="col in model.columns">                        
-                        {{dataValues[de.id][oco.id][col.id]}}
+                    <td class="pull-center" ng-repeat="col in model.columns">
+                        <span ng-if="ocos.length === 1">
+                            {{dataValues[de.id]['total'][col.id]}}
+                        </span>
+                        <span ng-if="ocos.length > 1">
+                            {{dataValues[de.id][oco.id][col.id]}}
+                        </span>
                     </td>
                 </tr>
             </tbody>                        

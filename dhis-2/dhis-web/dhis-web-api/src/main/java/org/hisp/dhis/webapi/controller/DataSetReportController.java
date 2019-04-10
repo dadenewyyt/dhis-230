@@ -41,7 +41,6 @@ import org.hisp.dhis.datasetreport.DataSetReportService;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
 import org.hisp.dhis.i18n.I18nManager;
-import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
@@ -207,21 +206,21 @@ public class DataSetReportController
         Set<String> deDimension = new HashSet<>();
         Set<String> dtDimension = new HashSet<>();
         Set<String> inDimension = new HashSet<>();
-        
+
         Grid grid = new ListGrid();
         Grid dtGrid = new ListGrid();
         Grid inGrid = new ListGrid();
-        
+
         if ( !dimension.isEmpty() )
         {
-            for( String dim : dimension )
+            for ( String dim : dimension )
             {
                 deDimension.add( dim );
                 dtDimension.add( dim );
                 inDimension.add( dim );
             }
         }
-        
+
         DataSet selectedDataSet = dataSetService.getDataSet( ds );
 
         if ( selectedDataSet == null )
@@ -229,24 +228,50 @@ public class DataSetReportController
             throw new WebMessageException( WebMessageUtils.conflict( "Illegal data set identifier: " + ds ) );
         }
 
-        Set<DataElement> dataElements = selectedDataSet.getDataElements();
+        Set<String> dataElements = new HashSet<>();
+        Set<String> totalDataElements = new HashSet<>();
 
-        Set<Indicator> indicators = selectedDataSet.getIndicators();
-
-        if ( dataElements.isEmpty() )
+        if ( selectedDataSet.getDataElements().isEmpty() && selectedDataSet.getIndicators().isEmpty() )
         {
-            throw new WebMessageException( WebMessageUtils.conflict( "Data set has no data elements: " + ds ) );
+            throw new WebMessageException(
+                WebMessageUtils.conflict( "Data set has neither data elements nor indicators: " + ds ) );
         }
 
-        String dataElementIds = ObjectUtils.join( dataElements, TextUtils.SEMICOLON, de -> de.getUid() );
-        String indicatorIds = ObjectUtils.join( indicators, TextUtils.SEMICOLON, ind -> ind.getUid() );
-        
-        deDimension.add( "dx:" + dataElementIds );
-        deDimension.add( "co" );
-        
-        dtDimension.add( "dx:" + dataElementIds );
-        
-        inDimension.add( "dx:" + indicatorIds );
+        boolean disaggregationAdded = false;
+
+        for ( DataElement dataElement : selectedDataSet.getDataElements() )
+        {
+            if ( dataElement.getDataElementCategoryCombo().isDefault() )
+            {
+                totalDataElements.add( dataElement.getUid() );
+            }
+            else
+            {
+                if ( !disaggregationAdded )
+                {
+                    deDimension.add( "co" );
+                    disaggregationAdded = true;
+                }
+                dataElements.add( dataElement.getUid() );
+                totalDataElements.add( dataElement.getUid() );
+            }
+        }
+
+        if ( !dataElements.isEmpty() )
+        {
+            deDimension.add( "dx:" + String.join( TextUtils.SEMICOLON, dataElements ) );
+        }
+
+        if ( !totalDataElements.isEmpty() )
+        {
+            dtDimension.add( "dx:" + String.join( TextUtils.SEMICOLON, totalDataElements ) );
+        }
+
+        if ( !selectedDataSet.getIndicators().isEmpty() )
+        {
+            inDimension.add(
+                "dx:" + ObjectUtils.join( selectedDataSet.getIndicators(), TextUtils.SEMICOLON, ind -> ind.getUid() ) );
+        }
 
         DataQueryRequest deRequest = DataQueryRequest.newBuilder().dimension( deDimension ).filter( filter ).build();
         DataQueryRequest dtRequest = DataQueryRequest.newBuilder().dimension( dtDimension ).filter( filter ).build();
@@ -254,26 +279,26 @@ public class DataSetReportController
 
         DataQueryParams deParams = dataQueryService.getFromRequest( deRequest );
         DataQueryParams dtParams = dataQueryService.getFromRequest( dtRequest );
-        DataQueryParams inParams = dataQueryService.getFromRequest( inRequest );        
-        
+        DataQueryParams inParams = dataQueryService.getFromRequest( inRequest );
+
         grid = analyticsService.getAggregatedDataValues( deParams );
         dtGrid = analyticsService.getAggregatedDataValues( dtParams );
         inGrid = analyticsService.getAggregatedDataValues( inParams );
-        
-        Object dummyColumn = new String("total");
-        
-        for( List<Object> row : dtGrid.getRows() )
+
+        Object dummyColumn = new String( "total" );
+
+        for ( List<Object> row : dtGrid.getRows() )
         {
             row.add( 1, dummyColumn );
         }
         grid.addRows( dtGrid );
-        
-        for( List<Object> row : inGrid.getRows() )
+
+        for ( List<Object> row : inGrid.getRows() )
         {
             row.add( 1, dummyColumn );
         }
         grid.addRows( inGrid );
-        
+
         return grid;
     }
 }
