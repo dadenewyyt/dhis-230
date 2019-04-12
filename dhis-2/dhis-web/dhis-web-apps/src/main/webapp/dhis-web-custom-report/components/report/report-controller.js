@@ -7,17 +7,12 @@ var customReport = angular.module('customReport');
 //Controller for settings page
 customReport.controller('customReportController',
         function($scope,
-                $modal,
                 orderByFilter,
-                SessionStorageService,
                 PeriodService,
                 MetaDataFactory,
-                CustomFormService,
                 DataElementGroupFactory,
                 DataEntryUtils,
-                Analytics,
-                ModalService,
-                DialogService) { 
+                Analytics) { 
     $scope.periodOffset = 0;
     $scope.model = {dataSets: [],
                     reportColumn: 'PERIOD',

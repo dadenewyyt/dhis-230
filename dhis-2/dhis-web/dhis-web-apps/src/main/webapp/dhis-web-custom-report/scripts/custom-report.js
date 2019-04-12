@@ -151,7 +151,6 @@ function downloadMetaData()
     console.log('Loading required meta-data');
     
     return dhis2.customReport.store.open()
-        .then( getUserRoles )
         .then( getSystemSetting )
         .then( getPeriodTypes )
 
@@ -166,47 +165,6 @@ function downloadMetaData()
         .then( getMetaDataSets )
         .then( filterMissingDataSets )
         .then( getDataSets );
-    
-    /*var def = $.Deferred();
-    var promise = def.promise();
-
-    promise = promise.then( dhis2.customReport.store.open );
-    promise = promise.then( getUserRoles );    
-    promise = promise.then( getSystemSetting );
-    promise = promise.then( getPeriodTypes );
-    
-    //fetch category combos
-    promise = promise.then( getMetaCategoryCombos );
-    promise = promise.then( filterMissingCategoryCombos );
-    promise = promise.then( getCategoryCombos );
-    
-    //fetch dataElementGroups
-    promise=promise.then(getMetaDataElementGroups);
-    promise=promise.then(filterMissingDataElementGroups);
-    promise=promise.then(getDataElementGroups);
-        
-    //fetch data sets
-    promise = promise.then( getMetaDataSets );
-    promise = promise.then( filterMissingDataSets );
-    promise = promise.then( getDataSets );
-    
-    promise.done(function() {        
-        //Enable ou selection after meta-data has downloaded
-        $( "#orgUnitTree" ).removeClass( "disable-clicks" );
-        dhis2.rd.metaDataCached = true;
-        dhis2.availability.startAvailabilityCheck();
-        console.log( 'Finished loading meta-data' );        
-        selection.responseReceived(); 
-    });
-
-    def.resolve();*/    
-}
-function getUserRoles(){
-    /*var SessionStorageService = angular.element('body').injector().get('SessionStorageService');    
-    if( SessionStorageService.get('USER_PROFILE') ){        
-        return; 
-    }*/    
-    return dhis2.metadata.getMetaObject(null, 'USER_PROFILE', '../api/me.json', 'fields=id,displayName,userCredentials[username,userRoles[id,dataSets,programs,authorities]],organisationUnits[id,displayName,level,code,path,children[id,displayName,level,children[id]]],dataViewOrganisationUnits[id,displayName,level,path,code,children[id,displayName,level,children[id]]],teiSearchOrganisationUnits[id,displayName,level,path,code,children[id,displayName,level,children[id]]]', 'sessionStorage', dhis2.customReport.store);
 }
 
 function getSystemSetting(){   

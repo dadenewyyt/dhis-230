@@ -476,6 +476,111 @@ var d2Services = angular.module('d2Services', ['ngResource'])
             }
             return null;
         },
+        getForDataSetReport: function (dataSet, dataElements, dataValues, columns) {
+
+            var htmlCode = dataSet.dataEntryForm ? dataSet.dataEntryForm.htmlCode : null;
+
+            if (htmlCode) {
+                
+                var headerCols = '', cellCols = '';
+                for( var j=0; j<columns.length; j++){
+                    headerCols += '<td><strong>' + columns[j].name + '</strong></td>';
+                    cellCols += '<td>' + columns[j].iso + '</td>';
+                }
+                
+                var inputRegex = /<input.*?\/>/g,
+                    trRegex = /<tr[\s\S]*?<\/tr>/g,
+                    tdRegex = /<td[\s\S]*?<\/td>/g,
+                    inputMatch,
+                    trMatch,
+                    tdMatch,
+                    inputFields = [],
+                    rows = [],
+                    cells = [],
+                    firstRow,
+                    firstInputFound = false,
+                    rowCount = 0;
+                
+                while ( trMatch = trRegex.exec(htmlCode) ){                    
+                    
+                    rows.push( trMatch[0] );
+                    
+                    while( tdMatch = tdRegex.exec(trMatch[0]) ){
+                        
+                        while( inputMatch = inputRegex.exec( tdMatch[0] ) )
+                        {
+                            cells.push( tdMatch[0] );
+                            inputFields.push( inputMatch[0] );                            
+                            if( !firstInputFound ){
+                                firstRow = rows[rowCount-1];
+                                firstInputFound = true;
+                            }
+                        }
+                    }
+                    rowCount++;
+                }
+                
+                var lastHeaderCell = firstRow.match(tdRegex);
+                htmlCode = htmlCode.replace(lastHeaderCell[lastHeaderCell.length-1], headerCols);                
+                
+                var index = 0;
+                inputFields.forEach(function(inputField){
+                                       
+                    var inputElement = $.parseHTML(inputField);
+                    var attributes = {};
+                    
+                    $(inputElement[0].attributes).each(function () {
+                        attributes[this.nodeName] = this.value;
+                    });
+                    
+                    var fieldId = '', newInputField = '';
+                    
+                    if (attributes.hasOwnProperty('id')) {
+                        
+                        fieldId = attributes['id'];
+                        
+                        if( attributes.id.startsWith('total') ){
+                            columns.forEach(function(col){
+                                var val = col.id;
+                                /*if( dataValues[deId] && dataValues[deId][ocId] && dataValues[deId][ocId][col.id] ){
+                                    val = dataValues[deId][ocId][col.id];
+                                }*/
+                                newInputField += '<td style="text-align: center">' + val + '</span></td>';
+                            });
+                        }
+                        else if( attributes.id.startsWith('indicator') ){
+                            columns.forEach(function(col){
+                                var val = col.id;
+                                /*if( dataValues[deId] && dataValues[deId][ocId] && dataValues[deId][ocId][col.id] ){
+                                    val = dataValues[deId][ocId][col.id];
+                                }*/
+                                newInputField += '<td style="text-align: center">' + val + '</span></td>';
+                            });
+                        }
+                        else{
+                            newInputField = '';
+                            var ids = fieldId.split('-');
+                            var deId = ids[0];
+                            var ocId = ids[1];
+                            
+                            columns.forEach(function(col){
+                                var val = '';
+                                if( dataValues[deId] && dataValues[deId][ocId] && dataValues[deId][ocId][col.id] ){
+                                    val = dataValues[deId][ocId][col.id];
+                                }
+                                newInputField += '<td style="text-align: center">' + val + '</span></td>';
+                            });
+                        }
+                    }
+                    
+                    htmlCode = htmlCode.replace( cells[index], newInputField );
+                    index++;
+                });
+                
+                return {htmlCode: htmlCode, hasEventDate: false};
+            }
+            return null;
+        },
         getAttributesAsString: function (attributes) {
             if (attributes) {
                 var attributesAsString = '';
@@ -835,7 +940,7 @@ var d2Services = angular.module('d2Services', ['ngResource'])
     };
 })
 
-.service('DataEntryUtils', function($q, $translate, $filter, DialogService, OrgUnitService, OptionSetService){
+.service('DataEntryUtils', function($q, $translate, $filter, SessionStorageService, DialogService, OrgUnitService, OptionSetService){
     return {
         getSum: function( op1, op2 ){
             op1 = dhis2.validation.isNumber(op1) ? parseInt(op1) : 0;

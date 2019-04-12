@@ -56,6 +56,25 @@ var d2Directives = angular.module('d2Directives', [])
     };
 })
 
+.directive('selectedOrgUnits', function ($timeout, IndexDBService) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+            
+            //listen to user selection, and inform angular
+            selectionTreeSelection.setListenerFunction( setSelectedOus );
+            function setSelectedOus(ids) {
+                if( ids && ids.length > 0 ){
+                    $timeout(function () {
+                        scope.selectedOrgUnits = ids;
+                        scope.$apply();
+                    });
+                }
+            }
+        }
+    };
+})
+
 .directive('d2SetFocus', function ($timeout) {
 
     return {        
