@@ -153,7 +153,7 @@ function downloadMetaData()
     var promise = def.promise();
 
     promise = promise.then( dhis2.planSetting.store.open );
-    promise = promise.then( getUserRoles );    
+    promise = promise.then( getUserAccessibleDataSet );
     promise = promise.then( getSystemSetting );
     
     //fetch category combos
@@ -198,12 +198,8 @@ function downloadMetaData()
 
     def.resolve();    
 }
-function getUserRoles(){
-    /*var SessionStorageService = angular.element('body').injector().get('SessionStorageService');    
-    if( SessionStorageService.get('USER_PROFILE') ){
-       return; 
-    }*/    
-    return dhis2.metadata.getMetaObject(null, 'USER_PROFILE', '../api/me.json', 'fields=id,displayName,userCredentials[username,userRoles[id,dataSets,programs,authorities]],organisationUnits[id,displayName,level,code,path,children[id,displayName,level,children[id]]],dataViewOrganisationUnits[id,displayName,level,path,code,children[id,displayName,level,children[id]]],teiSearchOrganisationUnits[id,displayName,level,path,code,children[id,displayName,level,children[id]]]', 'sessionStorage', dhis2.planSetting.store);
+function getUserAccessibleDataSet(){        
+    return dhis2.metadata.getMetaObject(null, 'ACCESSIBLE_DATASETS', '../api/dataSets/assigned.json', 'fields=id,access[data[write]]&paging=false', 'sessionStorage', dhis2.planSetting.store);
 }
 
 function getSystemSetting(){   

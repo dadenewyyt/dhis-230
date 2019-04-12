@@ -115,15 +115,13 @@ var planSettingServices = angular.module('planSettingServices', ['ngResource'])
             return def.promise;            
         },
         getByOu: function(ou, selectedDataSet){
-            var roles = SessionStorageService.get('USER_PROFILE');
-            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
             var def = $q.defer();
             
             StorageService.currentStore.open().done(function(){
                 StorageService.currentStore.getAll('dataSets').done(function(dss){
                     var dataSets = [];
                     angular.forEach(dss, function(ds){                            
-                        if(ds.organisationUnits.hasOwnProperty( ou.id ) && DataEntryUtils.userHasValidRole(ds,'dataSets', userRoles)){
+                        if(ds.id && ds.organisationUnits.hasOwnProperty( ou.id ) && DataEntryUtils.userHasWriteAccess(ds.id)){
                             dataSets.push(ds);
                         }
                     });
@@ -163,15 +161,13 @@ var planSettingServices = angular.module('planSettingServices', ['ngResource'])
             return def.promise;
         },
         getByOuAndProperty: function(ou, selectedDataSet,propertyName,propertyValue){
-            var roles = SessionStorageService.get('USER_PROFILE');
-            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
             var def = $q.defer();
             
             StorageService.currentStore.open().done(function(){
                 StorageService.currentStore.getAll('dataSets').done(function(dss){
                     var dataSets = [];
                     angular.forEach(dss, function(ds){                            
-                        if(ds.organisationUnits.hasOwnProperty( ou.id ) && DataEntryUtils.userHasValidRole(ds,'dataSets', userRoles) && ds[propertyName] && ds[propertyName]===propertyValue){                            
+                        if(ds.id && ds.organisationUnits.hasOwnProperty( ou.id ) && DataEntryUtils.userHasWriteAccess(ds.id) && ds[propertyName] && ds[propertyName]===propertyValue){                            
                             dataSets.push(ds);
                         }
                     });
