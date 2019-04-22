@@ -140,22 +140,22 @@ customReport.controller('customReportController',
     
     $scope.generateReport = function(){
         
+        if( !$scope.selectedOrgUnits || $scope.selectedOrgUnits.length < 1 ){
+            DataEntryUtils.notify('error', 'please_select_orgunit');
+            return;
+        }
+        
+        if( !$scope.model.selectedPeriods || $scope.model.selectedPeriods.length < 1 ){
+            DataEntryUtils.notify('error', 'please_select_period');
+            return;
+        }
+
         $scope.model.reportStarted = true;
         $scope.model.reportReady = false;
         $scope.model.showReportFilters = false;
         $scope.model.columns = [];
         $scope.dataValues = {};
         
-        if( !$scope.selectedOrgUnits || $scope.selectedOrgUnits.length < 1 ){
-            DataEntryUtils.notify('error', 'please_select_orgunit');
-            return;
-        }
-        
-        if( !$scope.model.periods || $scope.model.periods.length < 1 ){
-            DataEntryUtils.notify('error', 'please_select_period');
-            return;
-        }
-
         var ds = $scope.model.selectedDataSet.id;
         
         var periods = [], dimension, filter;
