@@ -298,8 +298,25 @@ var customReportServices = angular.module('customReportServices', ['ngResource']
 
 .service('Analytics', function($http, DataEntryUtils){
     return {
-        get: function(ds, dimension, filter){
-            var promise = $http.get('../api/dataSetReport/custom?ds=' + ds + "&dimension=" + dimension + "&filter="+filter).then(function(response){
+        get: function(ds, dimension, filter, dataSetType){
+            
+            var url = '../api/dataSetReport/custom?ds=' + ds + "&filter="+filter + "&" + dimension ;
+            
+            if( dataSetType === 'Disease' ){
+                url = '../api/dataSetReport/disease?ds=' + ds + "&filter="+filter + "&" + dimension ;
+            }
+            
+            var promise = $http.get( url ).then(function(response){
+                return response.data;
+            }, function(response){
+                DataEntryUtils.errorNotifier(response);
+                return response.data;
+            });
+            return promise;
+        },
+        getDiseaseReport: function( url ){
+            url = '../api/dataSetReport/diseaseTopList?' + url;
+            var promise = $http.get( url ).then(function(response){
                 return response.data;
             }, function(response){
                 DataEntryUtils.errorNotifier(response);

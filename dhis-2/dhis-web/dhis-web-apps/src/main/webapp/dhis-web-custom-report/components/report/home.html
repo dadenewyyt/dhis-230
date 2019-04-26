@@ -2,7 +2,7 @@
     <a href="javascript:dhis2.leftBar.showAnimated()" title="$i18n.getString('show_menu' )"><i class="fa fa-arrow-right leftBarIcon"></i></a>
 </span>
 
-<div id="leftBar">
+<div id="leftBar" class="hideInPrint">
 
     <d2-left-bar></d2-left-bar>
 
@@ -13,15 +13,13 @@
     </div>
 
 </div>
-
-
 <div class="page" id="mainPage">
-    <h2>
+    <h2 class="hideInPrint">
         {{'custom_dataset_report'| translate}}
     </h2>
 
     <!-- selection begins-->
-    <div class="row remove-left-padding">
+    <div class="row remove-left-padding hideInPrint">
         <form class="form-horizontal col-sm-9" role="form" name="reportForm" novalidate>
             <div class="panel report-panel-color">
                 <div class="panel-heading mouse-pointer" ng-click="model.showReportFilters = !model.showReportFilters">
@@ -34,36 +32,6 @@
                     </div>
                 </div>
                 <div ng-show="model.showReportFilters" class="panel panel-body selectionArea-no-radius remove-bottom-margin">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            {{'org_unit'| translate}}
-                        </div>
-                        <div class="col-sm-9 vertical-center">
-
-                            <input type="checkbox" 
-                                   id="includechildren" 
-                                   ng-disabled="!selectedOrgUnits || selectedOrgUnits.length !== 1"
-                                   ng-model="model.includeChildren">
-                            <label for="includechildren">{{'data_for_selected_unit_only'|translate}}</label>
-
-                            <!--<input type="text" class="form-control" selected-org-unit ng-model="selectedOrgUnit.displayName"
-                                   value="{{selectedOrgUnit.displayName|| pleaseSelectLabel}}" disabled="">
-                            <div class="row small-vertical-spacing" ng-if="selectedOrgUnit.c && selectedOrgUnit.c.length">
-                                <div class="col-sm-12">
-                                    <input type="checkbox" id="includechildren" ng-model="model.includeChildren"> <label for="includechildren">{{'data_for_selected_unit_only'|translate}}</label>
-                                </div>
-                            </div>-->
-                        </div>
-                    </div>
-                    <div class="row small-vertical-spacing">
-                        <div class="col-sm-3">
-                            {{'report_columns'| translate}}
-                        </div>
-                        <div class="col-sm-9 vertical-center">
-                            <label class="radio-inline"><input type="radio" ng-model="model.reportColumn" name="reportCol" value='PERIOD'>{{'periods'| translate}}</label>
-                            <label class="radio-inline"><input type="radio" ng-model="model.reportColumn" name="reportCol" value='ORGUNIT'>{{'org_units'| translate}}</label>
-                        </div>
-                    </div>
                     <div class="row small-vertical-spacing">
                         <div class="col-sm-3">
                             {{'data_set'| translate}}
@@ -79,6 +47,25 @@
                             </ui-select>
                         </div>
                     </div>
+                    
+                    <div ng-repeat="category in model.selectedAttributeCategoryCombo.categories" ng-if="model.selectedDataSet && !model.selectedAttributeCategoryCombo.isDefault">                
+                        <div class="row small-vertical-spacing">                        
+                            <div class="col-sm-3">
+                                {{category.displayName}}
+                            </div>
+                            <div class="col-sm-9">
+                                <ui-select ng-model="category.selectedOption"                                        
+                                           theme="select2" 
+                                           style="width:100%;">
+                                    <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'all'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                    <ui-select-choices  repeat="option in category.categoryOptions | filter: $select.search | limitTo:maxOptionSize">
+                                        <span ng-bind-html="option.displayName | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="row small-vertical-spacing">
                         <div class="col-sm-3">
                             {{'period_type'| translate}}
@@ -92,6 +79,15 @@
                                     <span ng-bind-html="periodType.name | highlight: $select.search"></span>
                                 </ui-select-choices>
                             </ui-select>
+                        </div>
+                    </div>
+                    <div class="row small-vertical-spacing">
+                        <div class="col-sm-3">
+                            {{'report_columns'| translate}}
+                        </div>
+                        <div class="col-sm-9 vertical-center">
+                            <label class="radio-inline"><input type="radio" ng-model="model.reportColumn" name="reportCol" value='PERIOD'>{{'periods'| translate}}</label>
+                            <label class="radio-inline"><input type="radio" ng-model="model.reportColumn" name="reportCol" value='ORGUNIT'>{{'org_units'| translate}}</label>
                         </div>
                     </div>
                     <div class="row small-vertical-spacing" ng-if="model.selectedDataSet && model.selectedPeriodType">
@@ -153,10 +149,9 @@
 
     <!-- report begins -->
     <div class="row">
-        <div class="col-sm-12">
-            <div ng-if="model.reportReady" ng-include="'components/report/defaultForm.html'"></div>
-            <!--<div ng-if="!model.selectedDataSet.dataEntryForm" ng-include="'components/report/defaultForm.html'"></div>
-            <div ng-if="model.selectedDataSet.dataEntryForm" ng-include="'components/report/customForm.html'"></div>-->
+        <div class="col-sm-12" ng-if="model.reportReady && model.dataExists">
+            <div ng-if="model.selectedDataSet.DataSetCategory !== 'Disease'" ng-include="'components/report/defaultForm.html'"></div>
+            <div ng-if="model.selectedDataSet.DataSetCategory === 'Disease'" ng-include="'components/report/defaultFormDisease.html'"></div>
         </div>
     </div>
     <!-- report ends -->

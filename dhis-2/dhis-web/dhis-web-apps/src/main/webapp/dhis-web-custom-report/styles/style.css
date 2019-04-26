@@ -622,7 +622,7 @@ div#selectionTree {
 }
 
 .select-list-buttons {
-    padding-top: 90px;
+    padding-top: 50px;
 }
 
 .select-list-labels {
@@ -863,9 +863,6 @@ div#selectionTree {
     overflow: auto;
     width: 100%;
 
-
-
-    margin: auto;
     border-collapse: collapse;
     overflow-x: auto;
     display: block;
@@ -908,6 +905,10 @@ div#selectionTree {
     font-size: 20pt;
 }
 
+.dsr-name {
+    font-size: 18pt !important;
+}
+
 .ind-style{
     font-size: 10pt !important;
     font-weight: bold;
@@ -935,4 +936,8 @@ div#selectionTree {
 
 .nav, .pagination, .carousel, .panel-title a, .mouse-pointer{ 
     cursor: pointer; 
+}
+
+.report-tab {
+    font-size: 24pt;
 }

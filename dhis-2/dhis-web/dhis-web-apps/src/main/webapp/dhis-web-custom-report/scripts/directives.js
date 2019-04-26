@@ -17,27 +17,38 @@ var customReportDirectives = angular.module('customReportDirectives', [])
             available: "=",
             model: "=ngModel"
         },
-        template: '<div class="row">'+
-                    '<div class="col-sm-5">' + 
-                        '<div class="select-list-labels">{{ availableLabel }}</div>' +
-                        '<div><select id="multiSelectAvailable" ng-model="selected.available" multiple ng-options="e as e[displayAttr] for e in available | filter:filterText | orderBy: \'displayName\'"></select></div>' + 
-                    '</div>' + 
-                    '<div class="col-sm-2">' + 
-                      '<div class="select-list-buttons"><button class="btn btn-default btn-block" ng-click="add()" ng-disabled="selected.available.length == 0">' + 
-                        '{{\'select\' | translate}}' + 
-                      '</div></button>' + 
-                      '<div class="vertical-spacing"><button class="btn btn-default btn-block" ng-click="remove()" ng-disabled="selected.current.length == 0">' + 
-                        '{{\'remove\' | translate}}' + 
-                      '</div></button>' +
-                      '<div class="vertical-spacing"><button class="btn btn-default btn-block" ng-click="clear()" ng-disabled="model.length == 0">' + 
-                        '{{\'clear\' | translate}}' + 
-                      '</div></button>' +
-                    '</div>' + 
-                    '<div class="col-sm-5">' +
-                        '<div class="select-list-labels">{{ selectedLabel }}<span class="required">*</span></div>' +
-                        '<div><select id="multiSelectSelected" name="multiSelectSelected" ng-model="selected.current" multiple ng-options="e as e[displayAttr] for e in model | orderBy: \'name\'"></select></div>' +
-                    '</div>' +
-                  '</div>',
+        template:   '<div class="row">'+
+                        '<div class="col-sm-5">' + 
+                            '<div class="select-list-labels">{{ availableLabel }}</div>' +
+                            '<div><select id="multiSelectAvailable" ng-dblclick="add()" ng-model="selected.available" multiple ng-options="e as e[displayAttr] for e in available | filter:filterText | orderBy: \'id\'"></select></div>' + 
+                        '</div>' + 
+                        '<div class="col-sm-2">' + 
+                            '<div class="select-list-buttons">' + 
+                                '<button title="{{\'select\' | translate}}" class="btn btn-primary btn-block" ng-click="add()" ng-disabled="selected.available.length == 0">' + 
+                                    '<i class="fa fa-angle-right fa-2x"></i>' + 
+                                '</button>' + 
+                                '<div class="vertical-spacing">' + 
+                                    '<button title="{{\'select_all\' | translate}}" class="btn btn-success btn-block" ng-click="addAll()" ng-disabled="available.length == 0">' + 
+                                        '<i class="fa fa-angle-double-right fa-2x"></i>' + 
+                                    '</button>' +
+                                '</div>' +
+                            '</div>' +   
+                            '<div class="vertical-spacing">' + 
+                                '<button title="{{\'remove\' | translate}}" class="btn btn-warning btn-block" ng-click="remove()" ng-disabled="selected.current.length == 0">' + 
+                                    '<i class="fa fa-angle-left fa-2x"></i>' + 
+                                '</button>' +
+                            '</div>' +                            
+                            '<div class="vertical-spacing">' + 
+                                '<button title="{{\'remove_all\' | translate}}" class="btn btn-danger btn-block" ng-click="removeAll()" ng-disabled="model.length == 0">' + 
+                                    '<i class="fa fa-angle-double-left fa-2x"></i>' + 
+                                '</button>' +
+                            '</div>' + 
+                        '</div>' +     
+                        '<div class="col-sm-5">' +
+                            '<div class="select-list-labels">{{ selectedLabel }}<span class="required">*</span></div>' +
+                            '<div><select id="multiSelectSelected" ng-dblclick="remove()" name="multiSelectSelected" ng-model="selected.current" multiple ng-options="e as e[displayAttr] for e in model | orderBy: \'id\'"></select></div>' +
+                        '</div>' +
+                    '</div>',
         link: function (scope, elm, attrs) {
             scope.selected = {
                 available: [],
@@ -86,12 +97,19 @@ var customReportDirectives = angular.module('customReportDirectives', [])
                 scope.model = scope.model.concat(scope.selected.available);
                 scope.refreshAvailable();
             };
+            
+            scope.addAll = function() {
+                scope.model = scope.model.concat( scope.available );
+                scope.refreshAvailable();
+            };
+            
             scope.remove = function () {
                 scope.available = scope.available.concat(scope.selected.current);
                 scope.model = filterOut(scope.model, scope.selected.current);
                 scope.refreshAvailable();
             };
-            scope.clear = function() {
+            
+            scope.removeAll = function() {
                 scope.available = scope.available.concat(scope.model);
                 scope.model = [];
                 scope.refreshAvailable();
@@ -100,6 +118,30 @@ var customReportDirectives = angular.module('customReportDirectives', [])
             $q.all([dataLoading("model"), dataLoading("available")]).then(function (results) {
                 scope.refreshAvailable();
             });
+        }
+    };
+})
+
+.directive('selectedOrgUnits', function ($timeout, IndexDBService) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+            
+            //listen to user selection, and inform angular
+            selectionTreeSelection.setListenerFunction( setSelectedOus );
+            function setSelectedOus(ids, ouNames) {
+                if( ids && ids.length > 0 ){
+                    
+                    var ous = [];
+                    for( var i = 0; i<ids.length; i++){
+                        ous.push({id: ids[i], name: ouNames[i]});
+                    }
+                    $timeout(function () {
+                        scope.selectedOrgUnits = ous;
+                        scope.$apply();
+                    });
+                }
+            }
         }
     };
 });

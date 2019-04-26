@@ -2,16 +2,18 @@
     <div class="col-sm-12 hideInPrint pull-left">
         <button type="button" 
                 class="btn btn-primary"
-                title="{{'excel_export'| translate}}"
+                title="{{'export_to_excel'| translate}}"
                 ng-click="exportData()">
             <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+            {{'export_to_excel' | translate}}
         </button>
-        <!--<button type="button" 
-                class="btn btn-default horizontal-spacing" 
-                title="{{'pdf_print'| translate}}"
+        <button type="button" 
+                class="btn btn-info horizontal-spacing" 
+                title="{{'export_to_pdf'| translate}}"
                 onclick="javascript:window.print()">
             <i class="fa fa-file-pdf-o fa-2x" aria-hidden="true"></i>
-        </button>-->
+            {{'export_to_pdf' | translate}}
+        </button>
     </div>
 </div>
 <div class="row">
@@ -50,7 +52,12 @@
             }
         </style>
         <table class="report-table" ng-if="model.selectedDataSet.dataElements.length > 0">
-            <thead>                            
+            <thead>
+                <tr>
+                    <th colspan="100%" class="de-table-hdr dsr-name">
+                        {{model.reportName}}
+                    </th> 
+                </tr>
                 <tr> 
                     <th class="pull-center de-table-hdr">
                         {{'s_no'| translate}}
@@ -58,9 +65,11 @@
                     <th class="pull-center de-table-hdr">
                         {{'activity'| translate}}
                     </th>
-                    <th class="pull-center de-table-hdr"
-                        ng-repeat="col in model.columns">
+                    <th class="pull-center de-table-hdr" ng-repeat="col in model.columns">
                         {{col.name}}
+                    </th>
+                    <th class="pull-center de-table-hdr" ng-if="model.columns.length > 1">
+                        {{'total' | translate}}
                     </th>
                 </tr>
             </thead>
@@ -71,7 +80,7 @@
                     </td>
                     <td class="ind-style" ng-bind="de.displayTitle.displayName">
                     </td>
-                    <td class="ind-style" colspan="{{model.columns.length}}"></td>
+                    <td class="ind-style" colspan="{{model.columns.length > 1 ? model.columns.length + 1 : model.columns.length}}"></td>
                 </tr>
 
                 <tr ng-repeat="ind in model.selectedDataSet.indicators" ng-if="ind.params.indexOf(de.id) === 0 || ind.params[0].lastIndexOf(de.id, 0) === 0"><!-- last index added for indicators that are defined with option combos-->
@@ -82,6 +91,9 @@
                     <td class="ind-style pull-center" ng-repeat="col in model.columns">
                         {{dataValues[ind.id]['total'][col.id]}}
                     </td>
+                    <td ng-if="model.columns.length > 1">
+                        {{dataValues[ind.id]['total']['grandTotal']}}
+                    </td>
                 </tr>
 
                 <tr class="de-total-style" ng-if="ocos.length > 1">
@@ -91,6 +103,9 @@
                     </td>
                     <td class="pull-center" ng-repeat="col in model.columns">
                         {{dataValues[de.id]['total'][col.id]}}
+                    </td>
+                    <td ng-if="model.columns.length > 1">
+                        {{dataValues[de.id]['total']['grandTotal']}}
                     </td>
                 </tr>
 
@@ -111,6 +126,14 @@
                         </span>
                         <span ng-if="ocos.length > 1">
                             {{dataValues[de.id][oco.id][col.id]}}
+                        </span>
+                    </td>
+                    <td ng-if="model.columns.length > 1">
+                        <span ng-if="ocos.length === 1">
+                            {{dataValues[de.id]['total']['grandTotal']}}
+                        </span>
+                        <span ng-if="ocos.length > 1">
+                            {{dataValues[de.id][oco.id]['grandTotal']}}
                         </span>
                     </td>
                 </tr>
