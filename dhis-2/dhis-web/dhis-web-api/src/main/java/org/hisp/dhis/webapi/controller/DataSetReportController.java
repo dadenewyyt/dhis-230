@@ -30,8 +30,11 @@ package org.hisp.dhis.webapi.controller;
 
 import org.apache.commons.io.IOUtils;
 import org.hisp.dhis.common.Grid;
+import org.hisp.dhis.common.IdScheme;
 import org.hisp.dhis.common.IdentifiableObjectManager;
+import org.hisp.dhis.common.IdentifiableProperty;
 import org.hisp.dhis.common.cache.CacheStrategy;
+import org.hisp.dhis.commons.filter.FilterUtils;
 import org.hisp.dhis.commons.util.TextUtils;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataset.DataSet;
@@ -45,15 +48,18 @@ import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.system.filter.AggregatableDataElementFilter;
 import org.hisp.dhis.system.grid.GridUtils;
-import org.hisp.dhis.system.grid.ListGrid;
 import org.hisp.dhis.util.ObjectUtils;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.analytics.AnalyticsService;
 import org.hisp.dhis.analytics.DataQueryParams;
 import org.hisp.dhis.analytics.DataQueryService;
+import org.hisp.dhis.common.BaseDimensionalObject;
 import org.hisp.dhis.common.DataQueryRequest;
 import org.hisp.dhis.common.DhisApiVersion;
+import org.hisp.dhis.common.DimensionType;
+import org.hisp.dhis.common.DimensionalObject;
 import org.hisp.dhis.webapi.service.WebMessageService;
 import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,12 +69,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.collect.Lists;
+
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -109,6 +119,9 @@ public class DataSetReportController
 
     @Autowired
     private AnalyticsService analyticsService;
+    
+    @Autowired
+    private IdentifiableObjectManager identifiableObjectManager; 
 
     @RequestMapping( method = RequestMethod.GET )
     public void getDataSetReport( HttpServletResponse response, @RequestParam String ds, @RequestParam String pe,
@@ -198,8 +211,9 @@ public class DataSetReportController
 
     @RequestMapping( value = "/custom", method = RequestMethod.GET, produces = { "application/json",
         "application/javascript" } )
-    public @ResponseBody Grid getCustomDataSetReport( HttpServletResponse response, @RequestParam String ds,
-        @RequestParam( required = false ) Set<String> dimension, @RequestParam( required = false ) Set<String> filter,
+    public @ResponseBody Map<String, Object> getCustomDataSetReport( HttpServletResponse response,
+        @RequestParam String ds, @RequestParam( required = false ) Set<String> dimension,
+        @RequestParam( required = false ) Set<String> filter,
         @RequestParam( required = false ) boolean selectedUnitOnly )
         throws Exception
     {
@@ -207,9 +221,11 @@ public class DataSetReportController
         Set<String> dtDimension = new HashSet<>();
         Set<String> inDimension = new HashSet<>();
 
-        Grid grid = new ListGrid();
-        Grid dtGrid = new ListGrid();
-        Grid inGrid = new ListGrid();
+        DataQueryRequest deRequest = null;
+        DataQueryRequest dtRequest = null;
+        DataQueryRequest inRequest = null;
+
+        Map<String, Object> valueMap = new HashMap<>();
 
         if ( !dimension.isEmpty() )
         {
@@ -237,8 +253,6 @@ public class DataSetReportController
                 WebMessageUtils.conflict( "Data set has neither data elements nor indicators: " + ds ) );
         }
 
-        boolean disaggregationAdded = false;
-
         for ( DataElement dataElement : selectedDataSet.getDataElements() )
         {
             if ( dataElement.getDataElementCategoryCombo().isDefault() )
@@ -247,11 +261,6 @@ public class DataSetReportController
             }
             else
             {
-                if ( !disaggregationAdded )
-                {
-                    deDimension.add( "co" );
-                    disaggregationAdded = true;
-                }
                 dataElements.add( dataElement.getUid() );
                 totalDataElements.add( dataElement.getUid() );
             }
@@ -259,46 +268,152 @@ public class DataSetReportController
 
         if ( !dataElements.isEmpty() )
         {
+            deDimension.add( "co" );
             deDimension.add( "dx:" + String.join( TextUtils.SEMICOLON, dataElements ) );
+            deRequest = DataQueryRequest.newBuilder().dimension( deDimension ).filter( filter ).build();
+            DataQueryParams deParams = dataQueryService.getFromRequest( deRequest );
+            valueMap = analyticsService.getAggregatedDataValueMapping( deParams );
         }
 
         if ( !totalDataElements.isEmpty() )
         {
             dtDimension.add( "dx:" + String.join( TextUtils.SEMICOLON, totalDataElements ) );
+            dtRequest = DataQueryRequest.newBuilder().dimension( dtDimension ).filter( filter ).build();
+            DataQueryParams dtParams = dataQueryService.getFromRequest( dtRequest );
+            valueMap.putAll( analyticsService.getAggregatedDataValueMapping( dtParams ) );
         }
 
         if ( !selectedDataSet.getIndicators().isEmpty() )
         {
             inDimension.add(
                 "dx:" + ObjectUtils.join( selectedDataSet.getIndicators(), TextUtils.SEMICOLON, ind -> ind.getUid() ) );
+            inRequest = DataQueryRequest.newBuilder().dimension( inDimension ).filter( filter ).build();
+            DataQueryParams inParams = dataQueryService.getFromRequest( inRequest );
+            valueMap.putAll( analyticsService.getAggregatedDataValueMapping( inParams ) );
         }
 
-        DataQueryRequest deRequest = DataQueryRequest.newBuilder().dimension( deDimension ).filter( filter ).build();
-        DataQueryRequest dtRequest = DataQueryRequest.newBuilder().dimension( dtDimension ).filter( filter ).build();
-        DataQueryRequest inRequest = DataQueryRequest.newBuilder().dimension( inDimension ).filter( filter ).build();
+        return valueMap;
+    }
 
-        DataQueryParams deParams = dataQueryService.getFromRequest( deRequest );
-        DataQueryParams dtParams = dataQueryService.getFromRequest( dtRequest );
-        DataQueryParams inParams = dataQueryService.getFromRequest( inRequest );
+    @RequestMapping( value = "/disease", method = RequestMethod.GET, produces = { "application/json",
+        "application/javascript" } )
+    public @ResponseBody Map<String, Object> getDiseaseDataSetReport( HttpServletResponse response,
+        @RequestParam String ds, @RequestParam( required = false ) Set<String> dimension,
+        @RequestParam( required = false ) Set<String> filter,
+        @RequestParam( required = false ) boolean selectedUnitOnly )
+        throws Exception
+    {
+        Map<String, Object> valueMap = new HashMap<>();
 
-        grid = analyticsService.getAggregatedDataValues( deParams );
-        dtGrid = analyticsService.getAggregatedDataValues( dtParams );
-        inGrid = analyticsService.getAggregatedDataValues( inParams );
+        DataSet dataSet = dataSetService.getDataSet( ds );
 
-        Object dummyColumn = new String( "total" );
-
-        for ( List<Object> row : dtGrid.getRows() )
+        if ( dataSet == null )
         {
-            row.add( 1, dummyColumn );
+            throw new WebMessageException( WebMessageUtils.conflict( "Illegal data set identifier: " + ds ) );
         }
-        grid.addRows( dtGrid );
 
-        for ( List<Object> row : inGrid.getRows() )
+        List<DataElement> dataElements = new ArrayList<>( dataSet.getDataElements() );
+        
+        FilterUtils.filter( dataElements, AggregatableDataElementFilter.INSTANCE );
+        
+        if ( dataElements.isEmpty() )
         {
-            row.add( 1, dummyColumn );
+            throw new WebMessageException( WebMessageUtils.conflict( "Data set has no data elements: " + ds ) );
         }
-        grid.addRows( inGrid );
 
-        return grid;
+        if ( !dimension.isEmpty() )
+        {
+            Set<String> deDimension = new HashSet<>();
+            
+            for ( String dim : dimension )
+            {
+                deDimension.add( dim );
+            }
+            
+            deDimension.add( "co" );
+            deDimension.add( "dx:" + ObjectUtils.join( dataElements, TextUtils.SEMICOLON, de -> de.getUid() ) );
+
+            DataQueryRequest deRequest = DataQueryRequest.newBuilder().dimension( deDimension ).filter( filter ).build();
+            DataQueryParams deParams = dataQueryService.getFromRequest( deRequest );
+            valueMap = analyticsService.getAggregatedDataValueMapping( deParams );
+        }
+
+        return valueMap;
+    }
+    
+    
+    @RequestMapping( value = "/diseaseTopList", method = RequestMethod.GET, produces = { "application/json",
+    "application/javascript" } )
+    public @ResponseBody Map<String, Object> getDiseaseTopList( HttpServletResponse response,
+        @RequestParam String ds,
+        @RequestParam Set<String> orgUnits,
+        @RequestParam Set<String> periods,
+        @RequestParam( required = false ) Set<String> dimension,
+        @RequestParam( required = false ) boolean periodAsFilter )
+        throws Exception
+    {
+        Map<String, Object> valueMap = new HashMap<>();
+        List<Period> selectedPeriods = new ArrayList<>();
+        List<OrganisationUnit> organisationUnits = new ArrayList<>();
+    
+        DataSet dataSet = dataSetService.getDataSet( ds );
+    
+        if ( dataSet == null )
+        {
+            throw new WebMessageException( WebMessageUtils.conflict( "Illegal data set identifier: " + ds ) );
+        }
+        
+        List<DataElement> dataElements = new ArrayList<>( dataSet.getDataElements() );
+        
+        FilterUtils.filter( dataElements, AggregatableDataElementFilter.INSTANCE );
+        
+        if ( dataElements.isEmpty() )
+        {
+            throw new WebMessageException( WebMessageUtils.conflict( "Data set has no data elements: " + ds ) );
+        }
+        
+        if ( periods != null && !periods.isEmpty() )
+        {
+            selectedPeriods = periodService.reloadIsoPeriods( new ArrayList<>( periods ) );
+        }
+        
+        if ( selectedPeriods.isEmpty() )
+        {
+            throw new WebMessageException( WebMessageUtils.conflict( "At least one period is required: " + periods) );
+        }
+        
+        if ( orgUnits != null )
+        {
+            organisationUnits = identifiableObjectManager.getObjects( OrganisationUnit.class, IdentifiableProperty.UID, orgUnits );
+        }
+        
+        if ( organisationUnits.isEmpty() )
+        {
+            throw new WebMessageException( WebMessageUtils.conflict( "At least one organisation unit is required: " + orgUnits ) );
+        }
+                    
+        DataQueryParams.Builder params = DataQueryParams.newBuilder()            
+            .withDataElements( dataElements )
+            .withCategoryOptionCombos( Lists.newArrayList() );
+        
+        if ( dimension != null )
+        {
+            params.addFilters( dataQueryService.getDimensionalObjects( dimension, null, null, null, false, IdScheme.UID ) );
+        }
+        
+        if ( periodAsFilter )
+        {
+            params.withOrganisationUnits( organisationUnits );
+            params.addFilter( new BaseDimensionalObject( DimensionalObject.PERIOD_DIM_ID, DimensionType.PERIOD, selectedPeriods ) );
+        }
+        else
+        {
+            params.withPeriods( selectedPeriods );
+            params.addFilter( new BaseDimensionalObject( DimensionalObject.ORGUNIT_DIM_ID, DimensionType.ORGANISATION_UNIT, organisationUnits ) );
+        }
+        
+        valueMap = analyticsService.getAggregatedDataValueMapping( params.build() );
+    
+        return valueMap;
     }
 }
