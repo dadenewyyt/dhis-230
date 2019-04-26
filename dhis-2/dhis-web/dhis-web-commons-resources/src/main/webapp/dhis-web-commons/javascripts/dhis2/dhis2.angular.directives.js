@@ -787,19 +787,20 @@ var d2Directives = angular.module('d2Directives', [])
                 
                 var currentTabIndex = parseInt( attrs.tabindex );
                 
+                var fieldName = attrs.name;
+                
                 var field = null;                               
                 
                 if ( ( key === 9 && event.shiftKey ) || key === 38 || key === 37 ) {//get previous input field
-                    console.log('event handled');
                                         
-                	event.preventDefault(); 
+                    event.preventDefault(); 
                     event.stopPropagation();
                     
-                    field = $( 'input[name="foo"][tabindex="' + ( --currentTabIndex ) + '"]' );
+                    field = $( 'input[name="'+ fieldName + '"][tabindex="' + ( --currentTabIndex ) + '"]' );
                     
                     while( field ){
                         if ( field.is( ':disabled' ) || field.is( ':hidden' ) ) {
-                            field = $( 'input[name="foo"][tabindex="' + ( --currentTabIndex ) + '"]' );
+                            field = $( 'input[name="' + fieldName + '"][tabindex="' + ( --currentTabIndex ) + '"]' );
                         }
                         else {
                             break;
@@ -815,14 +816,14 @@ var d2Directives = angular.module('d2Directives', [])
                 }                
                 else if( ( key === 9 && !event.shiftKey ) || key === 13 || key === 39 || key === 40 ){//get next input field
                         
-                	event.preventDefault(); 
+                    event.preventDefault(); 
                     event.stopPropagation();
                     
-                    field = $( 'input[name="foo"][tabindex="' + ( ++currentTabIndex ) + '"]' );
+                    field = $( 'input[name="'+ fieldName + '"][tabindex="' + ( ++currentTabIndex ) + '"]' );
                     
                     while( field ){
                         if ( field.is( ':disabled' ) || field.is( ':hidden' ) ) {
-                            field = $( 'input[name="foo"][tabindex="' + ( ++currentTabIndex ) + '"]' );
+                            field = $( 'input[name="' + fieldName + '"][tabindex="' + ( ++currentTabIndex ) + '"]' );
                         }
                         else {
                             break;

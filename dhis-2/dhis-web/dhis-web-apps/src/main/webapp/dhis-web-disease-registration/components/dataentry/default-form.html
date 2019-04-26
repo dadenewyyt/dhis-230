@@ -58,9 +58,9 @@
                                 <span ng-switch="model.sde.valueType">
                                     <span ng-switch-when="NUMBER">
                                         <input type="number"  
-                                               name="foo"
+                                               name="fooNew"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
                                                ng-disabled="!model.sde"
                                                d2-tab-index
@@ -71,9 +71,9 @@
                                     </span>
                                     <span ng-switch-when="INTEGER">
                                         <input type="number"   
-                                               name="foo"
+                                               name="fooNew"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
                                                ng-disabled="!model.sde"
                                                d2-tab-index
@@ -84,9 +84,9 @@
                                     </span>
                                     <span ng-switch-when="INTEGER_POSITIVE">
                                         <input type="number" 
-                                               name="foo"
+                                               name="fooNew"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
                                                ng-disabled="!model.sde"
                                                d2-tab-index
@@ -97,9 +97,9 @@
                                     </span>
                                     <span ng-switch-when="INTEGER_NEGATIVE">
                                         <input type="number"   
-                                               name="foo"
+                                               name="fooNew"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
                                                ng-disabled="!model.sde"
                                                d2-tab-index
@@ -110,9 +110,9 @@
                                     </span>
                                     <span ng-switch-when="INTEGER_ZERO_OR_POSITIVE">
                                         <input type="number"   
-                                               name="foo"
+                                               name="fooNew"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
                                                ng-disabled="!model.sde"
                                                d2-tab-index
@@ -131,7 +131,7 @@
                                     </span>
                                 </span>
                             </span>                                            
-                            <span ng-messages="innerAddForm.foo.$error" ng-if="interacted(innerAddForm.foo)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html">                                         
+                            <span ng-messages="innerAddForm.fooNew.$error" ng-if="interacted(innerAddForm.fooNew)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html">                                         
                             </span>
                         </ng-form>
                     </td>
@@ -149,7 +149,7 @@
                                         <input type="number"  
                                                name="foo"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
                                                ng-disabled="model.sde"
                                                d2-tab-index 
@@ -162,7 +162,7 @@
                                         <input type="number"   
                                                name="foo"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
                                                ng-disabled="model.sde"
                                                d2-tab-index
@@ -175,7 +175,7 @@
                                         <input type="number" 
                                                name="foo"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
                                                ng-disabled="model.sde"
                                                d2-tab-index
@@ -188,7 +188,7 @@
                                         <input type="number"   
                                                name="foo"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
                                                ng-disabled="model.sde"
                                                d2-tab-index
@@ -201,7 +201,7 @@
                                         <input type="number"   
                                                name="foo"
                                                d2-number-validator
-                                               number-type={{de.valueType}}
+                                               number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
                                                ng-disabled="model.sde"
                                                d2-tab-index
@@ -224,8 +224,10 @@
                             </span>
                         </ng-form>
                     </td>
-                    <td>{{value.total}}</td>
-                </tr>                
+                    <td>
+                        {{value.total}}
+                    </td>
+                </tr>
             </tbody>
         </table>
         
