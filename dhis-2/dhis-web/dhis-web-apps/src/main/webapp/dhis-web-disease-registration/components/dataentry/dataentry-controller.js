@@ -195,6 +195,7 @@ diseaseRegistration.controller('dataEntryController',
     };
     
     var resetParams = function(){
+        $scope.newDataValue = {};
         $scope.dataValues = {};
         $scope.dataValuesCopy = {};
         $scope.model.orgUnitsWithValues = [];
@@ -320,8 +321,11 @@ diseaseRegistration.controller('dataEntryController',
         
         var deId = dataElement.id;
         //check for form validity                
-        if( $scope.outerForm.$invalid ){            
-            $scope.dataValues[deId][ocId] = $scope.dataValuesCopy[deId] && $scope.dataValuesCopy[deId][ocId] ? $scope.dataValuesCopy[deId][ocId] : {value: null};
+        if( $scope.outerForm.$invalid ){
+            if(!$scope.newDataValue[deId] ){
+                $scope.newDataValue[deId] = {};
+            }
+            $scope.newDataValue[deId][ocId] = $scope.dataValuesCopy[deId] && $scope.dataValuesCopy[deId][ocId] ? $scope.dataValuesCopy[deId][ocId] : {value: null};
             $scope.outerForm.$error = {};
             $scope.outerForm.$setPristine();
             return ;
