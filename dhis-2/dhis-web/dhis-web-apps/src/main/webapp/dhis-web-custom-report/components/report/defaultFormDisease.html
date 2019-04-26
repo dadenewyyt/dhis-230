@@ -116,6 +116,11 @@
                             {{model.reportName}}
                         </th> 
                     </tr>
+                    <tr>
+                        <th colspan="100%">
+                            <input type="text" ng-model="model.selectedDisease" class="form-control" placeholder="{{'search_for_disease' | translate}}">
+                        </th>
+                    </tr>
                     <tr> 
                         <th class="pull-center de-table-hdr">
                             {{'code'| translate}}
@@ -131,7 +136,7 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody ng-repeat="dv in model.totalDataValues | limitTo : (model.maxDiseaseList ? model.maxDiseaseList : model.totalDataValues.length)"
+                <tbody ng-repeat="dv in model.totalDataValues | filter: {displayName: model.selectedDisease } | limitTo : (model.maxDiseaseList ? model.maxDiseaseList : model.totalDataValues.length)"
                        ng-init="de = model.dataElements[dv.id]">
                     <tr class="de-total-style">
                         <td ng-bind="de.code"></td>
@@ -166,6 +171,11 @@
                             {{model.reportName}}
                         </th> 
                     </tr>
+                    <tr>
+                        <th colspan="100%">
+                            <input type="text" ng-model="model.selectedDisease" class="form-control" placeholder="{{'search_for_disease' | translate}}">
+                        </th>
+                    </tr>
                     <tr> 
                         <th class="pull-center de-table-hdr">
                             {{'code'| translate}}
@@ -181,7 +191,7 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody ng-repeat="gv in model.totalGroupDataValues | limitTo : (model.maxDiseaseList ? model.maxDiseaseList : model.totalGroupDataValues.length)"
+                <tbody ng-repeat="gv in model.totalGroupDataValues | filter: {displayName: model.selectedDisease } | limitTo : (model.maxDiseaseList ? model.maxDiseaseList : model.totalGroupDataValues.length)"
                        ng-init="deg = model.dataElementGroups[gv.group]">
                     <tr class="de-total-style">
                         <td></td>

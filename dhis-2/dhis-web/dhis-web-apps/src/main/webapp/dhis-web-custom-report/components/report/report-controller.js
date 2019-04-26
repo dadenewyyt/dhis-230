@@ -253,7 +253,7 @@ customReport.controller('customReportController',
                 }
             });
             $scope.dataValues[de]['total']['grandTotal'] = total > 0 ? total : '';
-            var displayName = $scope.model.dataElements[de] && $scope.model.dataElements[de].displayName ? $scope.model.dataElements[de].displayName : '';
+            var displayName = $scope.model.dataElements[de] && $scope.model.dataElements[de].displayFormName ? $scope.model.dataElements[de].displayFormName : '';
             $scope.model.totalDataValues.push({id: de, displayName: displayName, value: total});
         });
         
@@ -322,7 +322,7 @@ customReport.controller('customReportController',
                             }
                         }
                     });
-                    $scope.model.totalGroupDataValues.push({group: gr.id, displayName: gr.displayName, value: total});
+                    $scope.model.totalGroupDataValues.push({group: gr.id, displayName: gr.name, value: total});
                 }
             });
         }
