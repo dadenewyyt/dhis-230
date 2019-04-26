@@ -192,7 +192,9 @@
                     </tr>
                 </thead>
                 <tbody ng-repeat="gv in model.totalGroupDataValues | filter: {displayName: model.selectedDisease } | limitTo : (model.maxDiseaseList ? model.maxDiseaseList : model.totalGroupDataValues.length)"
-                       ng-init="deg = model.dataElementGroups[gv.group]">
+                       ng-init="deg = model.dataElementGroups[gv.group]"
+                       ng-click="showDiseaseGroupDetail(gv.group)" title="{{'show_group_detail'| translate}}"
+                       class="disease-group">
                     <tr class="de-total-style">
                         <td></td>
                         <td ng-bind="deg.displayName"></td>

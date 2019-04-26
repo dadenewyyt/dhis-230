@@ -7,6 +7,7 @@ var customReport = angular.module('customReport');
 //Controller for settings page
 customReport.controller('customReportController',
         function($scope,
+                $modal,
                 orderByFilter,
                 PeriodService,
                 MetaDataFactory,
@@ -463,6 +464,45 @@ customReport.controller('customReportController',
         
         processDataValues( $.map($scope.model.filteredOptionCombos, function(oc){return oc.id;}), true );
         processGroupDataValues( $.map($scope.model.filteredOptionCombos, function(oc){return oc.id;}), true );
+    };
+    
+    $scope.showDiseaseGroupDetail = function( groupId ){
+        if( groupId && $scope.groupsWithValue[groupId] && $scope.groupsWithValue[groupId].dataElements){
+            var groupDataElements = [];
+            angular.forEach($scope.groupsWithValue[groupId].dataElements, function(de){
+                groupDataElements[de] = $scope.model.dataElements[de];
+            });
+            
+            console.log('groupDataElements:  ', groupDataElements);
+            var modalInstance = $modal.open({
+                templateUrl: 'components/report/disease-group-detail.html',
+                controller: 'DiseaseGroupDetailController',
+                windowClass: 'modal-window-history',
+                resolve: {
+                    dataValues: function(){
+                        return $scope.dataValues;
+                    },
+                    dataElements: function(){
+                        return groupDataElements;
+                    },
+                    diseaseGroup: function(){
+                        return $scope.groupsWithValue[groupId];
+                    },
+                    columns: function(){
+                        return $scope.model.columns;
+                    },
+                    optionCombos: function(){
+                        return $scope.model.filteredOptionCombos;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {}); 
+        }
+        else{
+            DataEntryUtils.notify('warning', 'group_has_no_details');
+            return;
+        }
     };
     
     $scope.exportData = function () {

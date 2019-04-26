@@ -941,3 +941,8 @@ div#selectionTree {
 .report-tab {
     font-size: 24pt;
 }
+
+tbody.disease-group:hover {
+    cursor: pointer;
+    border-style: outset solid;
+}
