@@ -172,4 +172,31 @@ var d2Filters = angular.module('d2Filters', [])
         
         return input;
     };            
+})
+
+.filter('categoryOptionFilter', function(){
+    
+    return function( cos, ou ){
+        
+        var _cos = [];
+        
+        if( cos && ou && ou.id ){
+            
+            angular.forEach(cos, function(co){                
+                if( co.mappedOrganisationUnits && co.mappedOrganisationUnits.length > 0 ){                    
+                    if( co.mappedOrganisationUnits.indexOf( ou.id ) !== -1){
+                        _cos.push( co );
+                    }
+                }
+                else{
+                    _cos.push( co );
+                }
+            });          
+        }
+        else{
+            _cos = cos;
+        }
+        
+        return _cos;
+    };
 });

@@ -252,6 +252,20 @@ dhis2.metadata.getMetaObjects = function( store, objs, url, filter, storage, db,
                 }                
                 if( store === 'categoryCombos' ){
                     
+                	if( obj.categories ){
+                        _.each( _.values( obj.categories ), function ( ca ) {                            
+                            if( ca.categoryOptions ){
+                                _.each( _.values( ca.categoryOptions ), function ( co ) {
+                                    co.mappedOrganisationUnits = [];
+                                    if( co.organisationUnits && co.organisationUnits.length > 0 ){                                        
+                                        co.mappedOrganisationUnits = $.map(co.organisationUnits, function(ou){return ou.id;});
+                                    }
+                                    delete co.organisationUnits;
+                                });
+                            }
+                        });
+                    }
+                	
                     if( obj.categoryOptionCombos && obj.categories ){
                         var categoryOptions = [];
                         _.each( _.values( obj.categories ), function ( cat ) {                            
