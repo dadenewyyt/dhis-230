@@ -787,7 +787,7 @@ var d2Directives = angular.module('d2Directives', [])
                 
                 var currentTabIndex = parseInt( attrs.tabindex );
                 
-                var fieldName = attrs.name;
+                var fieldName = attrs.tabname;
                 
                 var field = null;                               
                 
@@ -796,11 +796,11 @@ var d2Directives = angular.module('d2Directives', [])
                     event.preventDefault(); 
                     event.stopPropagation();
                     
-                    field = $( 'input[name="'+ fieldName + '"][tabindex="' + ( --currentTabIndex ) + '"]' );
+                    field = $( 'input[tabname="'+ fieldName + '"][tabindex="' + ( --currentTabIndex ) + '"]' );
                     
                     while( field ){
                         if ( field.is( ':disabled' ) || field.is( ':hidden' ) ) {
-                            field = $( 'input[name="' + fieldName + '"][tabindex="' + ( --currentTabIndex ) + '"]' );
+                            field = $( 'input[tabname="' + fieldName + '"][tabindex="' + ( --currentTabIndex ) + '"]' );
                         }
                         else {
                             break;
@@ -819,11 +819,11 @@ var d2Directives = angular.module('d2Directives', [])
                     event.preventDefault(); 
                     event.stopPropagation();
                     
-                    field = $( 'input[name="'+ fieldName + '"][tabindex="' + ( ++currentTabIndex ) + '"]' );
+                    field = $( 'input[tabname="'+ fieldName + '"][tabindex="' + ( ++currentTabIndex ) + '"]' );
                     
                     while( field ){
                         if ( field.is( ':disabled' ) || field.is( ':hidden' ) ) {
-                            field = $( 'input[name="' + fieldName + '"][tabindex="' + ( ++currentTabIndex ) + '"]' );
+                            field = $( 'input[tabname="' + fieldName + '"][tabindex="' + ( ++currentTabIndex ) + '"]' );
                         }
                         else {
                             break;
