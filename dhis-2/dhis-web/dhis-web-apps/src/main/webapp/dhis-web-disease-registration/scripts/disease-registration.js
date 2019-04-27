@@ -1,7 +1,7 @@
 /* global dhis2, angular, selection, i18n_ajax_login_failed, _ */
 
 dhis2.util.namespace('dhis2.diseaseRegistration');
-dhis2.util.namespace('dhis2.dr');
+dhis2.util.namespace('dhis2.rd');
 
 // whether current user has any organisation units
 dhis2.diseaseRegistration.emptyOrganisationUnits = false;
@@ -19,7 +19,7 @@ var attributesInPromise = [];
 var batchSize = 50;
 
 dhis2.diseaseRegistration.store = null;
-dhis2.dr.metaDataCached = dhis2.dr.metaDataCached || false;
+dhis2.rd.metaDataCached = dhis2.rd.metaDataCached || false;
 dhis2.diseaseRegistration.memoryOnly = $('html').hasClass('ie7') || $('html').hasClass('ie8');
 var adapters = [];    
 if( dhis2.diseaseRegistration.memoryOnly ) {
@@ -190,7 +190,7 @@ function downloadMetaData()
     promise.done(function() {        
         //Enable ou selection after meta-data has downloaded
         $( "#orgUnitTree" ).removeClass( "disable-clicks" );
-        dhis2.dr.metaDataCached = true;
+        dhis2.rd.metaDataCached = true;
         dhis2.availability.startAvailabilityCheck();
         console.log( 'Finished loading meta-data' );        
         selection.responseReceived(); 

@@ -68,8 +68,7 @@ diseaseRegistration.controller('dataEntryController',
         $scope.model.categoryOptionsReady = false;
         $scope.model.valueExists = false;
         if( angular.isObject($scope.selectedOrgUnit)){
-            SessionStorageService.set('SELECTED_OU', $scope.selectedOrgUnit);            
-            $scope.model.booleanValues = [{displayName: $translate.instant('yes'), value: true},{displayName: $translate.instant('no'), value: false}];
+            SessionStorageService.set('SELECTED_OU', $scope.selectedOrgUnit);
             if(!$scope.model.optionSets){
                 $scope.model.optionSets = [];                
                 MetaDataFactory.getAll('optionSets').then(function(opts){
@@ -82,19 +81,18 @@ diseaseRegistration.controller('dataEntryController',
                             $scope.model.categoryCombos[cc.id] = cc;
                         });
 
-                        $scope.loadDataSets($scope.selectedOrgUnit);
+                        $scope.loadDataSets();
                     }); 
                 });
             }
             else{
-                $scope.loadDataSets($scope.selectedOrgUnit);
+                $scope.loadDataSets();
             }
         }
     });
     
     //load datasets associated with the selected org unit.
-    $scope.loadDataSets = function(orgUnit) {
-        $scope.selectedOrgUnit = orgUnit;
+    $scope.loadDataSets = function() {
         $scope.model.dataSets = [];
         $scope.model.dataElements = [];
         $scope.model.selectedAttributeCategoryCombo = null;
@@ -104,6 +102,8 @@ diseaseRegistration.controller('dataEntryController',
         $scope.model.selectedPeriod = null;
         $scope.model.orgUnitsWithValues = [];
         $scope.dataValues = {};
+        $scope.dataValuesCopy = {};
+        $scope.newDataValue = {};
         $scope.model.valueExists = false;
         $scope.model.displayCustomForm = false;
         if (angular.isObject($scope.selectedOrgUnit)) {            
@@ -121,7 +121,7 @@ diseaseRegistration.controller('dataEntryController',
         $scope.model.categoryOptionsReady = false;
         $scope.dataValues = {};
         $scope.dataValuesCopy = {};
-        $scope.model.selectedEvent = {};
+        $scope.newDataValue = {};
         $scope.model.orgUnitsWithValues = [];
         $scope.model.valueExists = false;
         $scope.model.displayCustomForm = false;
@@ -140,10 +140,6 @@ diseaseRegistration.controller('dataEntryController',
     $scope.$watch('model.sde', function(){
         $scope.saveStatus = {};        
     });
-    
-    $scope.checkDisabled = function (section,de,oco){
-        return false;
-    };
         
     $scope.loadDataSetDetails = function(){        
         if( $scope.model.selectedDataSet && $scope.model.selectedDataSet.id && $scope.model.selectedDataSet.periodType){
@@ -201,7 +197,6 @@ diseaseRegistration.controller('dataEntryController',
         $scope.model.orgUnitsWithValues = [];
         $scope.model.validationResults = [];
         $scope.model.failedValidationRules = [];
-        $scope.model.selectedEvent = {};
         $scope.model.valueExists = false;
         $scope.model.basicAuditInfo = {};
         $scope.model.basicAuditInfo.exists = false;
