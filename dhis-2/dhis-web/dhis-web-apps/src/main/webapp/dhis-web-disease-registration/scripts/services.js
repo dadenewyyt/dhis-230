@@ -8,9 +8,9 @@ var diseaseRegistrationServices = angular.module('diseaseRegistrationServices', 
 
 .factory('StorageService', function(){
     var store = new dhis2.storage.Store({
-        name: "dhis2rd",
+        name: "dhis2dr",
         adapters: [dhis2.storage.IndexedDBAdapter, dhis2.storage.DomSessionStorageAdapter, dhis2.storage.InMemoryAdapter],
-        objectStores: ['dataValues', 'dataSets', 'optionSets', 'categoryCombos', 'indicatorTypes', 'validationRules','dataElementGroups']
+        objectStores: ['dataValues', 'dataSets', 'categoryCombos']
     });
     return{
         currentStore: store

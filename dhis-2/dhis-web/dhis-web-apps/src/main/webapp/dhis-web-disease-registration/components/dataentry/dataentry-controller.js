@@ -7,9 +7,7 @@ var diseaseRegistration = angular.module('diseaseRegistration');
 //Controller for settings page
 diseaseRegistration.controller('dataEntryController',
         function($scope,
-                $filter,
-                $modal,
-                $translate,
+                $filter,                
                 orderByFilter,
                 SessionStorageService,
                 ContextMenuSelectedItem,
@@ -31,22 +29,15 @@ diseaseRegistration.controller('dataEntryController',
                     multiDataSets: [],
                     dataElements: [],
                     dataSets: [],
-                    optionSets: null,
-                    displayCustomForm: false,
                     categoryOptionsReady: false,
-                    allowMultiOrgUnitEntry: false,
                     selectedOptions: [],
-                    orgUnitsWithValues: [],
                     selectedCategoryCombo: null,
                     selectedAttributeOptionCombos: {},
                     selectedAttributeOptionCombo: null,
-                    categoryCombos: {},
+                    categoryCombos: null,
                     optionCombos: {},
-                    validationRules: [],
-                    validationResults: [],
-                    failedValidationRules: [],
                     attributeCategoryUrl: null,
-                    showCustomForm: false,
+                    greyedFields: [],
                     valueExists: false};
     
     //watch for selection of org unit from tree
@@ -63,26 +54,19 @@ diseaseRegistration.controller('dataEntryController',
         $scope.newDataValue = {};
         $scope.dataValues = {};
         $scope.dataValuesCopy = {};
-        $scope.model.basicAuditInfo = {};
-        $scope.model.orgUnitsWithValues = [];
+        $scope.model.basicAuditInfo = {};        
         $scope.model.categoryOptionsReady = false;
         $scope.model.valueExists = false;
         if( angular.isObject($scope.selectedOrgUnit)){
             SessionStorageService.set('SELECTED_OU', $scope.selectedOrgUnit);
-            if(!$scope.model.optionSets){
-                $scope.model.optionSets = [];                
-                MetaDataFactory.getAll('optionSets').then(function(opts){
-                    angular.forEach(opts, function(op){
-                        $scope.model.optionSets[op.id] = op;
+            if(!$scope.model.categoryCombos){
+                $scope.model.categoryCombos = [];                
+                MetaDataFactory.getAll('categoryCombos').then(function(ccs){
+                    angular.forEach(ccs, function(cc){
+                        $scope.model.categoryCombos[cc.id] = cc;
                     });
-                    
-                    MetaDataFactory.getAll('categoryCombos').then(function(ccs){
-                        angular.forEach(ccs, function(cc){
-                            $scope.model.categoryCombos[cc.id] = cc;
-                        });
 
-                        $scope.loadDataSets();
-                    }); 
+                    $scope.loadDataSets();
                 });
             }
             else{
@@ -100,12 +84,10 @@ diseaseRegistration.controller('dataEntryController',
         $scope.model.selectedAttributeOptionCombos = {};
         $scope.model.selectedAttributeOptionCombo = null;
         $scope.model.selectedPeriod = null;
-        $scope.model.orgUnitsWithValues = [];
         $scope.dataValues = {};
         $scope.dataValuesCopy = {};
         $scope.newDataValue = {};
         $scope.model.valueExists = false;
-        $scope.model.displayCustomForm = false;
         if (angular.isObject($scope.selectedOrgUnit)) {            
             DataSetFactory.getByOuAndProperty( $scope.selectedOrgUnit, $scope.model.selectedDataSet,'DataSetCategory','Disease' ).then(function(response){                
                 $scope.model.dataSets = response.dataSets || [];
@@ -122,9 +104,7 @@ diseaseRegistration.controller('dataEntryController',
         $scope.dataValues = {};
         $scope.dataValuesCopy = {};
         $scope.newDataValue = {};
-        $scope.model.orgUnitsWithValues = [];
         $scope.model.valueExists = false;
-        $scope.model.displayCustomForm = false;
         if( angular.isObject($scope.model.selectedDataSet) && $scope.model.selectedDataSet.id){
             $scope.loadDataSetDetails();
         }
@@ -321,6 +301,10 @@ diseaseRegistration.controller('dataEntryController',
                 $scope.newDataValue[deId] = {};
             }
             $scope.newDataValue[deId][ocId] = $scope.dataValuesCopy[deId] && $scope.dataValuesCopy[deId][ocId] ? $scope.dataValuesCopy[deId][ocId] : {value: null};
+            
+            if( $scope.dataValues[deId] ){
+                $scope.dataValues[deId][ocId] = $scope.dataValuesCopy[deId] && $scope.dataValuesCopy[deId][ocId] ? $scope.dataValuesCopy[deId][ocId] : {value: null};
+            }
             $scope.outerForm.$error = {};
             $scope.outerForm.$setPristine();
             return ;
@@ -357,13 +341,14 @@ diseaseRegistration.controller('dataEntryController',
             value = value + getNewValue( deId, ocId);
         }
         
-        var dataValue = {ou: $scope.selectedOrgUnit.id,
-                    pe: $scope.model.selectedPeriod.id,
-                    de: deId,
-                    co: ocId,
-                    value: value,
-                    ao: $scope.model.selectedAttributeOptionCombo
-                };
+        var dataValue = {
+            ou: $scope.selectedOrgUnit.id,
+            pe: $scope.model.selectedPeriod.id,
+            de: deId,
+            co: ocId,
+            value: value,
+            ao: $scope.model.selectedAttributeOptionCombo
+        };
                 
         dataValue.value = DataEntryUtils.formatDataValue( dataElement, dataValue.value, $scope.model.optionSets, 'API' );
         
@@ -383,10 +368,7 @@ diseaseRegistration.controller('dataEntryController',
             }
             
             $scope.dataValues[deId] = DataEntryUtils.getDataElementTotal( $scope.dataValues, deId);
-            
             copyDataValues();
-            //$scope.newDataValue = {};
-            //$scope.model.sde = null;
         };
         
         var saveSuccessStatus = function(){
@@ -434,61 +416,28 @@ diseaseRegistration.controller('dataEntryController',
 
     $scope.saveCompletness = function(orgUnit, multiOrgUnit){
         
-        var failedHighImportanceValidationRules=[];
-        if($scope.model.failedValidationRules.length >0){
-            angular.forEach($scope.model.failedValidationRules, function(failedValidationRule){
-                var validationRule=$scope.model.validationRules[failedValidationRule];
-                if(validationRule.importance==="HIGH"){
-                    failedHighImportanceValidationRules.push(validationRule);
-                }
-            });
-            if(failedHighImportanceValidationRules.length>0){
-                var modalOptions = {
-                    closeButtonText: 'no',
-                    actionButtonText: 'no',
-                    headerText: 'failed_validation_rules',
-                    bodyText: 'following_validation_errors_exist <br/> Hello</table><p> HI</p>' 
-                };
-                
-                var modalInstance = $modal.open({
-                    templateUrl: 'views/modal-validation-list.html',
-                    controller: 'DataEntryValidationlistController',
-                    windowClass: 'modal-window-history',
-                    resolve: {
-                        failedValidationRules : function(){
-                            return failedHighImportanceValidationRules;
-                        }
-                    }
-                });
-                modalInstance.result.then(function(status){
-                    return //Nothing is expected from the user.
-                });
-            }
-        }
-        if(failedHighImportanceValidationRules.length<=0){
-            var modalOptions = {
-                closeButtonText: 'no',
-                actionButtonText: 'yes',
-                headerText: 'mark_complete',
-                bodyText: 'are_you_sure_to_save_completeness'
-            };
-            ModalService.showModal({}, modalOptions).then(function(result){
+        var modalOptions = {
+            closeButtonText: 'no',
+            actionButtonText: 'yes',
+            headerText: 'mark_complete',
+            bodyText: 'are_you_sure_to_save_completeness'
+        };
+        ModalService.showModal({}, modalOptions).then(function(result){
 
-                var dsr = {completeDataSetRegistrations: [{dataSet: $scope.model.selectedDataSet.id, organisationUnit: $scope.selectedOrgUnit.id, period: $scope.model.selectedPeriod.id, attributeOptionCombo: $scope.model.selectedAttributeOptionCombo}]};
-                CompletenessService.save(dsr).then(function(response){                    
-                    if( response && response.status === 'SUCCESS' ){
-                        var dialogOptions = {
-                            headerText: 'success',
-                            bodyText: 'marked_complete'
-                        };
-                        DialogService.showDialog({}, dialogOptions);
-                        $scope.model.dataSetCompletness[$scope.model.selectedAttributeOptionCombo] = true;
-                    }                
-                }, function(response){
-                    DataEntryUtils.errorNotifier( response );
-                });
+            var dsr = {completeDataSetRegistrations: [{dataSet: $scope.model.selectedDataSet.id, organisationUnit: $scope.selectedOrgUnit.id, period: $scope.model.selectedPeriod.id, attributeOptionCombo: $scope.model.selectedAttributeOptionCombo}]};
+            CompletenessService.save(dsr).then(function(response){                    
+                if( response && response.status === 'SUCCESS' ){
+                    var dialogOptions = {
+                        headerText: 'success',
+                        bodyText: 'marked_complete'
+                    };
+                    DialogService.showDialog({}, dialogOptions);
+                    $scope.model.dataSetCompletness[$scope.model.selectedAttributeOptionCombo] = true;
+                }                
+            }, function(response){
+                DataEntryUtils.errorNotifier( response );
             });
-        }        
+        });        
     };
     
     $scope.deleteCompletness = function( orgUnit, multiOrgUnit){
@@ -520,11 +469,7 @@ diseaseRegistration.controller('dataEntryController',
             });
         });        
     };
-    
-    $scope.setSelectedCase = function(deId){
-        ContextMenuSelectedItem.setSelectedItem(deId);        
-    };
-    
+        
     $scope.showEditCase = function(){
         var deId = ContextMenuSelectedItem.getSelectedItem();
         if( deId && $scope.model.dataElements[deId] )
@@ -545,5 +490,23 @@ diseaseRegistration.controller('dataEntryController',
         if( !$scope.model.sde ){
             $scope.newDataValue = {};
         }
+    };
+    
+    $scope.isGreyedField = function( deId, ocoId){
+        if( !deId || 
+            !ocoId || 
+            !$scope.model.selectedDataSet || 
+            !$scope.model.selectedDataSet.sections ||
+            !$scope.model.selectedDataSet.sections[0] ||
+            !$scope.model.selectedDataSet.sections[0].greyedFields){
+            return false;
+        }
+        
+        var dimensionItem = deId + '.' + ocoId;
+        if( $scope.model.selectedDataSet.sections[0].greyedFields.indexOf( dimensionItem ) !== -1 ){
+            return true;
+        }
+        
+        return false;
     };
 });

@@ -29,9 +29,9 @@ if( dhis2.diseaseRegistration.memoryOnly ) {
 }
 
 dhis2.diseaseRegistration.store = new dhis2.storage.Store({
-    name: 'dhis2rd',
+    name: 'dhis2dr',
     adapters: [dhis2.storage.IndexedDBAdapter, dhis2.storage.DomSessionStorageAdapter, dhis2.storage.InMemoryAdapter],
-    objectStores: ['dataValues', 'dataSets', 'optionSets', 'categoryCombos', 'indicatorTypes', 'validationRules','dataElementGroups']
+    objectStores: ['dataValues', 'dataSets', 'categoryCombos']
 });
 
 (function($) {
@@ -166,27 +166,6 @@ function downloadMetaData()
     promise = promise.then( filterMissingDataSets );
     promise = promise.then( getDataSets );
     
-    //fetch option sets
-    promise = promise.then( getMetaOptionSets );
-    promise = promise.then( filterMissingOptionSets );
-    promise = promise.then( getOptionSets );
-    
-    //fetch indicatoryTypes
-    promise = promise.then( getMetaIndicatorTypes );
-    promise = promise.then( filterMissingIndicatorTypes );
-    promise = promise.then( getIndicatorTypes );
-    
-    //fetch validationRules
-    promise = promise.then( getMetaValidationRules );
-    promise = promise.then( filterMissingValidationRules );
-    promise = promise.then( getValidationRules );
-    
-    //fetch dataElementGroups
-    promise=promise.then(getMetaDataElementGroups);
-     promise=promise.then(filterMissingDataElementGroups);
-    promise=promise.then(getDataElementGroups);
-    
-    
     promise.done(function() {        
         //Enable ou selection after meta-data has downloaded
         $( "#orgUnitTree" ).removeClass( "disable-clicks" );
@@ -231,55 +210,7 @@ function filterMissingDataSets( objs ){
 }
 
 function getDataSets( ids ){
-    return dhis2.metadata.getBatches( ids, batchSize, 'dataSets', 'dataSets', '../api/dataSets.json', 'paging=false&fields=id,periodType,openFuturePeriods,displayName,version,categoryCombo[id],attributeValues[value,attribute[id,name,valueType,code]],organisationUnits[id],dataSetElements[id,dataElement[id,code,displayFormName,description,description,valueType,categoryCombo[id]]]', 'idb', dhis2.diseaseRegistration.store, dhis2.metadata.processObject);
-}
-
-function getMetaOptionSets(){
-    return dhis2.metadata.getMetaObjectIds('optionSets', '../api/optionSets.json', 'paging=false&fields=id,version');
-}
-
-function filterMissingOptionSets( objs ){
-    return dhis2.metadata.filterMissingObjIds('optionSets', dhis2.diseaseRegistration.store, objs);
-}
-
-function getOptionSets( ids ){    
-    return dhis2.metadata.getBatches( ids, batchSize, 'optionSets', 'optionSets', '../api/optionSets.json', 'paging=false&fields=id,displayName,version,valueType,attributeValues[value,attribute[id,name,valueType,code]],options[id,displayName,code]', 'idb', dhis2.diseaseRegistration.store, dhis2.metadata.processObject);
-}
-
-function getMetaIndicatorTypes(){
-    return dhis2.metadata.getMetaObjectIds('indicatorTypes', '../api/indicatorTypes.json', 'paging=false&fields=id,version');
-}
-
-function filterMissingIndicatorTypes( objs ){
-    return dhis2.metadata.filterMissingObjIds('indicatorTypes', dhis2.diseaseRegistration.store, objs);
-}
-
-function getIndicatorTypes( ids ){    
-    return dhis2.metadata.getBatches( ids, batchSize, 'indicatorTypes', 'indicatorTypes', '../api/indicatorTypes.json', 'paging=false&fields=id,displayName,factor,number', 'idb', dhis2.diseaseRegistration.store, dhis2.metadata.processObject);
-}
-
-function getMetaValidationRules(){
-    return dhis2.metadata.getMetaObjectIds('validationRules', '../api/validationRules.json', 'paging=false&fields=id,version');
-}
-
-function filterMissingValidationRules( objs ){
-    return dhis2.metadata.filterMissingObjIds('validationRules', dhis2.diseaseRegistration.store, objs);
-}
-
-function getValidationRules( ids ){    
-    return dhis2.metadata.getBatches( ids, batchSize, 'validationRules', 'validationRules', '../api/validationRules.json', 'paging=false&fields=id,displayName,importance,operator,periodType,instruction,leftSide[:all],rightSide[:all]', 'idb', dhis2.diseaseRegistration.store, dhis2.metadata.processObject);
-}
-
-function getMetaDataElementGroups(){
-    return dhis2.metadata.getMetaObjectIds('dataElementGroups', '../api/dataElementGroups.json', 'paging=false&fields=id,version');
-}
-
-function filterMissingDataElementGroups( objs ){
-    return dhis2.metadata.filterMissingObjIds('dataElementGroups', dhis2.diseaseRegistration.store, objs);
-}
-
-function getDataElementGroups( ids ){    
-    return dhis2.metadata.getBatches( ids, batchSize, 'dataElementGroups', 'dataElementGroups', '../api/dataElementGroups.json', 'paging=false&fields=id,displayName,code,dataElements,attributeValues[value,attribute[id,name,valueType,code]] ','idb', dhis2.diseaseRegistration.store, dhis2.metadata.processObject);
+    return dhis2.metadata.getBatches( ids, batchSize, 'dataSets', 'dataSets', '../api/dataSets.json', 'paging=false&fields=id,periodType,openFuturePeriods,displayName,version,categoryCombo[id],attributeValues[value,attribute[id,name,valueType,code]],organisationUnits[id],sections[greyedFields[dimensionItem]],dataSetElements[id,dataElement[id,code,displayFormName,description,description,valueType,categoryCombo[id]]]', 'idb', dhis2.diseaseRegistration.store, dhis2.metadata.processObject);
 }
 
 function uploadLocalData() {

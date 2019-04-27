@@ -62,9 +62,10 @@
                                                d2-number-validator
                                                number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
-                                               ng-disabled="!model.sde"
+                                               ng-disabled="!model.sde || isGreyedField(model.sde.id, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="fooNew-{{model.sde.id}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.sde.id, oco.id)" 
                                                d2-blur="saveDataValue(model.sde, oco.id, false)">
@@ -75,9 +76,10 @@
                                                d2-number-validator
                                                number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
-                                               ng-disabled="!model.sde"
+                                               ng-disabled="!model.sde || isGreyedField(model.sde.id, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="fooNew-{{model.sde.id}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.sde.id, oco.id)" 
                                                d2-blur="saveDataValue(model.sde, oco.id, false)">
@@ -88,9 +90,10 @@
                                                d2-number-validator
                                                number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
-                                               ng-disabled="!model.sde"
+                                               ng-disabled="!model.sde || isGreyedField(model.sde.id, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="fooNew-{{model.sde.id}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.sde.id, oco.id)" 
                                                d2-blur="saveDataValue(model.sde, oco.id, false)">
@@ -101,9 +104,10 @@
                                                d2-number-validator
                                                number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
-                                               ng-disabled="!model.sde"
+                                               ng-disabled="!model.sde || isGreyedField(model.sde.id, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="fooNew-{{model.sde.id}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.sde.id, oco.id)" 
                                                d2-blur="saveDataValue(model.sde, oco.id, false)">
@@ -114,9 +118,10 @@
                                                d2-number-validator
                                                number-type={{model.sde.valueType}}
                                                ng-model="newDataValue[model.sde.id][oco.id].value" 
-                                               ng-disabled="!model.sde"
+                                               ng-disabled="!model.sde || isGreyedField(model.sde.id, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="fooNew-{{model.sde.id}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.sde.id, oco.id)" 
                                                d2-blur="saveDataValue(model.sde, oco.id, false)">
@@ -150,10 +155,11 @@
                                                name="foo"
                                                d2-number-validator
                                                number-type={{model.dataElements[key].valueType}}
-                                               ng-model="dataValues[key][oco.id].value"
-                                               ng-disabled="model.sde"
+                                               ng-model="dataValues[key][oco.id].value"                                               
+                                               ng-disabled="model.sde || isGreyedField(key, oco.id)"
                                                d2-tab-index 
                                                tabindex={{$index}}
+                                               tabname="foo-{{key}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.dataElements[key].id, oco.id)"
                                                d2-blur="saveDataValue(model.dataElements[key], oco.id, true)">
@@ -164,9 +170,10 @@
                                                d2-number-validator
                                                number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
-                                               ng-disabled="model.sde"
+                                               ng-disabled="model.sde || isGreyedField(key, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="foo-{{key}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.dataElements[key].id, oco.id)"
                                                d2-blur="saveDataValue(model.dataElements[key], oco.id, true)">
@@ -177,9 +184,10 @@
                                                d2-number-validator
                                                number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
-                                               ng-disabled="model.sde"
+                                               ng-disabled="model.sde || isGreyedField(key, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="foo-{{key}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.dataElements[key].id, oco.id)" 
                                                d2-blur="saveDataValue(model.dataElements[key], oco.id, true)">
@@ -190,9 +198,10 @@
                                                d2-number-validator
                                                number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
-                                               ng-disabled="model.sde"
+                                               ng-disabled="model.sde || isGreyedField(key, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="foo-{{key}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.dataElements[key].id, oco.id)" 
                                                d2-blur="saveDataValue(model.dataElements[key], oco.id, true)">
@@ -203,9 +212,10 @@
                                                d2-number-validator
                                                number-type={{model.dataElements[key].valueType}}
                                                ng-model="dataValues[key][oco.id].value"
-                                               ng-disabled="model.sde"
+                                               ng-disabled="model.sde || isGreyedField(key, oco.id)"
                                                d2-tab-index
                                                tabindex={{$index}}
+                                               tabname="foo-{{key}}"
                                                class="form-control" 
                                                ng-class="getInputNotifcationClass(model.dataElements[key].id, oco.id)" 
                                                d2-blur="saveDataValue(model.dataElements[key], oco.id, true)">
