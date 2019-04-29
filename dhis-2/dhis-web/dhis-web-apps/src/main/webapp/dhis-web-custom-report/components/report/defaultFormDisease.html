@@ -47,12 +47,13 @@
                         {{category.displayName}}
                     </label>
                     <div class="col-sm-9">
-                        <ui-select ng-model="category.selectedFilterOption"                                        
-                                   theme="select2" 
-                                   on-select="filterOptionCombos()"
-                                   style="width:100%;">
-                            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'all'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
-                            <ui-select-choices  repeat="option in category.categoryOptions | filter: $select.search | limitTo:maxOptionSize">
+                        <ui-select multiple
+                                ng-model="category.selectedFilterOptions" 
+                                on-select="filterOptionCombos()"
+                                on-remove="filterOptionCombos()"
+                                style="width:100%;">
+                            <ui-select-match placeholder="{{'all'| translate}}">{{$item.displayName}}</ui-select-match>
+                            <ui-select-choices  repeat="option.displayName as option in category.categoryOptions | filter: $select.search | limitTo:maxOptionSize">
                                 <span ng-bind-html="option.displayName | highlight: $select.search"></span>
                             </ui-select-choices>
                         </ui-select>

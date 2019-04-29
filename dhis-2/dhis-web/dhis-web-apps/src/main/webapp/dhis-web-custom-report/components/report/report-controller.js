@@ -434,33 +434,46 @@ customReport.controller('customReportController',
     };
     
     $scope.filterOptionCombos = function(){
-        var selectedOptions = [];
+        var selectedOptions = [], 
+            ocos = [], 
+            optionCombos = $scope.selectedCategoryCombo.categoryOptionCombos;
+    
         if( $scope.selectedCategoryCombo && $scope.selectedCategoryCombo.categories ){
-            for(var i=0; i<$scope.selectedCategoryCombo.categories.length; i++){
-                if($scope.selectedCategoryCombo.categories[i].selectedFilterOption && 
-                    $scope.selectedCategoryCombo.categories[i].selectedFilterOption.id){                    
-                    selectedOptions.push($scope.selectedCategoryCombo.categories[i].selectedFilterOption);
+            for( var i=0; i<$scope.selectedCategoryCombo.categories.length; i++){
+                if( $scope.selectedCategoryCombo.categories[i].selectedFilterOptions && $scope.selectedCategoryCombo.categories[i].selectedFilterOptions.length > 0 ){
+                    selectedOptions.push( $scope.selectedCategoryCombo.categories[i].selectedFilterOptions );
+                }
+                else{
+                    selectedOptions.push( $.map($scope.selectedCategoryCombo.categories[i].categoryOptions, function(co){return co.displayName;}) );
                 }
             }
+            ocos = dhis2.metadata.cartesianProduct(selectedOptions);
         }
-        if( selectedOptions.length === 0 ){
+        
+        if( ocos.length === 0 ){
             $scope.model.filteredOptionCombos = $scope.selectedCategoryCombo.categoryOptionCombos;
         }
         else{
             $scope.model.filteredOptionCombos = [];
-            angular.forEach($scope.selectedCategoryCombo.categoryOptionCombos, function(oc){
-                var valid = true;
-                for( var i=0; i<selectedOptions.length; i++){
-                    if( !oc.displayName.includes(selectedOptions[i].displayName) ){
-                        valid = false;
-                        break;
-                    }
-                }
-                if( valid ){
-                    $scope.model.filteredOptionCombos.push( oc );
-                }
-            });
         }
+        
+        for( var j=0; j<ocos.length; j++){
+            var optionNames = ocos[j].join(', ');
+            var reverseOptionNames = ocos[j].reverse().join(', ');
+            var continueLoop = true;
+            for( var k=0; k<optionCombos.length && continueLoop; k++){
+                if( optionNames === optionCombos[k].displayName ){
+                    $scope.model.filteredOptionCombos.push( optionCombos[k] );
+                    continueLoop = false;
+                    break;
+                }
+                else if( reverseOptionNames === optionCombos[k].displayName ){
+                    $scope.model.filteredOptionCombos.push( optionCombos[k] );
+                    continueLoop = false;
+                    break;
+                }
+            }
+        }       
         
         processDataValues( $.map($scope.model.filteredOptionCombos, function(oc){return oc.id;}), true );
         processGroupDataValues( $.map($scope.model.filteredOptionCombos, function(oc){return oc.id;}), true );
@@ -473,7 +486,6 @@ customReport.controller('customReportController',
                 groupDataElements[de] = $scope.model.dataElements[de];
             });
             
-            console.log('groupDataElements:  ', groupDataElements);
             var modalInstance = $modal.open({
                 templateUrl: 'components/report/disease-group-detail.html',
                 controller: 'DiseaseGroupDetailController',
