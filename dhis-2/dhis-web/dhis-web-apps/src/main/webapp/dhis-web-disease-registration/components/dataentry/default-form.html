@@ -142,7 +142,6 @@
                     </td>
                     <td></td>
                 </tr>
-                <!--<tr ng-repeat="(key, value) in dataValues | orderBy : 'created' ">-->
                 <tr ng-repeat="de in model.dataElementsWithValue | orderBy : '-created' ">
                     <td>
                         {{model.dataElements[de.id].displayFormName}}
