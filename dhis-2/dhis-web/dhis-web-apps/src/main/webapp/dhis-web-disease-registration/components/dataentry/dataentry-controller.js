@@ -18,16 +18,18 @@ diseaseRegistration.controller('dataEntryController',
                 DataValueService,
                 CompletenessService,
                 ModalService,
-                DialogService) {
+                DialogService,
+                DateUtils) {
     $scope.periodOffset = 0;
     $scope.maxOptionSize = 30;
-    $scope.saveStatus = {};    
+    $scope.saveStatus = {};
     $scope.model = {invalidDimensions: false,
                     sde: null,
                     selectedAttributeCategoryCombo: null,
                     standardDataSets: [],
                     multiDataSets: [],
                     dataElements: [],
+                    dataElementsWithValue: [],
                     dataSets: [],
                     categoryOptionsReady: false,
                     selectedOptions: [],
@@ -45,6 +47,7 @@ diseaseRegistration.controller('dataEntryController',
         $scope.model.periods = [];
         $scope.model.dataSets = [];
         $scope.model.dataElements = [];
+        $scope.model.dataElementsWithValue = [];
         $scope.model.selectedDataSet = null;
         $scope.model.selectedPeriod = null;
         $scope.model.selectedCategoryCombo = null;
@@ -87,6 +90,7 @@ diseaseRegistration.controller('dataEntryController',
         $scope.dataValues = {};
         $scope.dataValuesCopy = {};
         $scope.newDataValue = {};
+        $scope.model.dataElementsWithValue = [];
         $scope.model.valueExists = false;
         if (angular.isObject($scope.selectedOrgUnit)) {            
             DataSetFactory.getByOuAndProperty( $scope.selectedOrgUnit, $scope.model.selectedDataSet,'DataSetCategory','Disease' ).then(function(response){                
@@ -99,6 +103,7 @@ diseaseRegistration.controller('dataEntryController',
     $scope.$watch('model.selectedDataSet', function() {        
         $scope.model.periods = [];
         $scope.model.dataElements = [];
+        $scope.model.dataElementsWithValue = [];
         $scope.model.selectedPeriod = null;
         $scope.model.categoryOptionsReady = false;
         $scope.dataValues = {};
@@ -177,6 +182,7 @@ diseaseRegistration.controller('dataEntryController',
         $scope.model.orgUnitsWithValues = [];
         $scope.model.validationResults = [];
         $scope.model.failedValidationRules = [];
+        $scope.model.dataElementsWithValue = [];
         $scope.model.valueExists = false;
         $scope.model.basicAuditInfo = {};
         $scope.model.basicAuditInfo.exists = false;
@@ -189,7 +195,7 @@ diseaseRegistration.controller('dataEntryController',
     
     $scope.loadDataEntryForm = function(){
         
-        resetParams();        
+        resetParams();
         if( angular.isObject( $scope.selectedOrgUnit ) && $scope.selectedOrgUnit.id &&
                 angular.isObject( $scope.model.selectedDataSet ) && $scope.model.selectedDataSet.id &&
                 angular.isObject( $scope.model.selectedPeriod) && $scope.model.selectedPeriod.id &&
@@ -209,11 +215,13 @@ diseaseRegistration.controller('dataEntryController',
                     response.dataValues = $filter('filter')(response.dataValues, {attributeOptionCombo: $scope.model.selectedAttributeOptionCombo});
                     if( response.dataValues.length > 0 ){
                         $scope.model.valueExists = true;
+                        response.dataValues = orderByFilter(response.dataValues, '-lastUpdated');
                         angular.forEach(response.dataValues, function(dv){
                             
                             dv.value = DataEntryUtils.formatDataValue( $scope.model.dataElements[dv.dataElement], dv.value, $scope.model.optionSets, 'USER' );
                             
-                            if(!$scope.dataValues[dv.dataElement]){                                
+                            if(!$scope.dataValues[dv.dataElement]){
+                                $scope.model.dataElementsWithValue.push({id: dv.dataElement, created: DateUtils.formatFromApiToUser(dv.lastUpdated)});
                                 $scope.dataValues[dv.dataElement] = {};
                                 $scope.dataValues[dv.dataElement][dv.categoryOptionCombo] = dv;
                             }
@@ -221,7 +229,6 @@ diseaseRegistration.controller('dataEntryController',
                                 $scope.dataValues[dv.dataElement][dv.categoryOptionCombo] = dv;
                             }                            
                         });
-                        response.dataValues = orderByFilter(response.dataValues, '-created').reverse();
                     }
                 }
                 
@@ -362,9 +369,16 @@ diseaseRegistration.controller('dataEntryController',
             if(!$scope.dataValues[deId]){                                
                 $scope.dataValues[deId] = {};
                 $scope.dataValues[deId][ocId] = dataValue;
+                $scope.model.dataElementsWithValue.push({id: deId, created: DateUtils.getServerToday()});
             }
             else{                                
                 $scope.dataValues[deId][ocId] = dataValue;
+                for( var i=0; i<$scope.model.dataElementsWithValue.length; i++){
+                    if( $scope.model.dataElementsWithValue[i].id === deId ){
+                        $scope.model.dataElementsWithValue[i].created = DateUtils.getServerToday();
+                        break;
+                    }
+                }
             }
             
             $scope.dataValues[deId] = DataEntryUtils.getDataElementTotal( $scope.dataValues, deId);

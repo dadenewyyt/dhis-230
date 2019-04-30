@@ -224,7 +224,13 @@ var d2Services = angular.module('d2Services', ['ngResource'])
             }
             return moment(dateValue).format(dateFormat);
         },
-
+        getServerToday: function () {            
+            var tdy = $.calendars.instance('gregorian').newDate();
+            var today = moment(tdy._year + '-' + tdy._month + '-' + tdy._day, 'YYYY-MM-DD')._d;
+            today = Date.parse(today);
+            today = $filter('date')(today, 'yyyy-MM-dd');
+            return today;
+        },
         getToday: function () {
             var calendarSetting = CalendarService.getSetting();
             var tdy = $.calendars.instance(calendarSetting.keyCalendar).newDate();
