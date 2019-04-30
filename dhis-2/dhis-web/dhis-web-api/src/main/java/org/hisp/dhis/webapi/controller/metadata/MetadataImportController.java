@@ -30,6 +30,7 @@ package org.hisp.dhis.webapi.controller.metadata;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.common.DhisApiVersion;
+import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.commons.util.StreamUtils;
 import org.hisp.dhis.dxf2.csv.CsvImportClass;
 import org.hisp.dhis.dxf2.csv.CsvImportService;
@@ -39,6 +40,7 @@ import org.hisp.dhis.dxf2.metadata.MetadataImportParams;
 import org.hisp.dhis.dxf2.metadata.MetadataImportService;
 import org.hisp.dhis.dxf2.metadata.feedback.ImportReport;
 import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
+import org.hisp.dhis.message.MessageConversation;
 import org.hisp.dhis.render.RenderFormat;
 import org.hisp.dhis.render.RenderService;
 import org.hisp.dhis.scheduling.SchedulingManager;
@@ -60,7 +62,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.jobConfigurationReport;
 import static org.hisp.dhis.scheduling.JobType.GML_IMPORT;
@@ -108,7 +112,12 @@ public class MetadataImportController
     public void postJsonMetadata( HttpServletRequest request, HttpServletResponse response ) throws IOException
     {
         MetadataImportParams params = metadataImportService.getParamsFromMap( contextService.getParameterValuesMap() );
-        params.setObjects( renderService.fromMetadata( StreamUtils.wrapAndCheckCompressionFormat( request.getInputStream() ), RenderFormat.JSON ) );
+
+        final Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> objects =
+            renderService.fromMetadata( StreamUtils.wrapAndCheckCompressionFormat( request.getInputStream() ), RenderFormat.JSON );
+        // remove all data that cannot be exported explicitly and is not supported with other data formats
+        objects.remove( MessageConversation.class );
+        params.setObjects( objects );
 
         if ( params.hasJobId() )
         {
@@ -137,6 +146,8 @@ public class MetadataImportController
         params.setCsvImportClass( CsvImportClass.valueOf( classKey ) );
 
         Metadata metadata = csvImportService.fromCsv( request.getInputStream(), params.getCsvImportClass() );
+        //messageConversations should not be imported anymore
+        metadata.setMessageConversations( Collections.emptyList() );
 
         params.addMetadata( schemaService.getMetadataSchemas(), metadata );
 
@@ -172,6 +183,8 @@ public class MetadataImportController
     {
         MetadataImportParams params = metadataImportService.getParamsFromMap( contextService.getParameterValuesMap() );
         Metadata metadata = renderService.fromXml( StreamUtils.wrapAndCheckCompressionFormat( request.getInputStream() ), Metadata.class );
+        //messageConversations should not be imported anymore
+        metadata.setMessageConversations( Collections.emptyList() );
         params.addMetadata( schemaService.getMetadataSchemas(), metadata );
 
         if ( params.hasJobId() )

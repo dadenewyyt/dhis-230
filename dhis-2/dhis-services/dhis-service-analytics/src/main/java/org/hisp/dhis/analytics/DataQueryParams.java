@@ -89,6 +89,8 @@ public class DataQueryParams
     public static final String PERIOD_START_DATE_ID = "pestartdate";
     public static final String PERIOD_END_DATE_ID = "peenddate";
     public static final String FACTOR_ID = "factor";
+    public static final String MULTIPLIER_ID = "multiplier";
+    public static final String DIVISOR_ID = "divisor";
     public static final String LEVEL_PREFIX = "uidlevel";
     public static final String KEY_DE_GROUP = "DE_GROUP-";
     public static final String KEY_IN_GROUP = "IN_GROUP-";
@@ -99,7 +101,8 @@ public class DataQueryParams
     public static final String PERIOD_START_DATE_NAME = "Period start date";
     public static final String PERIOD_END_DATE_NAME = "Period end date";
     public static final String FACTOR_HEADER_NAME = "Factor";
-    
+    public static final String MULTIPLIER_HEADER_NAME = "Multiplier";
+    public static final String DIVISOR_HEADER_NAME = "Divisor";
     public static final String DISPLAY_NAME_DATA_X = "Data";
     public static final String DISPLAY_NAME_CATEGORYOPTIONCOMBO = "Category option combo";
     public static final String DISPLAY_NAME_ATTRIBUTEOPTIONCOMBO = "Attribute option combo";
@@ -772,6 +775,15 @@ public class DataQueryParams
                 Period dataPeriod = dataPeriodType.createPeriod( ((Period) aggregatePeriod).getStartDate(), PeriodType.getCalendar() );
                 
                 map.putValue( dataPeriod, aggregatePeriod );
+
+                if ( ((Period) aggregatePeriod).getPeriodType().spansMultipleCalendarYears() )
+                {
+                    // When dealing with a period that spans multiple years, add a second aggregated year
+                    // corresponding to the second part of the financial year so that the query will count both years.
+
+                    Period endYear = dataPeriodType.createPeriod( ((Period) aggregatePeriod).getEndDate() );
+                    map.putValue( endYear, aggregatePeriod );
+                }
             }
         }
         

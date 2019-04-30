@@ -884,7 +884,7 @@ public class RelativePeriods
      * @return a list of periods.
      */
     private Period getRelativePeriod( CalendarPeriodType periodType, String periodName, Date date, boolean dynamicNames, I18nFormat format )
-    {   
+    {
         return setName( periodType.createPeriod( date ), periodName, dynamicNames, format );
     }
 

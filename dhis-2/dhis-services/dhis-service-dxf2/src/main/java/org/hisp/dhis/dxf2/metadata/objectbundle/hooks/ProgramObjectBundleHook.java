@@ -30,16 +30,27 @@ package org.hisp.dhis.dxf2.metadata.objectbundle.hooks;
 
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundle;
-import org.hisp.dhis.program.Program;
-import org.hisp.dhis.program.ProgramStage;
-import org.hisp.dhis.program.ProgramType;
+import org.hisp.dhis.program.*;
 import org.hisp.dhis.security.acl.AccessStringHelper;
+
+import java.util.Objects;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
 public class ProgramObjectBundleHook extends AbstractObjectBundleHook
 {
+
+    private final ProgramService programService;
+
+    private final ProgramStageService programStageService;
+
+    public ProgramObjectBundleHook( ProgramService programService, ProgramStageService programStageService )
+    {
+        this.programService = programService;
+        this.programStageService = programStageService;
+    }
+
     @Override
     public void postCreate( IdentifiableObject object, ObjectBundle bundle )
     {
@@ -48,7 +59,9 @@ public class ProgramObjectBundleHook extends AbstractObjectBundleHook
             return;
         }
 
-        syncSharingForEventProgram( (Program) object );
+        Program program = ( Program ) object;
+        syncSharingForEventProgram( program );
+        updateProgramStage( program );
     }
 
     @Override
@@ -75,5 +88,25 @@ public class ProgramObjectBundleHook extends AbstractObjectBundleHook
 
         programStage.setUser( program.getUser() );
         sessionFactory.getCurrentSession().update( programStage );
+    }
+
+    private void updateProgramStage( Program program )
+    {
+        if ( program.getProgramStages().isEmpty() )
+        {
+            return;
+        }
+
+        program.getProgramStages().forEach( ps -> {
+
+            if ( Objects.isNull( ps.getProgram() ) )
+            {
+                ps.setProgram( program );
+            }
+
+            programStageService.saveProgramStage( ps );
+        });
+
+        programService.updateProgram( program );
     }
 }

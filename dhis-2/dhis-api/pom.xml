@@ -105,6 +105,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.hisp.dhis</groupId>
       <artifactId>dhis-support-commons</artifactId>
     </dependency>
@@ -133,6 +138,11 @@
     <dependency>
         <groupId>com.vividsolutions</groupId>
         <artifactId>jts-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
     </dependency>
   </dependencies>
 

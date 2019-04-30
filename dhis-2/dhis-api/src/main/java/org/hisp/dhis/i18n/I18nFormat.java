@@ -1,7 +1,5 @@
 package org.hisp.dhis.i18n;
 
-import org.hisp.dhis.calendar.Calendar;
-
 /*
  * Copyright (c) 2004-2018, University of Oslo
  * All rights reserved.
@@ -30,6 +28,7 @@ import org.hisp.dhis.calendar.Calendar;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.calendar.DateTimeUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;

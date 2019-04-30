@@ -48,7 +48,7 @@ public class FinancialNovemberPeriodType extends FinancialPeriodType
     public static final String NAME = "FinancialNov";
 
     @Override
-    protected int getBaseMonth()
+    public int getBaseMonth()
     {
         return Calendar.NOVEMBER;
     }

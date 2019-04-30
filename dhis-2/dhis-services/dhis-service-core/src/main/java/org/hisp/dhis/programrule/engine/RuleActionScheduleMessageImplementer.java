@@ -34,6 +34,8 @@ import org.hisp.dhis.common.IdentifiableObjectStore;
 import org.hisp.dhis.notification.logging.ExternalNotificationLogEntry;
 import org.hisp.dhis.notification.logging.NotificationLoggingService;
 import org.hisp.dhis.notification.logging.NotificationTriggerEvent;
+import org.hisp.dhis.period.DailyPeriodType;
+import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.program.notification.ProgramNotificationInstance;
@@ -135,9 +137,11 @@ public class RuleActionScheduleMessageImplementer extends NotificationRuleAction
 
     private boolean isDateValid( String date )
     {
+        PeriodType periodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );
+        
         if ( !date.isEmpty() )
         {
-            if ( DateUtils.dateIsValid( null, date ) )
+            if ( DateUtils.dateIsValid( periodType, date ) )
             {
                 return true;
             }

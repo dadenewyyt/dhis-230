@@ -43,10 +43,12 @@ import org.hisp.dhis.commons.util.SqlHelper;
 import org.hisp.dhis.event.EventStatus;
 import org.hisp.dhis.jdbc.StatementBuilder;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.system.util.DateUtils;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceStore;
 import org.hisp.dhis.user.User;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -222,6 +224,13 @@ public class HibernateTrackedEntityInstanceStore
             hql += hlp.whereAnd() + "tei.lastUpdated > tei.lastSynchronized";
         }
 
+        //Going for comparing milliseconds instead of always creating new Date( 0 );
+        if ( params.getSkipChangedBefore() != null && params.getSkipChangedBefore().getTime() > 0 )
+        {
+            String skipChangedBefore = DateUtils.getLongDateString( params.getSkipChangedBefore() );
+            hql += hlp.whereAnd() + "tei.lastUpdated >= '" + skipChangedBefore + "'";
+        }
+
         if ( params.hasOrganisationUnits() )
         {
             params.handleOrganisationUnits();
@@ -251,11 +260,11 @@ public class HibernateTrackedEntityInstanceStore
         {
             QueryFilter queryFilter = params.getQuery();
 
-            String filter = queryFilter.getSqlFilter( queryFilter.getFilter() );
+            String encodedFilter = queryFilter.getSqlFilter( statementBuilder.encode( queryFilter.getFilter(), false ) );
 
             hql += hlp.whereAnd() + " exists (from TrackedEntityAttributeValue teav where teav.entityInstance=tei";
 
-            hql += " and teav.plainValue " + queryFilter.getSqlOperator() + filter + ")";
+            hql += " and teav.plainValue " + queryFilter.getSqlOperator() + encodedFilter + ")";
         }
 
         if ( params.hasFilters() )
@@ -264,7 +273,7 @@ public class HibernateTrackedEntityInstanceStore
             {
                 for ( QueryFilter queryFilter : queryItem.getFilters() )
                 {
-                    String filter = queryFilter.getSqlFilter( StringUtils.lowerCase( queryFilter.getFilter() ) );
+                    String encodedFilter = queryFilter.getSqlFilter( statementBuilder.encode( StringUtils.lowerCase( queryFilter.getFilter() ), false ) );
 
                     hql += hlp.whereAnd() + " exists (from TrackedEntityAttributeValue teav where teav.entityInstance=tei";
 
@@ -272,11 +281,11 @@ public class HibernateTrackedEntityInstanceStore
 
                     if ( queryItem.isNumeric() )
                     {
-                        hql += " and teav.plainValue " + queryFilter.getSqlOperator() + filter + ")";
+                        hql += " and teav.plainValue " + queryFilter.getSqlOperator() + encodedFilter + ")";
                     }
                     else
                     {
-                        hql += " and lower(teav.plainValue) " + queryFilter.getSqlOperator() + filter + ")";
+                        hql += " and lower(teav.plainValue) " + queryFilter.getSqlOperator() + encodedFilter + ")";
                     }
                 }
             }
@@ -435,7 +444,18 @@ public class HibernateTrackedEntityInstanceStore
         {
             sql += "inner join ("
                 + "select trackedentityinstanceid, min(case when status='ACTIVE' then 0 when status='COMPLETED' then 1 else 2 end) as status "
-                + "from programinstance pi where pi.programid= " + params.getProgram().getId() + " ";
+                + "from programinstance pi ";
+
+            if ( params.hasEventStatus() )
+            {
+                sql += " inner join (select programinstanceid from programstageinstance psi ";
+
+                sql += getEventStatusWhereClause( params );
+
+                sql += ") as psi on pi.programinstanceid = psi.programinstanceid ";
+            }
+
+            sql += " where pi.programid= " + params.getProgram().getId() + " ";
 
             if ( params.hasProgramStatus() )
             {
@@ -465,13 +485,6 @@ public class HibernateTrackedEntityInstanceStore
             if ( params.hasProgramIncidentEndDate() )
             {
                 sql += "and pi.incidentdate <= '" + getMediumDateString( params.getProgramIncidentEndDate() ) + "' ";
-            }
-
-            if ( params.hasEventStatus() )
-            {
-                sql += "left join programstageinstance psi " + "on pi.programinstanceid = psi.programinstanceid and psi.deleted is false ";
-
-                sql += getEventStatusWhereClause( params );
             }
 
             if ( !params.isIncludeDeleted() )
@@ -639,35 +652,35 @@ public class HibernateTrackedEntityInstanceStore
         String start = getMediumDateString( params.getEventStartDate() );
         String end = getMediumDateString( params.getEventEndDate() );
 
-        String sql = StringUtils.EMPTY;
+        String sql = " where ";
 
         if ( params.isEventStatus( EventStatus.COMPLETED ) )
         {
-            sql = "and psi.executiondate >= '" + start + "' and psi.executiondate <= '" + end + "' "
-                + "and psi.status = '" + EventStatus.COMPLETED.name() + "' ";
+            sql += " psi.executiondate >= '" + start + "' and psi.executiondate <= '" + end + "' "
+                + "and psi.status = '" + EventStatus.COMPLETED.name() + "' and ";
         }
         else if ( params.isEventStatus( EventStatus.VISITED ) )
         {
-            sql = "and psi.executiondate >= '" + start + "' and psi.executiondate <= '" + end + "' "
-                + "and psi.status = '" + EventStatus.ACTIVE.name() + "' ";
+            sql += " psi.executiondate >= '" + start + "' and psi.executiondate <= '" + end + "' "
+                + "and psi.status = '" + EventStatus.ACTIVE.name() + "' and ";
         }
         else if ( params.isEventStatus( EventStatus.SCHEDULE ) )
         {
-            sql = "and psi.executiondate is null and psi.duedate >= '" + start + "' and psi.duedate <= '" + end + "' "
-                + "and psi.status is not null and date(now()) <= date(psi.duedate) ";
+            sql += " psi.executiondate is null and psi.duedate >= '" + start + "' and psi.duedate <= '" + end + "' "
+                + "and psi.status is not null and date(now()) <= date(psi.duedate) and ";
         }
         else if ( params.isEventStatus( EventStatus.OVERDUE ) )
         {
-            sql = "and psi.executiondate is null and psi.duedate >= '" + start + "' and psi.duedate <= '" + end + "' "
-                + "and psi.status is not null and date(now()) > date(psi.duedate) ";
+            sql += " psi.executiondate is null and psi.duedate >= '" + start + "' and psi.duedate <= '" + end + "' "
+                + "and psi.status is not null and date(now()) > date(psi.duedate) and ";
         }
         else if ( params.isEventStatus( EventStatus.SKIPPED ) )
         {
-            sql = "and psi.duedate >= '" + start + "' and psi.duedate <= '" + end + "' " + "and psi.status = '"
-                + EventStatus.SKIPPED.name() + "' ";
+            sql += " psi.duedate >= '" + start + "' and psi.duedate <= '" + end + "' " + "and psi.status = '"
+                + EventStatus.SKIPPED.name() + "' and ";
         }
 
-        sql += "and psi.deleted is false ";
+        sql += " psi.deleted is false ";
 
         return sql;
     }
@@ -675,15 +688,23 @@ public class HibernateTrackedEntityInstanceStore
     @Override
     public boolean exists( String uid )
     {
-        Integer result = jdbcTemplate.queryForObject( "select count(*) from trackedentityinstance where uid=? and deleted is false", Integer.class, uid );
-        return result != null && result > 0;
+        if ( uid == null )
+        {
+            return false;
+        }
+
+        return jdbcTemplate.queryForRowSet( "select * from trackedentityinstance where uid='" + uid + "' and deleted is false limit 1;" ).next();
     }
 
     @Override
     public boolean existsIncludingDeleted( String uid )
     {
-        Integer result = jdbcTemplate.queryForObject( "select count(*) from trackedentityinstance where uid=?", Integer.class, uid );
-        return result != null && result > 0;
+        if ( uid == null )
+        {
+            return false;
+        }
+
+        return jdbcTemplate.queryForRowSet( "select * from trackedentityinstance where uid='" + uid + "' limit 1;").next();
     }
 
     @Override

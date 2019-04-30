@@ -33,6 +33,7 @@ import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.DailyPeriodType;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.program.notification.ProgramNotificationPublisher;
 import org.hisp.dhis.system.util.DateUtils;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueAuditService;
 import org.hisp.dhis.user.CurrentUserService;
@@ -161,7 +162,7 @@ public class DefaultProgramStageInstanceService
     @Override
     public long getProgramStageInstanceCount( int days )
     {
-        PeriodType periodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );        
+        PeriodType periodType = PeriodType.getPeriodTypeByName( DailyPeriodType.NAME );
         Calendar cal = PeriodType.createCalendarInstance( periodType );
         cal.add( Calendar.DAY_OF_YEAR, (days * -1) );
 

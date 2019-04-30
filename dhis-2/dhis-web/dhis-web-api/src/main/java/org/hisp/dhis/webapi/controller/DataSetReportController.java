@@ -124,9 +124,13 @@ public class DataSetReportController
     private IdentifiableObjectManager identifiableObjectManager; 
 
     @RequestMapping( method = RequestMethod.GET )
-    public void getDataSetReport( HttpServletResponse response, @RequestParam String ds, @RequestParam String pe,
-        @RequestParam String ou, @RequestParam( required = false ) Set<String> dimension,
-        @RequestParam( required = false ) boolean selectedUnitOnly, @RequestParam( required = false ) String type )
+    public void getDataSetReport( HttpServletResponse response,
+        @RequestParam String ds,
+        @RequestParam String pe,
+        @RequestParam String ou,
+        @RequestParam( required = false ) Set<String> dimension,
+        @RequestParam( required = false ) boolean selectedUnitOnly,
+        @RequestParam( required = false ) String type )
         throws Exception
     {
         OrganisationUnit selectedOrgunit = idObjectManager.get( OrganisationUnit.class, ou );
@@ -159,8 +163,7 @@ public class DataSetReportController
         // Configure response
         // ---------------------------------------------------------------------
 
-        contextUtils.configureResponse( response, ContextUtils.CONTENT_TYPE_HTML,
-            CacheStrategy.RESPECT_SYSTEM_SETTING );
+        contextUtils.configureResponse( response, ContextUtils.CONTENT_TYPE_HTML, CacheStrategy.RESPECT_SYSTEM_SETTING );
 
         // ---------------------------------------------------------------------
         // Assemble report
@@ -170,24 +173,28 @@ public class DataSetReportController
         {
             if ( type != null )
             {
-                grids = dataSetReportService.getCustomDataSetReportAsGrid( selectedDataSet, selectedPeriod,
-                    selectedOrgunit, dimension, selectedUnitOnly, i18nManager.getI18nFormat() );
+                grids = dataSetReportService.getCustomDataSetReportAsGrid(
+                    selectedDataSet, selectedPeriod, selectedOrgunit, dimension,
+                    selectedUnitOnly, i18nManager.getI18nFormat() );
             }
             else
             {
-                customDataEntryFormCode = dataSetReportService.getCustomDataSetReport( selectedDataSet, selectedPeriod,
-                    selectedOrgunit, dimension, selectedUnitOnly, i18nManager.getI18nFormat() );
+                customDataEntryFormCode = dataSetReportService.getCustomDataSetReport(
+                    selectedDataSet, selectedPeriod, selectedOrgunit, dimension,
+                    selectedUnitOnly, i18nManager.getI18nFormat() );
             }
         }
         else if ( formType.isSection() )
         {
-            grids = dataSetReportService.getSectionDataSetReport( selectedDataSet, selectedPeriod, selectedOrgunit,
-                dimension, selectedUnitOnly, i18nManager.getI18nFormat(), i18nManager.getI18n() );
+            grids = dataSetReportService.getSectionDataSetReport(
+                selectedDataSet, selectedPeriod, selectedOrgunit, dimension, selectedUnitOnly,
+                i18nManager.getI18nFormat(), i18nManager.getI18n() );
         }
         else
         {
-            grids = dataSetReportService.getDefaultDataSetReport( selectedDataSet, selectedPeriod, selectedOrgunit,
-                dimension, selectedUnitOnly, i18nManager.getI18nFormat(), i18nManager.getI18n() );
+            grids = dataSetReportService.getDefaultDataSetReport(
+                selectedDataSet, selectedPeriod, selectedOrgunit, dimension, selectedUnitOnly,
+                i18nManager.getI18nFormat(), i18nManager.getI18n() );
         }
 
         // ---------------------------------------------------------------------
