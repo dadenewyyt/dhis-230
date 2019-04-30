@@ -1469,6 +1469,50 @@ var d2Services = angular.module('d2Services', ['ngResource'])
         
         return d2Periods;
     };
+    
+    this.getReportPeriods = function( opts ){
+        var availablePeriods = [];
+        if(!opts.periodType){
+            return availablePeriods;
+        }
+        
+        if( !opts.futurePeriods ){
+            opts.futurePeriods = 1;
+        }
+        
+        var calendarSetting = CalendarService.getSetting();
+        
+        dhis2.period.format = calendarSetting.keyDateFormat;
+        
+        dhis2.period.calendar = $.calendars.instance( calendarSetting.keyCalendar );
+                
+        dhis2.period.generator = new dhis2.period.PeriodGenerator( dhis2.period.calendar, dhis2.period.format );
+        
+        dhis2.period.picker = new dhis2.period.DatePicker( dhis2.period.calendar, dhis2.period.format );
+        
+        var d2Periods = dhis2.period.generator.generateReversedPeriods( opts.periodType, opts.periodOffset );
+                
+        d2Periods = dhis2.period.generator.filterOpenPeriods( opts.periodType, d2Periods, opts.futurePeriods, null, null );
+        
+        angular.forEach(d2Periods, function(p){
+            p.id = p.iso;
+            var st = p.endDate.split('-');
+            st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
+            if( st[1] < 10 ){
+                st[1] = '0' + st[1];
+            }
+            p.endDate = st.join('-');
+            
+            st = p.startDate.split('-');
+            st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
+            if( st[1] < 10 ){
+                st[1] = '0' + st[1];
+            }
+            p.startDate = st.join('-');
+        });
+        
+        return d2Periods;
+    };
 })
 
 .service('NotificationService', function (DialogService, $timeout) {

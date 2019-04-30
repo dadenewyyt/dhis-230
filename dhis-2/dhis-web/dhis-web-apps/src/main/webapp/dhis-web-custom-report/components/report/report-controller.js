@@ -83,9 +83,9 @@ customReport.controller('customReportController',
             var opts = {
                 periodType: $scope.model.selectedPeriodType.name,
                 periodOffset: $scope.periodOffset,
-                futurePeriods: true
+                futurePeriods: 1
             };
-            $scope.model.periods = PeriodService.getPeriods( opts );
+            $scope.model.periods = PeriodService.getReportPeriods( opts );
         }
     });
     
@@ -167,9 +167,9 @@ customReport.controller('customReportController',
             var opts = {
                 periodType: $scope.model.selectedPeriodType.name,
                 periodOffset: mode === 'NXT' ? ++$scope.periodOffset: --$scope.periodOffset,
-                futurePeriods: true
+                futurePeriods: 1
             };
-            $scope.model.periods = PeriodService.getPeriods( opts );
+            $scope.model.periods = PeriodService.getReportPeriods( opts );
         }
     };
     
