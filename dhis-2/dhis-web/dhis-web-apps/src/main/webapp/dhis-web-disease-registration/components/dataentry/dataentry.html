@@ -10,14 +10,9 @@
         <div class="input-group">
             <input type="text" id="searchField" name="key" class="form-control" placeholder="{{'search' | translate}}">
             <span class="input-group-btn">
-              <button class="btn btn-primary" type="button" onclick="selection.findByName()">{{'go' | translate}}</button>
+                <button class="btn btn-primary" type="button" onclick="selection.findByName()">{{'go' | translate}}</button>
             </span>
         </div>
-        <!--<img id="searchIcon" src="../images/search.png" style="cursor: pointer" title="{{searchOusLabel}}">
-        <span id="searchSpan" style="width:100%;display:none;">
-            <input type="text" id="searchField" name="key"/>
-            <input type="button" value="{{findLabel}}" onclick="selection.findByName()"/>
-        </span>-->
     </div>
 
     <div id="orgUnitTree">
@@ -155,7 +150,7 @@
         <div class="alert alert-danger vertical-spacing" ng-if="model.invalidDimensions && model.selectedDataSet">
             {{'data_set_have_invalid_dimension'| translate}}
         </div>
-        
+
         <!-- form begins -->
         <form name="outerForm" novalidate>
             <div class="vertical-spacing remove-left-padding" ng-if="model.selectedDataSet && model.selectedPeriod && model.categoryOptionsReady">                

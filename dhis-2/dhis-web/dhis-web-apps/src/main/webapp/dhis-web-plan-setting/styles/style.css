@@ -444,10 +444,8 @@ div#orgUnitTree {
     color: #555 !important;
 }
 
-.form-control{
-    height: 30px !important;
-    color: black;
-    padding: 2px !important;
+.form-control {    
+    color: black !important;
 }
 
 .bold {
