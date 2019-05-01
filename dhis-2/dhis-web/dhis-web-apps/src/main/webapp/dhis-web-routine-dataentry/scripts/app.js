@@ -18,7 +18,6 @@ var routineDataEntry = angular.module('routineDataEntry',
          'angularLocalStorage',
          'ui.select',
          'ui.select2',
-         'infinite-scroll',
          'pascalprecht.translate'])
               
 .value('DHIS2URL', '../api')

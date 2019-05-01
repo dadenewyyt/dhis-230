@@ -24,7 +24,6 @@ routineDataEntry.controller('dataEntryController',
                 DialogService) {
     $scope.periodOffset = 0;
     $scope.maxOptionSize = 30;
-    $scope.dataElementSize = 50;
     $scope.saveStatus = {};    
     $scope.model = {invalidDimensions: false,
                     selectedAttributeCategoryCombo: null,
@@ -817,13 +816,5 @@ routineDataEntry.controller('dataEntryController',
                 DataEntryUtils.errorNotifier( response );
             });
         });        
-    };
-    
-    $scope.nextPage = function( size ){
-        if ($scope.dataElementSize + 5 < size ) {
-            $scope.dataElementSize += 5;
-        } else {
-            $scope.dataElementSize = size;
-        }
     };
 });

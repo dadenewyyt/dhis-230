@@ -25,12 +25,8 @@ CACHE:
 ../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.plus.min.js
 ../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.picker.ext.js
         
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.coptic.min.js
 ../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.ethiopian.min.js
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.islamic.min.js
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.julian.min.js
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.nepali.min.js
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.thai.min.js      
+
 ../dhis-web-commons/javascripts/jQuery/ui/css/redmond/jquery-ui.css
 ../dhis-web-commons/javascripts/jQuery/calendars/css/ui-redmond.calendars.picker.css
         
@@ -73,10 +69,8 @@ scripts/routine-dataentry.js
 
 ../dhis-web-commons/javascripts/angular/plugins/select.js
 ../dhis-web-commons/javascripts/angular/plugins/select2.js
-../dhis-web-commons/javascripts/angular/plugins/angularjs-nvd3-directives.min.js
 ../dhis-web-commons/javascripts/angular/plugins/angularLocalStorage.js
 ../dhis-web-commons/javascripts/angular/plugins/angular-translate.min.js
-../dhis-web-commons/javascripts/angular/plugins/ng-infinite-scroll.js
 ../dhis-web-commons/javascripts/dhis2/dhis2.angular.directives.js
 ../dhis-web-commons/javascripts/dhis2/dhis2.angular.services.js
 ../dhis-web-commons/javascripts/dhis2/dhis2.angular.validations.js

@@ -25,12 +25,8 @@ CACHE:
 ../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.plus.min.js
 ../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.picker.ext.js
         
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.coptic.min.js
 ../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.ethiopian.min.js
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.islamic.min.js
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.julian.min.js
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.nepali.min.js
-../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.thai.min.js      
+
 ../dhis-web-commons/javascripts/jQuery/ui/css/redmond/jquery-ui.css
 ../dhis-web-commons/javascripts/jQuery/calendars/css/ui-redmond.calendars.picker.css
         
