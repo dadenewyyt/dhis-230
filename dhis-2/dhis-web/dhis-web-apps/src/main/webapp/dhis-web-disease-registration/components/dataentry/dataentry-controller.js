@@ -122,8 +122,11 @@ diseaseRegistration.controller('dataEntryController',
         $scope.loadDataEntryForm();        
     });
     
-    $scope.$watch('model.sde', function(){
-        $scope.saveStatus = {};        
+    $scope.$watch('model.sde', function(newValue, oldValue){
+        if( oldValue && oldValue.id ){
+            processDataValue( oldValue.id );
+        }
+        $scope.saveStatus = {};
     });
         
     $scope.loadDataSetDetails = function(){        
@@ -299,9 +302,27 @@ diseaseRegistration.controller('dataEntryController',
         $scope.model.periods = PeriodService.getPeriods( opts );
     };
     
+    var processDataValue = function( deId  ){        
+        if( deId && $scope.newDataValue[deId] ){
+            if( !$scope.dataValues[deId] ){
+                $scope.dataValues[deId] = {};
+                $scope.model.dataElementsWithValue.push({id: deId, created: DateUtils.getServerToday()});
+            }
+            else{
+                for( var i=0; i<$scope.model.dataElementsWithValue.length; i++){
+                    if( $scope.model.dataElementsWithValue[i].id === deId ){
+                        $scope.model.dataElementsWithValue[i].created = DateUtils.getServerToday();
+                        break;
+                    }
+                }
+            }            
+            $scope.dataValues[deId] = $scope.newDataValue[deId];            
+        }        
+    };
+    
     $scope.saveDataValue = function( dataElement, ocId, isUpdate ){
         
-        var deId = dataElement.id;
+        var deId = dataElement.id, value = '';
         //check for form validity                
         if( $scope.outerForm.$invalid ){
             if(!$scope.newDataValue[deId] ){
@@ -321,9 +342,7 @@ diseaseRegistration.controller('dataEntryController',
         $scope.saveStatus[ deId + '-' + ocId] = {saved: false, pending: true, error: false};
         
         var getExistingValue=function(deId,ocId){
-            if($scope.dataValues[deId] && $scope.dataValues[deId][ocId] && ($scope.dataValues[deId][ocId].value || $scope.dataValues[deId][ocId].value === 0 || $scope.dataValues[deId][ocId].value === false)){
-                //above condition is included to allow saving of the value zero and false,
-                //since the condition automatically assumes both zero and false as a false condition, it was jumping them.
+            if($scope.dataValues[deId] && $scope.dataValues[deId][ocId] && ($scope.dataValues[deId][ocId].value || $scope.dataValues[deId][ocId].value === 0 )){
                 return $scope.dataValues[deId][ocId].value;
             }
             else{
@@ -332,9 +351,7 @@ diseaseRegistration.controller('dataEntryController',
         };
         
         var getNewValue=function(deId,ocId){
-            if($scope.newDataValue[deId] && $scope.newDataValue[deId][ocId] && ($scope.newDataValue[deId][ocId].value || $scope.newDataValue[deId][ocId].value === 0 || $scope.newDataValue[deId][ocId].value === false)){
-                //above condition is included to allow saving of the value zero and false,
-                //since the condition automatically assumes both zero and false as a false condition, it was jumping them.
+            if($scope.newDataValue[deId] && $scope.newDataValue[deId][ocId] && ($scope.newDataValue[deId][ocId].value || $scope.newDataValue[deId][ocId].value === 0 )){                
                 return $scope.newDataValue[deId][ocId].value;
             }
             else{
@@ -342,10 +359,13 @@ diseaseRegistration.controller('dataEntryController',
             }
         };
         
-        var value = getExistingValue(deId,ocId);
-        
-        if( !isUpdate ){
-            value = value + getNewValue( deId, ocId);
+        if( isUpdate ){
+            value = getExistingValue(deId,ocId);
+            $scope.dataValues[deId] = DataEntryUtils.getDataElementTotal($scope.dataValues, deId);
+        }
+        else{
+            value = getNewValue(deId,ocId);
+            $scope.newDataValue[deId] = DataEntryUtils.getDataElementTotal($scope.newDataValue, deId);
         }
         
         var dataValue = {
@@ -364,7 +384,7 @@ diseaseRegistration.controller('dataEntryController',
             dataValue.cp = DataEntryUtils.getOptionIds($scope.model.selectedOptions);
         }
         
-        var processDataValue = function(){
+        /*var processDataValue = function(){
             
             if(!$scope.dataValues[deId]){                                
                 $scope.dataValues[deId] = {};
@@ -383,7 +403,7 @@ diseaseRegistration.controller('dataEntryController',
             
             $scope.dataValues[deId] = DataEntryUtils.getDataElementTotal( $scope.dataValues, deId);
             copyDataValues();
-        };
+        };*/
         
         var saveSuccessStatus = function(){
             $scope.saveStatus[deId + '-' + ocId].saved = true;
@@ -399,7 +419,6 @@ diseaseRegistration.controller('dataEntryController',
         
         DataValueService.saveDataValue( dataValue ).then(function(response){
            saveSuccessStatus();
-           processDataValue();           
         }, function(){
             saveFailureStatus();
         });

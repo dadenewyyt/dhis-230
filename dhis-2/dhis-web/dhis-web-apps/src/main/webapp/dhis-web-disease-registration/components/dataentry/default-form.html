@@ -140,7 +140,9 @@
                             </span>
                         </ng-form>
                     </td>
-                    <td></td>
+                    <td>
+                        {{newDataValue[model.sde.id].total}}
+                    </td>
                 </tr>
                 <tr ng-repeat="de in model.dataElementsWithValue | orderBy : '-created' ">
                     <td>
