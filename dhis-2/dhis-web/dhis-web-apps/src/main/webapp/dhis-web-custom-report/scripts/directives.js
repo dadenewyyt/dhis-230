@@ -120,28 +120,4 @@ var customReportDirectives = angular.module('customReportDirectives', [])
             });
         }
     };
-})
-
-.directive('selectedOrgUnits', function ($timeout, IndexDBService) {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attrs) {
-            
-            //listen to user selection, and inform angular
-            selectionTreeSelection.setListenerFunction( setSelectedOus );
-            function setSelectedOus(ids, ouNames) {
-                if( ids && ids.length > 0 ){
-                    
-                    var ous = [];
-                    for( var i = 0; i<ids.length; i++){
-                        ous.push({id: ids[i], name: ouNames[i]});
-                    }
-                    $timeout(function () {
-                        scope.selectedOrgUnits = ous;
-                        scope.$apply();
-                    });
-                }
-            }
-        }
-    };
 });

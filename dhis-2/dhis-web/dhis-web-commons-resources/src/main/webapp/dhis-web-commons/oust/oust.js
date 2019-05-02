@@ -106,10 +106,12 @@ function SelectionTreeSelection()
 
         var unitIds = [];
         var unitUids = [];
+        var unitNames = [];
 
         for ( i in json.selectedUnits ) 
         {
             unitIds[i] = json.selectedUnits[i].id;
+            unitNames[i] = json.selectedUnits[i].name;
             selectedOrganisationUnit.push(unitIds[i]);
 
             unitUids[i] = json.selectedUnits[i].uid;
@@ -120,7 +122,7 @@ function SelectionTreeSelection()
 
         if ( listenerFunction ) 
         {
-            listenerFunction(unitIds);
+            listenerFunction(unitIds, unitNames);
         }
     }
 
