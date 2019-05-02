@@ -2,7 +2,7 @@
 <!--<html manifest="cacheManifest.action" ng-app='customReport'>-->
 <html ng-app='customReport'>
     <head>
-        <title>Custom Data Set Report</title>
+        <title>Dataset Report</title>
 
         <meta name="description" content="DHIS 2">
         <meta name="keywords" content="DHIS 2">        
@@ -81,8 +81,7 @@
         <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.contextmenu.js"></script>
         <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.translate.js"></script>
         
-        <!--<script src="../dhis-web-commons/oust/oust.js"></script>-->
-        <script src="scripts/oust.js"></script>
+        <script src="../dhis-web-commons/oust/oust.js"></script>        
         <script src="../dhis-web-commons/javascripts/dhis2/dhis2.metadata.js"></script>        
         <script src="scripts/custom-report.js"></script>
         <script src="scripts/file-saver.js"></script>
@@ -102,6 +101,9 @@
         <script type="text/javascript" src="scripts/filters.js"></script>
         <script type="text/javascript" src="scripts/directives.js"></script>        
         <script type="text/javascript" src="scripts/controllers.js"></script>
+        <script type="text/javascript" src="scripts/leftbar-menu-controller.js"></script>
+        <script type="text/javascript" src="components/completeness/completeness-controller.js"></script>
+        <script type="text/javascript" src="components/timeliness/timeliness-controller.js"></script>
         <script type="text/javascript" src="components/report/report-controller.js"></script>
         <script type="text/javascript" src="components/report/disease-group-detail-controller.js"></script>
         
@@ -110,12 +112,12 @@
         <link type="text/css" rel="stylesheet" href="styles/style.css">
         <link type="text/css" rel="stylesheet" media="screen" href="../dhis-web-commons/css/widgets.css"/>
         <link type="text/css" rel="stylesheet" media="screen" href="../dhis-web-commons/css/menu.css">
-        <!--<link type="text/css" rel="stylesheet" media="print" href="../dhis-web-commons/css/print.css">-->
+        <link type="text/css" rel="stylesheet" media="print" href="../dhis-web-commons/css/print.css">
         <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/angular/plugins/select.css">
         <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/angular/plugins/select2.css">
 
         
-        <link type="text/css" rel="stylesheet" media="print" href="styles/print.css">
+        <!--<link type="text/css" rel="stylesheet" media="print" href="styles/print.css">-->
         <script type="text/javascript" src="../main.js"></script>
 
     </head>
