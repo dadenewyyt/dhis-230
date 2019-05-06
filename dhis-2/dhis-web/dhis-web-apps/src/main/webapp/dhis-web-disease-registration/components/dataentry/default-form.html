@@ -34,7 +34,103 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody>                
+                <tr ng-repeat="de in model.dataElementsWithValue | orderBy : '-created' ">
+                    <td>
+                        {{model.dataElements[de.id].displayFormName}}
+                    </td>
+                    <td ng-repeat="oco in model.selectedCategoryCombo.categoryOptionCombos">
+                        <ng-form name="innerUpdateForm">
+                            <span ng-if="!model.dataElements[de.id].optionSetValue">
+                                <span ng-switch="model.dataElements[de.id].valueType">
+                                    <span ng-switch-when="NUMBER">
+                                        <input type="number"  
+                                               name="foo"
+                                               d2-number-validator
+                                               number-type={{model.dataElements[de.id].valueType}}
+                                               ng-model="dataValues[de.id][oco.id].value"                                               
+                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
+                                               d2-tab-index 
+                                               tabindex={{$index}}
+                                               tabname="foo-{{de.id}}"
+                                               class="form-control" 
+                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)"
+                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
+                                    </span>
+                                    <span ng-switch-when="INTEGER">
+                                        <input type="number"   
+                                               name="foo"
+                                               d2-number-validator
+                                               number-type={{model.dataElements[de.id].valueType}}
+                                               ng-model="dataValues[de.id][oco.id].value"
+                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
+                                               d2-tab-index
+                                               tabindex={{$index}}
+                                               tabname="foo-{{de.id}}"
+                                               class="form-control" 
+                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)"
+                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
+                                    </span>
+                                    <span ng-switch-when="INTEGER_POSITIVE">
+                                        <input type="number" 
+                                               name="foo"
+                                               d2-number-validator
+                                               number-type={{model.dataElements[de.id].valueType}}
+                                               ng-model="dataValues[de.id][oco.id].value"
+                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
+                                               d2-tab-index
+                                               tabindex={{$index}}
+                                               tabname="foo-{{de.id}}"
+                                               class="form-control" 
+                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)" 
+                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
+                                    </span>
+                                    <span ng-switch-when="INTEGER_NEGATIVE">
+                                        <input type="number"   
+                                               name="foo"
+                                               d2-number-validator
+                                               number-type={{model.dataElements[de.id].valueType}}
+                                               ng-model="dataValues[de.id][oco.id].value"
+                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
+                                               d2-tab-index
+                                               tabindex={{$index}}
+                                               tabname="foo-{{de.id}}"
+                                               class="form-control" 
+                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)" 
+                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
+                                    </span>
+                                    <span ng-switch-when="INTEGER_ZERO_OR_POSITIVE">
+                                        <input type="number"   
+                                               name="foo"
+                                               d2-number-validator
+                                               number-type={{model.dataElements[de.id].valueType}}
+                                               ng-model="dataValues[de.id][oco.id].value"
+                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
+                                               d2-tab-index
+                                               tabindex={{$index}}
+                                               tabname="foo-{{de.id}}"
+                                               class="form-control" 
+                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)" 
+                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
+                                    </span>
+                                    <span ng-switch-default>
+                                        <span ng-if="!model.sde">
+                                            <input type="number" ng-disabled="true" class="form-control">
+                                        </span>
+                                        <div class="alert alert-danger form-control" ng-if="model.sde">                                            
+                                            {{'unsupported_value_type'| translate}}:  {{de.valueType}}
+                                        </div>
+                                    </span>
+                                </span>
+                            </span>                                            
+                            <span ng-messages="innerUpdateForm.foo.$error" ng-if="interacted(innerUpdateForm.foo)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html">                                         
+                            </span>
+                        </ng-form>
+                    </td>
+                    <td>
+                        {{dataValues[de.id].total}}
+                    </td>
+                </tr>
                 <tr>
                     <td>
                         <ui-select ng-model="model.sde"
@@ -142,102 +238,6 @@
                     </td>
                     <td>
                         {{newDataValue[model.sde.id].total}}
-                    </td>
-                </tr>
-                <tr ng-repeat="de in model.dataElementsWithValue | orderBy : '-created' ">
-                    <td>
-                        {{model.dataElements[de.id].displayFormName}}
-                    </td>
-                    <td ng-repeat="oco in model.selectedCategoryCombo.categoryOptionCombos">
-                        <ng-form name="innerUpdateForm">
-                            <span ng-if="!model.dataElements[de.id].optionSetValue">
-                                <span ng-switch="model.dataElements[de.id].valueType">
-                                    <span ng-switch-when="NUMBER">
-                                        <input type="number"  
-                                               name="foo"
-                                               d2-number-validator
-                                               number-type={{model.dataElements[de.id].valueType}}
-                                               ng-model="dataValues[de.id][oco.id].value"                                               
-                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
-                                               d2-tab-index 
-                                               tabindex={{$index}}
-                                               tabname="foo-{{de.id}}"
-                                               class="form-control" 
-                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)"
-                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
-                                    </span>
-                                    <span ng-switch-when="INTEGER">
-                                        <input type="number"   
-                                               name="foo"
-                                               d2-number-validator
-                                               number-type={{model.dataElements[de.id].valueType}}
-                                               ng-model="dataValues[de.id][oco.id].value"
-                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
-                                               d2-tab-index
-                                               tabindex={{$index}}
-                                               tabname="foo-{{de.id}}"
-                                               class="form-control" 
-                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)"
-                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
-                                    </span>
-                                    <span ng-switch-when="INTEGER_POSITIVE">
-                                        <input type="number" 
-                                               name="foo"
-                                               d2-number-validator
-                                               number-type={{model.dataElements[de.id].valueType}}
-                                               ng-model="dataValues[de.id][oco.id].value"
-                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
-                                               d2-tab-index
-                                               tabindex={{$index}}
-                                               tabname="foo-{{de.id}}"
-                                               class="form-control" 
-                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)" 
-                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
-                                    </span>
-                                    <span ng-switch-when="INTEGER_NEGATIVE">
-                                        <input type="number"   
-                                               name="foo"
-                                               d2-number-validator
-                                               number-type={{model.dataElements[de.id].valueType}}
-                                               ng-model="dataValues[de.id][oco.id].value"
-                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
-                                               d2-tab-index
-                                               tabindex={{$index}}
-                                               tabname="foo-{{de.id}}"
-                                               class="form-control" 
-                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)" 
-                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
-                                    </span>
-                                    <span ng-switch-when="INTEGER_ZERO_OR_POSITIVE">
-                                        <input type="number"   
-                                               name="foo"
-                                               d2-number-validator
-                                               number-type={{model.dataElements[de.id].valueType}}
-                                               ng-model="dataValues[de.id][oco.id].value"
-                                               ng-disabled="model.sde || isGreyedField(de.id, oco.id)"
-                                               d2-tab-index
-                                               tabindex={{$index}}
-                                               tabname="foo-{{de.id}}"
-                                               class="form-control" 
-                                               ng-class="getInputNotifcationClass(model.dataElements[de.id].id, oco.id)" 
-                                               d2-blur="saveDataValue(model.dataElements[de.id], oco.id, true)">
-                                    </span>
-                                    <span ng-switch-default>
-                                        <span ng-if="!model.sde">
-                                            <input type="number" ng-disabled="true" class="form-control">
-                                        </span>
-                                        <div class="alert alert-danger form-control" ng-if="model.sde">                                            
-                                            {{'unsupported_value_type'| translate}}:  {{de.valueType}}
-                                        </div>
-                                    </span>
-                                </span>
-                            </span>                                            
-                            <span ng-messages="innerUpdateForm.foo.$error" ng-if="interacted(innerUpdateForm.foo)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html">                                         
-                            </span>
-                        </ng-form>
-                    </td>
-                    <td>
-                        {{dataValues[de.id].total}}
                     </td>
                 </tr>
             </tbody>

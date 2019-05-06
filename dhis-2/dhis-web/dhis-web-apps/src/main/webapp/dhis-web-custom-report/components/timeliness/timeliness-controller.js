@@ -5,7 +5,7 @@
 var customReport = angular.module('customReport');
 
 //Controller for settings page
-customReport.controller('reportController',
+customReport.controller('timelinessController',
         function($scope,
                 $modal,
                 orderByFilter,
@@ -48,21 +48,8 @@ customReport.controller('reportController',
                         $scope.model.categoryCombos[cc.id] = cc;
                     });
                     
-                    MetaDataFactory.getAll('dataElementGroups').then(function(degs){
-                        angular.forEach(degs, function(deg){
-                            $scope.model.dataElementGroups[deg.id] = deg;
-                            angular.forEach(deg.dataElements, function(de){
-                                $scope.model.groupsByDataElement[de.id] = {id: deg.id, name: deg.displayName};
-                            });
-                        });
-                        
-                        DataElementGroupFactory.getNonControllingDataElementGroups().then(function (degs) {
-                            $scope.dataElementGroups = degs;
-
-                            selectionTreeSelection.setMultipleSelectionAllowed( true );
-                            selectionTree.clearSelectedOrganisationUnitsAndBuildTree();
-                        });
-                    });
+                    selectionTreeSelection.setMultipleSelectionAllowed( true );
+                    selectionTree.clearSelectedOrganisationUnitsAndBuildTree();
                 });
             });
         });
@@ -338,8 +325,6 @@ customReport.controller('reportController',
             DataEntryUtils.notify('error', 'please_select_orgunit');
             return;
         }
-        
-        console.log('ous:  ', $scope.selectedOrgUnits);
         
         if( !$scope.model.selectedPeriods || $scope.model.selectedPeriods.length < 1 ){
             DataEntryUtils.notify('error', 'please_select_period');

@@ -265,7 +265,7 @@ var customReportServices = angular.module('customReportServices', ['ngResource']
 
 .service('CompletenessService', function($http, DataEntryUtils) {   
     
-    return {        
+    return {
         get: function( ds, ou, period, children ){
             var promise = $http.get('../api/completeDataSetRegistrations.json?dataSet='+ds+'&orgUnit='+ou+'&period='+period+'&children='+children).then(function(response){
                 return response.data;
@@ -298,7 +298,7 @@ var customReportServices = angular.module('customReportServices', ['ngResource']
 
 .service('Analytics', function($http, DataEntryUtils){
     return {
-        get: function(ds, dimension, filter, dataSetType){
+        getReport: function(ds, dimension, filter, dataSetType){
             
             var url = '../api/dataSetReport/custom?ds=' + ds + "&filter="+filter + "&" + dimension ;
             

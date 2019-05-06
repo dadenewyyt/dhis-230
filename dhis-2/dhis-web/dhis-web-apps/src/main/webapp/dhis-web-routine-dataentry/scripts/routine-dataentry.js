@@ -183,7 +183,7 @@ function downloadMetaData()
     
     //fetch dataElementGroups
     promise=promise.then(getMetaDataElementGroups);
-     promise=promise.then(filterMissingDataElementGroups);
+    promise=promise.then(filterMissingDataElementGroups);
     promise=promise.then(getDataElementGroups);
     
     
