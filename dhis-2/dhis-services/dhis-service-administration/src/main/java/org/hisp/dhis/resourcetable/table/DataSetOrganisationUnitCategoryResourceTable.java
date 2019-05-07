@@ -29,6 +29,7 @@ package org.hisp.dhis.resourcetable.table;
  */
 
 import com.google.common.collect.Lists;
+
 import org.hisp.dhis.category.CategoryCombo;
 import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.category.CategoryOptionCombo;
@@ -92,6 +93,21 @@ public class DataSetOrganisationUnitCategoryResourceTable
         {
             CategoryCombo categoryCombo = dataSet.getCategoryCombo();
             
+            Set<CategoryOption> availableOptions = new HashSet<>();
+
+            for ( CategoryOptionCombo optionCombo : categoryCombo.getOptionCombos() )
+            {
+                Set<CategoryOption> optionComboOptions = optionCombo.getCategoryOptions();
+
+                for( CategoryOption categoryOption : optionComboOptions )
+                {
+                    if ( categoryOption.getOrganisationUnits().isEmpty() )
+                    {
+                        availableOptions.add( categoryOption );
+                    }
+                }
+            }
+
             for ( OrganisationUnit orgUnit : dataSet.getSources() )
             {
                 if ( !categoryCombo.isDefault() )
@@ -100,6 +116,8 @@ public class DataSetOrganisationUnitCategoryResourceTable
                     {
                         Set<CategoryOption> orgUnitOptions = orgUnit.getCategoryOptions();
                         
+                        orgUnitOptions.addAll( availableOptions );
+
                         for ( CategoryOptionCombo optionCombo : categoryCombo.getOptionCombos() )
                         {
                             Set<CategoryOption> optionComboOptions = optionCombo.getCategoryOptions();
@@ -111,6 +129,23 @@ public class DataSetOrganisationUnitCategoryResourceTable
                                 
                                 List<Object> values = Lists.newArrayList( dataSet.getId(), orgUnit.getId(), optionCombo.getId(), startDate, endDate );
                                 
+                                batchArgs.add( values.toArray() );
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for ( CategoryOptionCombo optionCombo : categoryCombo.getOptionCombos() )
+                        {
+                            Set<CategoryOption> optionComboOptions = optionCombo.getCategoryOptions();
+
+                            if ( availableOptions.containsAll( optionComboOptions ) )
+                            {
+                                Date startDate = DateUtils.min( optionComboOptions.stream().map( co -> co.getStartDate() ).collect( Collectors.toSet() ) );
+                                Date endDate = DateUtils.max( optionComboOptions.stream().map( co -> co.getEndDate() ).collect( Collectors.toSet() ) );
+
+                                List<Object> values = Lists.newArrayList( dataSet.getId(), orgUnit.getId(), optionCombo.getId(), startDate, endDate );
+
                                 batchArgs.add( values.toArray() );
                             }
                         }
