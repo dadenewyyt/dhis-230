@@ -33,6 +33,7 @@ customReport.controller('reportController',
                     showReportFilters: true,
                     showDiseaseFilters: true,
                     selectedPeriodType: null,
+                    reportName: '',
                     valueExists: false};
                 
     downloadMetaData().then(function(){
@@ -339,8 +340,6 @@ customReport.controller('reportController',
             return;
         }
         
-        console.log('ous:  ', $scope.selectedOrgUnits);
-        
         if( !$scope.model.selectedPeriods || $scope.model.selectedPeriods.length < 1 ){
             DataEntryUtils.notify('error', 'please_select_period');
             return;
@@ -375,13 +374,19 @@ customReport.controller('reportController',
             }
             else{
                 analyticsUrl += '&periodAsFilter=false';
-                $scope.model.reportName = $scope.model.selectedDataSet.displayName + ' - ' + $.map($scope.selectedOrgUnits, function(ou){return ou.name;}).join('; '); 
-                $scope.model.columns = $scope.model.selectedPeriods;
+                $scope.model.reportName = $scope.model.selectedDataSet.displayName + ' - ' + $.map($scope.selectedOrgUnits, function(ou){return ou.name;}).join('; ');
+                $scope.model.columns = orderByFilter( $scope.model.selectedPeriods, '-id').reverse();
             }
 
             if( dimension.length > 0 ){
                 analyticsUrl += '&' + dimension.join('&');
-                $scope.model.reportName += ' - ' + dimension.join(';');
+                var dimensionNames = [];
+                angular.forEach( $scope.model.selectedAttributeCategoryCombo.categories, function(ca){
+                    if( ca.selectedOption && ca.selectedOption.id ){
+                        dimensionNames.push(ca.displayName + "=" + ca.selectedOption.displayName );
+                    }
+                });
+                $scope.model.reportName += ' - ' + dimensionNames.join(';');
             }
         
             Analytics.getDiseaseReport( analyticsUrl ).then(function(data){
@@ -408,6 +413,8 @@ customReport.controller('reportController',
             if( $scope.model.reportColumn === 'ORGUNIT' ){
                 dimension.push( "dimension=ou:" + $.map($scope.selectedOrgUnits, function(ou){return ou.id;}).join(';') );
                 filter = "pe:" + $.map($scope.model.selectedPeriods, function(pe){return pe.id;}).join(';');
+                $scope.model.columns = $scope.selectedOrgUnits;
+
                 $scope.model.reportName = $scope.model.selectedDataSet.displayName + ' (' + $.map($scope.model.selectedPeriods, function(pe){return pe.name;}).join('; ') + ')'; 
             }
             else{
