@@ -77,11 +77,13 @@ public class JDBCDataSetCompletenessStore
         }        
         
         final String sql =
-            "SELECT COUNT(*) " +
+            "SELECT COUNT(DISTINCT(datasetid, sourceid, periodid)) " +
             "FROM completedatasetregistration cr " +
             "WHERE cr.datasetid = " + dataSet.getId() + " " +
             "AND cr.periodid IN ( " + getCommaDelimitedString( periods ) + " ) " +
             "AND cr.sourceid IN ( " + getCommaDelimitedString( relevantSources ) + " )";
+        
+        System.out.println("getCompleteDataSetRegistrations sql:  " + sql );
         
         return statementManager.getHolder().queryForInteger( sql );
     }
@@ -95,13 +97,15 @@ public class JDBCDataSetCompletenessStore
         }        
         
         final String sql =
-            "SELECT COUNT(*) " +
+            "SELECT COUNT(DISTINCT(datasetid, sourceid, cr.periodid)) " +
             "FROM completedatasetregistration cr " +
             "JOIN period pe ON (cr.periodid = pe.periodid) " +
             "WHERE cr.datasetid = " + dataSet.getId() + " " +
             "AND cr.periodid IN ( " + getCommaDelimitedString( periods ) + " ) " +
             "AND cr.sourceid IN ( " + getCommaDelimitedString( relevantSources ) + " ) " +
             "AND cr.date <= " + statementBuilder.getAddDate( "pe.enddate", dataSet.getTimelyDays() );
+        
+        System.out.println("getCompleteDataSetRegistrationsWithTimeliness sql:  " + sql );
         
         return statementManager.getHolder().queryForInteger( sql );
     }
@@ -141,6 +145,8 @@ public class JDBCDataSetCompletenessStore
                 "AND dv.deleted is false " +
                 "GROUP BY sourceid) AS completed " +
             "WHERE completed.sources = " + compulsoryElements;
+        
+        System.out.println("getCompulsoryDataElementRegistrations sql:  " + sql );
         
         return statementManager.getHolder().queryForInteger( sql );
     }
