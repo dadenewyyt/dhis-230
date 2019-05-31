@@ -30,12 +30,9 @@ var customReport = angular.module('customReport',
     $routeProvider.when('/report', {
         templateUrl:'components/report/home.html',
         controller: 'reportController'
-    }).when('/completeness', {
-        templateUrl:'components/completeness/home.html',
-        controller: 'completenessController'
-    }).when('/timeliness', {
-        templateUrl:'components/timeliness/home.html',
-        controller: 'timelinessController'
+    }).when('/reportRate', {
+        templateUrl:'components/report-rate/home.html',
+        controller: 'reportRateController'
     }).otherwise({
         redirectTo : '/report'
     });  

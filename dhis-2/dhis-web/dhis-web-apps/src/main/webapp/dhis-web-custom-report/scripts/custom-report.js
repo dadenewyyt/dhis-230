@@ -31,7 +31,7 @@ if( dhis2.customReport.memoryOnly ) {
 dhis2.customReport.store = new dhis2.storage.Store({
     name: 'dhis2cr',
     adapters: [dhis2.storage.IndexedDBAdapter, dhis2.storage.DomSessionStorageAdapter, dhis2.storage.InMemoryAdapter],
-    objectStores: ['dataSets', 'periodTypes', 'categoryCombos', 'dataElementGroups']
+    objectStores: ['dataSets', 'periodTypes', 'categoryCombos', 'dataElementGroups', 'categoryOptionGroupSets']
 });
 
 (function($) {
@@ -164,7 +164,11 @@ function downloadMetaData()
 
         .then( getMetaDataSets )
         .then( filterMissingDataSets )
-        .then( getDataSets );
+        .then( getDataSets )
+
+        .then( getMetaCategoryOptionGroupSets )
+        .then( filterMissingCategoryOptionGroupSets )
+        .then( getCategoryOptionGroupSets );
 }
 
 function getSystemSetting(){   
@@ -212,4 +216,16 @@ function filterMissingDataSets( objs ){
 
 function getDataSets( ids ){
     return dhis2.metadata.getBatches( ids, batchSize, 'dataSets', 'dataSets', '../api/dataSets.json', 'paging=false&fields=id,displayName,version,timelyDays,expiryDays,categoryCombo[id],attributeValues[value,attribute[id,name,valueType,code]],sections[id,displayName,description,sortOrder,code,dataElements,greyedFields[dimensionItem],indicators[id,displayName,indicatorType,numerator,denominator,attributeValues[value,attribute[id,name,valueType,code]]]],dataSetElements[id,dataElement[id,code,displayFormName,description,attributeValues[value,attribute[id,name,valueType,code]],description,formName,valueType,categoryCombo[id]]]', 'idb', dhis2.customReport.store, dhis2.metadata.processObject);
+}
+
+function getMetaCategoryOptionGroupSets(){
+    return dhis2.metadata.getMetaObjectIds('categoryOptionGroupSets', '../api/categoryOptionGroupSets.json', 'paging=false&fields=id,version');
+}
+
+function filterMissingCategoryOptionGroupSets( objs ){
+    return dhis2.metadata.filterMissingObjIds('categoryOptionGroupSets', dhis2.customReport.store, objs);
+}
+
+function getCategoryOptionGroupSets( ids ){
+    return dhis2.metadata.getBatches( ids, batchSize, 'categoryOptionGroupSets', 'categoryOptionGroupSets', '../api/categoryOptionGroupSets.json', 'paging=false&fields=id,displayName,version,attributeValues[value,attribute[id,name,valueType,code]],categoryOptionGroups[id,displayName,categoryOptions[id,displayName]]', 'idb', dhis2.customReport.store, dhis2.metadata.processObject);
 }

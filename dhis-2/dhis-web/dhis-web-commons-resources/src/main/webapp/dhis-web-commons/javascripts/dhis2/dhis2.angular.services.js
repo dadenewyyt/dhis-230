@@ -962,7 +962,7 @@ var d2Services = angular.module('d2Services', ['ngResource'])
             if( op2 === 0 ){
                 return $translate.instant('missing_target');
             }
-            return parseFloat((op1 / op2)*100).toFixed(2) + '%';
+            return Number(parseFloat((op1 / op2)*100).toFixed(2)) + '%';
         },
         getOptionComboIdFromOptionNames: function(optionComboMap, options){
             var optionNames = [];

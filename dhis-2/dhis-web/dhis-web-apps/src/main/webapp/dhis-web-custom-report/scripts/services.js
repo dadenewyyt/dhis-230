@@ -10,7 +10,7 @@ var customReportServices = angular.module('customReportServices', ['ngResource']
     var store = new dhis2.storage.Store({
         name: "dhis2cr",
         adapters: [dhis2.storage.IndexedDBAdapter, dhis2.storage.DomSessionStorageAdapter, dhis2.storage.InMemoryAdapter],
-        objectStores: ['dataSets', 'periodTypes', 'categoryCombos', 'dataElementGroups']
+        objectStores: ['dataSets', 'periodTypes', 'categoryCombos', 'dataElementGroups', 'categoryOptionGroupSets']
     });
     return{
         currentStore: store
@@ -296,7 +296,7 @@ var customReportServices = angular.module('customReportServices', ['ngResource']
     };
 })
 
-.service('Analytics', function($http, DataEntryUtils){
+.service('Analytics', function($q, $http, DataEntryUtils){
     return {
         getReport: function(ds, dimension, filter, dataSetType){
             
@@ -318,6 +318,31 @@ var customReportServices = angular.module('customReportServices', ['ngResource']
             url = '../api/dataSetReport/diseaseTopList?' + url;
             var promise = $http.get( url ).then(function(response){
                 return response.data;
+            }, function(response){
+                DataEntryUtils.errorNotifier(response);
+                return response.data;
+            });
+            return promise;
+        },
+        getData: function( url ){
+            url = '../api/analytics?' + url;
+            var promise = $http.get( url ).then(function(response){
+                var data = response.data;
+                var reportData = [];
+                if ( data && data.headers && data.headers.length > 0 && data.rows && data.rows.length > 0 ){
+                    for(var i=0; i<data.rows.length; i++){
+                        var r = {}, d = data.rows[i];
+                        for(var j=0; j<data.headers.length; j++){                            
+                            r[data.headers[j].name] = d[j];
+                        }
+                        
+                        delete r.multiplier;
+                        delete r.factor;
+                        delete r.divisor;
+                        reportData.push( r );
+                    }
+                }
+                return reportData;
             }, function(response){
                 DataEntryUtils.errorNotifier(response);
                 return response.data;

@@ -6,12 +6,7 @@ customReport.controller('LeftBarMenuController', function($scope, $location) {
         $location.path('/report').search();
     };
     
-    $scope.showReportCompleteness = function(){        
-        $location.path('/completeness').search();
-    };
-    
-    $scope.showReportTimeliness = function(){        
-        $location.path('/timeliness').search();
-    };
-    
+    $scope.showReportRate = function(){        
+        $location.path('/reportRate').search();
+    };    
 });

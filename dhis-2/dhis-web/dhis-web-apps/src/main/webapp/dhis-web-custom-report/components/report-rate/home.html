@@ -15,7 +15,7 @@
 </div>
 <div class="page" id="mainPage">
     <h2 class="hideInPrint">
-        {{'timeliness_report'| translate}}
+        {{'reporting_rate_summary'| translate}}
     </h2>
 
     <!-- selection begins-->
@@ -48,7 +48,7 @@
                         </div>
                     </div>
                     
-                    <div ng-repeat="category in model.selectedAttributeCategoryCombo.categories" ng-if="model.selectedDataSet && !model.selectedAttributeCategoryCombo.isDefault">                
+                    <!--<div ng-repeat="category in model.selectedAttributeCategoryCombo.categories" ng-if="model.selectedDataSet && !model.selectedAttributeCategoryCombo.isDefault">                
                         <div class="row small-vertical-spacing">                        
                             <div class="col-sm-3">
                                 {{category.displayName}}
@@ -64,7 +64,7 @@
                                 </ui-select>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                     
                     <div class="row small-vertical-spacing">
                         <div class="col-sm-3">
@@ -149,9 +149,8 @@
 
     <!-- report begins -->
     <div class="row">
-        <div class="col-sm-12" ng-if="model.reportReady && model.dataExists">
-            <div ng-if="model.selectedDataSet.DataSetCategory !== 'Disease'" ng-include="'components/report/defaultForm.html'"></div>
-            <div ng-if="model.selectedDataSet.DataSetCategory === 'Disease'" ng-include="'components/report/defaultFormDisease.html'"></div>
+        <div class="col-sm-12" ng-if="model.reportReady">
+            <div ng-include="'components/report-rate/reportRate.html'"></div>
         </div>
     </div>
     <!-- report ends -->
