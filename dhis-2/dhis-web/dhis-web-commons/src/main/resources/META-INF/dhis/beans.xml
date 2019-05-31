@@ -24,9 +24,14 @@
     class="org.hisp.dhis.webportal.module.ConfigurableModuleComparator">
     <property name="order">
       <list>
+        <value>dhis-web-routine-dataentry</value>
+        <value>dhis-web-disease-registration</value>
+        <value>dhis-web-plan-setting</value>
+        <value>dhis-web-custom-report</value>
+        <value>dhis-web-importexport</value>
         <value>dhis-web-pivot</value>
         <value>dhis-web-visualizer</value>
-        <value>dhis-web-mapping</value>
+        <value>dhis-web-mapping</value>        
         <value>dhis-web-event-reports</value>
         <value>dhis-web-event-visualizer</value>
         <value>dhis-web-dataentry</value>
