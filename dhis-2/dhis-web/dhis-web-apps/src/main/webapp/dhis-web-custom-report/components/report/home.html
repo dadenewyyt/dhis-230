@@ -25,7 +25,7 @@
                 <div class="panel-heading mouse-pointer" ng-click="model.showReportFilters = !model.showReportFilters">
                     {{'report_filters'| translate}}
                     <div class="pull-right">
-                        <a class="small-horizontal-spacing" href ng-click="model.showReportFilters = !model.showReportFilters">
+                        <a class="small-horizontal-spacing" href ng-click="model.showReportFilters = !model.showReportFilters; $event.stopPropagation();">
                             <span ng-show="model.showReportFilters" class="white-color"><i class="fa fa-chevron-up vertical-center" title="{{'collapse'| translate}}"></i></span>
                             <span ng-show="!model.showReportFilters" class="white-color"><i class="fa fa-chevron-down vertical-center" title="{{'expand'| translate}}"></i></span>
                         </a>
