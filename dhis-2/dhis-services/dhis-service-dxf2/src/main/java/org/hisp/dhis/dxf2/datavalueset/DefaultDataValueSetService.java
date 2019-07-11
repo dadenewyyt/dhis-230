@@ -744,6 +744,19 @@ public class DefaultDataValueSetService
                     //summary.setStatus( ImportStatus.ERROR );
                     continue;
                 }
+
+                if ( dataSet.getDataElements().isEmpty() )
+                {
+                	summary.getConflicts().add( new ImportConflict( completeDataSet.getDataSet(), "Data set does not have data element" ) );
+                    //summary.setStatus( ImportStatus.ERROR );
+                    continue;
+                }
+
+                if ( period == null )
+                {
+                    summary.getConflicts().add( new ImportConflict( completeDataSet.getPeriod(), "Period not valid" ) );
+                    continue;
+                }
         
                 if ( dataSet != null && !aclService.canDataWrite( currentUser, dataSet ) )
                 {
@@ -751,7 +764,16 @@ public class DefaultDataValueSetService
                     //summary.setStatus( ImportStatus.ERROR );
                     continue;
                 }
-        
+
+                Period latestFuturePeriod = dataSet.getDataElements().iterator().next().getLatestOpenFuturePeriod();
+
+                if ( period.isAfter( latestFuturePeriod ) )
+                {
+                    summary.getConflicts().add( new ImportConflict( period.getIsoDate(), "Period: " +
+                        period.getIsoDate() + " is after latest open future period: " + latestFuturePeriod.getIsoDate() ) );
+                    continue;
+                }
+
                 if ( orgUnit == null && trimToNull( completeDataSet.getOrgUnit() ) != null )
                 {
                     summary.getConflicts().add( new ImportConflict( completeDataSet.getOrgUnit(), "Org unit not found or not accessible" ) );
@@ -896,6 +918,15 @@ public class DefaultDataValueSetService
             if ( period == null )
             {
                 summary.getConflicts().add( new ImportConflict( dataValue.getPeriod(), "Period not valid" ) );
+                continue;
+            }
+
+            Period latestFuturePeriod = dataElementLatestFuturePeriodMap.get( dataElement.getUid(), () -> dataElement.getLatestOpenFuturePeriod() );
+
+            if ( period.isAfter( latestFuturePeriod ) )
+            {
+                summary.getConflicts().add( new ImportConflict( period.getIsoDate(), "Period: " +
+                    period.getIsoDate() + " is after latest open future period: " + latestFuturePeriod.getIsoDate() + " for data element: " + dataElement.getUid() ) );
                 continue;
             }
 
@@ -1093,15 +1124,6 @@ public class DefaultDataValueSetService
                 {
                     summary.getConflicts().add( new ImportConflict( period.getIsoDate(), "Current date is past expiry days for period " +
                         period.getIsoDate() + " and data set: " + approvalDataSet.getUid() ) );
-                    continue;
-                }
-
-                Period latestFuturePeriod = dataElementLatestFuturePeriodMap.get( dataElement.getUid(), () -> dataElement.getLatestOpenFuturePeriod() );
-
-                if ( period.isAfter( latestFuturePeriod ) && isIso8601 )
-                {
-                    summary.getConflicts().add( new ImportConflict( period.getIsoDate(), "Period: " +
-                        period.getIsoDate() + " is after latest open future period: " + latestFuturePeriod.getIsoDate() + " for data element: " + dataElement.getUid() ) );
                     continue;
                 }
 
