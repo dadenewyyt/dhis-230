@@ -253,7 +253,12 @@ public class QuarterlyPeriodType
     {
         int startMonth = ((dateTimeUnit.getMonth() - 2) - ((dateTimeUnit.getMonth() - 2) % 3)) + 2;
         int startYear = dateTimeUnit.getYear();
-        
+
+        if ( dateTimeUnit.getMonth() == 1 ) 
+        {
+        	startMonth = -1;
+        }
+
         if ( startMonth > 12 )
         {
             startMonth = 1;
