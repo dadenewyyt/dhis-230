@@ -1414,7 +1414,7 @@ var d2Services = angular.module('d2Services', ['ngResource'])
         
         var calendarSetting = CalendarService.getSetting();
         
-        dhis2.period.format = calendarSetting.keyDateFormat;
+        dhis2.period.format = calendarSetting.keyDateFormat.toLowerCase();
         
         dhis2.period.calendar = $.calendars.instance( calendarSetting.keyCalendar );
                 
@@ -1428,7 +1428,7 @@ var d2Services = angular.module('d2Services', ['ngResource'])
         
         var today = moment(DateUtils.getToday(),'YYYY-MM-DD');
         
-        if( opts.dataSetType === 'Plan_Setting' ) {
+        if( opts.dataSetType === 'Plan_Setting' || opts.dataSetType === 'PHEM' ) {
         	angular.forEach(d2Periods, function(p){
 	            p.id = p.iso;
 	            var st = p.endDate.split('-');
@@ -1482,7 +1482,7 @@ var d2Services = angular.module('d2Services', ['ngResource'])
         
         var calendarSetting = CalendarService.getSetting();
         
-        dhis2.period.format = calendarSetting.keyDateFormat;
+        dhis2.period.format = calendarSetting.keyDateFormat.toLowerCase();
         
         dhis2.period.calendar = $.calendars.instance( calendarSetting.keyCalendar );
                 
