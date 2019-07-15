@@ -42,12 +42,12 @@
         </action>        
     </package>
     
-    <package name="dhis-web-phem" extends="dhis-web-commons" namespace="/dhis-web-phem">
+    <package name="dhis-web-phem-dataentry" extends="dhis-web-commons" namespace="/dhis-web-phem-dataentry">
         <action name="index" class="org.hisp.dhis.commons.action.NoAction">
             <result name="success" type="redirect">index.html</result>
         </action>
         <action name="cacheManifest" class="org.hisp.dhis.appcache.CacheManifestAction">
-            <param name="appPath">dhis-web-phem</param>
+            <param name="appPath">dhis-web-phem-dataentry</param>
             <param name="i18nPath">i18n</param>
             <param name="appCache">phem.appcache</param>
             <result type="stream">

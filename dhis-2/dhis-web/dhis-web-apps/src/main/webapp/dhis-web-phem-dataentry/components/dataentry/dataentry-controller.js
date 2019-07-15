@@ -21,7 +21,8 @@ phem.controller('dataEntryController',
                 DataValueService,
                 CompletenessService,
                 ModalService,
-                DialogService) {
+                DialogService,
+                CustomFormService) {
     $scope.periodOffset = 0;
     $scope.maxOptionSize = 30;
     $scope.saveStatus = {};    
@@ -44,7 +45,7 @@ phem.controller('dataEntryController',
                     validationResults: [],
                     failedValidationRules: [],
                     attributeCategoryUrl: null,
-                    showCustomForm: false,
+                    showCustomForm: true,
                     valueExists: false};
     
     //watch for selection of org unit from tree
@@ -145,36 +146,8 @@ phem.controller('dataEntryController',
         $scope.dataValues = {};
         $scope.dataValuesCopy = {};
         $scope.model.valueExists = false;
-        reinitializeGroupDetails();        
         $scope.loadDataEntryForm();        
-    });    
-    
-    function reinitializeGroupDetails() {        
-        angular.forEach($scope.dataElementGroups, function(deg){
-            deg.isDisabled = true;
-        });
-    };
-	
-    $scope.checkDisabled = function (section,de,oco){
-        if($scope.model && $scope.model.dataSetCompletness && $scope.model.dataSetCompletness[$scope.model.selectedAttributeOptionCombo]){//if dataset is complete return true (disabled) without checking anything.
-            return true;
-        }
-        else if(de.controlling_data_element){//if data element is a controlling data element return false (is not disabled)
-                                        //it is only disabled when the dataSet is marked complete.
-            return false;
-        }
-
-        else if(section.greyedFields.indexOf(de.id+'.'+oco.id) !== -1){//if the category option combo is greyed out return true;
-            return true;
-        }
-        else if($scope.controllingDataElementGroups && $scope.controllingDataElementGroups[$scope.groupsByMember[de.id]] && $scope.controllingDataElementGroups[$scope.groupsByMember[de.id]].isDisabled){
-            //return if controlling data element value is disabled.
-            return true;
-        }
-        //if the above conditions are not fullfilled return false;
-        return false;
-        //return (section.greyedFields.indexOf(de.id+'.'+oco.id) !== -1 || $scope.controllingDataElementGroups[$scope.groupsByMember[de.id]].isDisabled) && !de.controlling_data_element || $scope.model.dataSetCompletness[$scope.model.selectedAttributeOptionCombo];
-    };
+    });
         
     $scope.loadDataSetDetails = function(){        
         if( $scope.model.selectedDataSet && $scope.model.selectedDataSet.id && $scope.model.selectedDataSet.periodType){
@@ -207,6 +180,7 @@ phem.controller('dataEntryController',
             }
             
             $scope.model.dataElements = [];
+            $scope.model.optioCombos =  [];
             $scope.tabOrder = {};
             var idx = 0;
             angular.forEach($scope.model.selectedDataSet.dataElements, function(de){
@@ -221,6 +195,7 @@ phem.controller('dataEntryController',
                 $scope.tabOrder[de.id] = {};
                 angular.forEach($scope.model.categoryCombos[de.categoryCombo.id].categoryOptionCombos, function(oco){
                     $scope.tabOrder[de.id][oco.id] = idx++;
+                    $scope.model.optionCombos[oco.id] = oco;
                 });
                 
             });
@@ -270,6 +245,10 @@ phem.controller('dataEntryController',
                 angular.isObject( $scope.model.selectedDataSet ) && $scope.model.selectedDataSet.id &&
                 angular.isObject( $scope.model.selectedPeriod) && $scope.model.selectedPeriod.id &&
                 $scope.model.categoryOptionsReady ){
+            
+            $scope.customDataEntryForm = CustomFormService.getForDataSet($scope.model.selectedDataSet, $scope.model.dataElements);
+            
+            $scope.displayCustomForm = $scope.customDataEntryForm ? true : false;
             
             var dataValueSetUrl = 'dataSet=' + $scope.model.selectedDataSet.id + '&period=' + $scope.model.selectedPeriod.id;
 
@@ -346,6 +325,7 @@ phem.controller('dataEntryController',
         if(field){            
             status = $scope.outerForm.submitted || field.$dirty;
         }
+        console.log('interacted:  ', status, ' - ', field);
         return status;
     };
     
@@ -430,91 +410,6 @@ phem.controller('dataEntryController',
             $scope.saveStatus[deId + '-' + ocId].error = true;
         };
 
-        if( $scope.model.dataElements[deId].controlling_data_element && 
-                $scope.groupsByMember[deId] && 
-                $scope.dataElementGroups[$scope.groupsByMember[deId]] &&
-                $scope.dataElementGroups[$scope.groupsByMember[deId]].dataElements ){            
-            //this means that the dataElement is a controlling dataElement
-            var dataValueSet={
-                dataSet: $scope.model.selectedDataSet.id,
-                period:$scope.model.selectedPeriod.id,
-                orgUnit: $scope.selectedOrgUnit.id,
-                attributeOptionCombo: $scope.model.selectedAttributeOptionCombo,
-                dataValues: []
-            };
-            
-            if( $scope.model.selectedAttributeCategoryCombo && !$scope.model.selectedAttributeCategoryCombo.isDefault ){            
-                dataValueSet.cc = $scope.model.selectedAttributeCategoryCombo.id;
-                dataValueSet.cp = DataEntryUtils.getOptionIds($scope.model.selectedOptions);
-            }
-            
-            
-            if( dataValue.value && dataValue.value !== '' ){
-                //value set to true, open all blocked fields
-                $scope.dataElementGroups[$scope.groupsByMember[deId]].isDisabled=false;
-            } else{
-                //value set to false or empty. 
-                //show modal message. 
-                //if user accepts clear values, block fields and save all changes.
-                var _dataValues = angular.copy( $scope.dataValues );
-                var count = 0;                
-                angular.forEach($scope.dataElementGroups[$scope.groupsByMember[deId]].dataElements, function(_deId){                    
-                    if( _dataValues[_deId] && _deId !== deId ){
-                        angular.forEach(_dataValues[_deId], function(val, key) {
-                            if( key === 'total' ){
-                                _dataValues[_deId].total = 0;
-                            }
-                            else{
-                                val.value = "";
-                                _dataValues[_deId][key] = val;
-                                dataValueSet.dataValues.push({dataElement: _deId, categoryOptionCombo: key, value: "", deleted: true});
-                                count++;
-                            }
-                        });
-                    }
-                });
-                
-                dataValueSet.dataValues.push({dataElement: deId, categoryOptionCombo: ocId, value: dataValue.value, deleted: dataValue.value === '' ? true : false});
-
-				var modalOptions={
-					closeButtonText: 'no',
-					actionButtonText: 'yes',
-					headerText: 'auto_zero_warning',
-					bodyText: 'are_you_sure_to_discard_all_saved_data_in_group'
-				};
-				ModalService.showModal({},modalOptions).then(function (){
-					//this means user clicked yes.
-					//save value of the controlling data element, discard all the values stored under the datElementGroup.                        
-					$scope.dataElementGroups[$scope.groupsByMember[deId]].isDisabled=true;
-					DataValueService.saveDataValueSet(dataValueSet).then(function(response){
-						$scope.dataValues = Object.assign($scope.dataValues, _dataValues);
-						var dialogOptions={
-							headerText:'success',
-							bodyText: 'child_data_element_groups_deleted_successfully'
-						};
-						DialogService.showDialog({},dialogOptions);
-						saveSuccessStatus();
-						processDataValue();
-					},function (){                            
-						var dialogOptions={
-							headerText:'error',
-							bodyText: 'error_deleting_dataValues_of_data_element_groups'
-						};
-						DialogService.showDialog({},dialogOptions);                            
-						saveFailureStatus();
-					});
-					return;//return so that it won't continue to save the dataValue Object created above.
-				},function (){
-					//this means that the user clicked NO so no changes will be saved.
-					$scope.dataValues[deId][ocId].value=true;
-					return;//return so that it won't continue to save the dataValue object created above.
-				});
-				return;//return so that it won't continue to save the dataValue object created above.
-            }                
-        }
-        
-        //this means it is not controller dataElelement or the controller data element is set to true so continue saving the data.
-        
         DataValueService.saveDataValue( dataValue ).then(function(response){
            saveSuccessStatus();
            processDataValue();           
@@ -528,8 +423,7 @@ phem.controller('dataEntryController',
     };
     
     $scope.getInputNotifcationClass = function(deId, ocId){
-        
-        var style = 'form-control';        
+        var style = 'form-control ';        
         var currentElement = $scope.saveStatus[deId + '-' + ocId];
         
         if( currentElement ){
