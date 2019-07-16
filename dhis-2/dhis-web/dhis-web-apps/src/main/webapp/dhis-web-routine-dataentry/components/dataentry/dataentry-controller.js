@@ -234,20 +234,45 @@ routineDataEntry.controller('dataEntryController',
             if( $scope.model.selectedDataSet.sections.length > 0 ){
                 $scope.tabOrder = {};
                 idx = 0;
+                var takenLabels={};
                 angular.forEach($scope.model.selectedDataSet.sections, function(section){                    
                     angular.forEach(section.dataElements, function(de){
-                        angular.forEach($scope.dataElementGroups,function(dataElementGroup){
-                           if(dataElementGroup.dataElements[de.id]){
-                               if(!dataElementGroup.previouslyTaken ){
-                                   dataElementGroup.previouslyTaken=true;
-                                   $scope.model.dataElements[de.id].displayTitle={};
-                                   $scope.model.dataElements[de.id].displayTitle.displayName=dataElementGroup.displayName;
-                                   $scope.model.dataElements[de.id].displayTitle.serialNumber=dataElementGroup.serial_number;
-                               }
-                           } 
-                        });
+                        //Here is where the actual code should be changed.
+                        //the task is first to find the first data element which contains the option of that data elmeent and then setting the title of that 
+                        //dataelment to the serial of that dataelmeent.
+                        if(!$scope.model.dataElements[de.id]){
+                            console.error("Data element not in model",de)
+                        }
+                        if($scope.model.dataElements[de.id]&&$scope.model.dataElements[de.id].labelDEGroup && !takenLabels[$scope.model.dataElements[de.id].labelDEGroup]){
+                            
+                            var dataElement = $scope.model.dataElements[de.id];
+                            
+                            dataElement.displayTitle={};
+                            dataElement.displayTitle.serialNumber=dataElement.labelDEGroup;
+                            takenLabels[$scope.model.dataElements[de.id].labelDEGroup]=true;
+                            var labelOptionSet = {};
+                            var keys=Object.keys($scope.model.optionSets);
+                            
+                            //find the labeling option set
+                            for(var i=0;i<keys.length;i++){
+                                if($scope.model.optionSets[keys[i]].label_option_set){
+                                    labelOptionSet=$scope.model.optionSets[keys[i]];
+                                    break;
+                                }
+                            }
+                            
+                            //find the name of the specific option using the code
+                            var options=labelOptionSet.options
+                            for(var i=0; i<options.length; i++){
+                                if( dataElement.labelDEGroup === options[i].code){
+                                    $scope.model.dataElements[de.id].displayTitle.displayName= options[i].displayName;
+                                    return;
+                                }
+                            }
+                            
+                        }
+                        
                         $scope.tabOrder[de.id] = {};
-                        var dataElement = $scope.model.dataElements[de.id];
                         if( dataElement && dataElement.categoryCombo ){
                             angular.forEach($scope.model.categoryCombos[dataElement.categoryCombo.id].categoryOptionCombos, function(oco){
                                 $scope.tabOrder[de.id][oco.id] = idx++;
