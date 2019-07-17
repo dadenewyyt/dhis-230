@@ -29,6 +29,8 @@
         <value>dhis-web-plan-setting</value>
         <value>dhis-web-custom-report</value>
         <value>dhis-web-importexport</value>
+        <value>dhis-web-phem</value>
+        <value>dhis-web-phem-dataexport</value>
         <value>dhis-web-pivot</value>
         <value>dhis-web-visualizer</value>
         <value>dhis-web-mapping</value>        
@@ -38,8 +40,7 @@
         <value>dhis-web-event-capture</value>
         <value>dhis-web-tracker-capture</value>
         <value>dhis-web-maintenance-dataadmin</value>
-        <value>dhis-web-maintenance-dataset</value>
-        <value>dhis-web-importexport</value>
+        <value>dhis-web-maintenance-dataset</value>        
         <value>dhis-web-maintenance-mobile</value>
         <value>dhis-web-maintenance-organisationunit</value>
         <value>dhis-web-maintenance-program</value>
