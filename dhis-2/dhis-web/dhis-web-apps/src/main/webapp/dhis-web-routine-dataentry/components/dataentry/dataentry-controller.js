@@ -164,10 +164,7 @@ routineDataEntry.controller('dataEntryController',
     }
     
     $scope.checkDisabled = function (section,de,oco){
-        if($scope.model && $scope.model.dataSetCompletness && $scope.model.dataSetCompletness[$scope.model.selectedAttributeOptionCombo]){//if dataset is complete return true (disabled) without checking anything.
-            return true;
-        }
-        else if(de.controlling_data_element){//if data element is a controlling data element return false (is not disabled)
+        if(de.controlling_data_element){//if data element is a controlling data element return false (is not disabled)
                                         //it is only disabled when the dataSet is marked complete.
             return false;
         }
@@ -184,86 +181,6 @@ routineDataEntry.controller('dataEntryController',
         //return (section.greyedFields.indexOf(de.id+'.'+oco.id) !== -1 || $scope.controllingDataElementGroups[$scope.groupsByMember[de.id]].isDisabled) && !de.controlling_data_element || $scope.model.dataSetCompletness[$scope.model.selectedAttributeOptionCombo];
     }
     
-    $scope.performAutoZero = function(section){
-        var dataValueSet = {
-            dataSet: $scope.model.selectedDataSet.id,
-            period: $scope.model.selectedPeriod.id,
-            orgUnit: $scope.selectedOrgUnit.id,
-            dataValues: []
-        };
-        var counter=0;
-
-        angular.forEach(section.dataElements, function (dataElement) {
-            dataElement = $scope.model.dataElements[dataElement.id];
-            if (dataElement && (dataElement.valueType === 'NUMBER' || dataElement.valueType === "INTEGER" || dataElement.valueType === "INTEGER_ZERO_OR_POSITIVE")) {
-                angular.forEach($scope.model.categoryCombos[dataElement.categoryCombo.id].categoryOptionCombos, function (categoryOptionCombo) {
-                    if($scope.checkDisabled(section,dataElement,categoryOptionCombo)){
-                        return;
-                    }
-                    //check if the data value of the data element has a catagoroptiondownloaded
-                    if (!$scope.dataValues[dataElement.id]) {
-                        $scope.dataValues[dataElement.id] = {};
-                    }
-                    //check if the category option is null or had a value
-                    if (!$scope.dataValues[dataElement.id][categoryOptionCombo.id]) {
-                        counter=counter+1;
-                        var val = {dataElement: dataElement.id, categoryOptionCombo: categoryOptionCombo.id, value: '0', period: $scope.model.selectedPeriod.id,orgUnit: $scope.selectedOrgUnit.id};
-                        dataValueSet.dataValues.push(val);
-
-                    }
-                    //check if dataValue of thte data element and the exists but it's value is empty or null.
-                    else if ($scope.dataValues[dataElement.id][categoryOptionCombo.id].value === '' || $scope.dataValues[dataElement.id][categoryOptionCombo.id].value === "" || $scope.dataValues[dataElement.id][categoryOptionCombo.id].value === null) {
-                        counter=counter+1;
-                        var val = {dataElement: dataElement.id, categoryOptionCombo: categoryOptionCombo.id, value: '0', period: $scope.model.selectedPeriod.id, orgUnit: $scope.selectedOrgUnit.id};
-                        dataValueSet.dataValues.push(val);
-                    }
-                });
-            }
-        });
-        var modalOptions = {
-            closeButtonText: 'no',
-            actionButtonText: 'yes',
-            headerText: 'fill_zero',
-            bodyText: $translate.instant('are_you_sure_you_want_to_fill')+" "+ counter
-        };
-
-        ModalService.showModal({}, modalOptions).then(function (result) {
-            angular.forEach(dataValueSet.dataValues,function (dataValue){
-                if (!$scope.dataValues[dataValue.dataElement][dataValue.categoryOptionCombo]) {
-                    $scope.dataValues[dataValue.dataElement][dataValue.categoryOptionCombo] = {};
-                }
-                $scope.dataValues[dataValue.dataElement][dataValue.categoryOptionCombo].value=0;
-            });
-            DataValueService.saveDataValueSet(dataValueSet).then(function (response) {
-                copyDataValues();
-                console.log("successfully saved", response);
-                
-                //change the input fields color to Green for feedback.
-                angular.forEach(dataValueSet.dataValues,function(dataValue){
-                    if(!$scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo]){
-                        $scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo]={};
-                    }
-                    $scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo].saved=true;
-                    $scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo].pending=false;
-                    $scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo].error=false;
-                    
-                });
-            }, function () {
-                //turn the input fields to red as a feedback for the users if error occurs    
-                angular.forEach(dataValueSet.dataValues,function(dataValue){
-                    if(!$scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo]){
-                        console.log('true')
-                        $scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo]={};
-                    }
-                    $scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo].saved=false;
-                    $scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo].pending=false;
-                    $scope.saveStatus[dataValue.dataElement+'-'+dataValue.categoryOptionCombo].error=true; 
-                });
-            });
-        });
-        //performing the save
-
-    };
         
     $scope.loadDataSetDetails = function(){        
         if( $scope.model.selectedDataSet && $scope.model.selectedDataSet.id && $scope.model.selectedDataSet.periodType){
@@ -317,20 +234,45 @@ routineDataEntry.controller('dataEntryController',
             if( $scope.model.selectedDataSet.sections.length > 0 ){
                 $scope.tabOrder = {};
                 idx = 0;
+                var takenLabels={};
                 angular.forEach($scope.model.selectedDataSet.sections, function(section){                    
                     angular.forEach(section.dataElements, function(de){
-                        angular.forEach($scope.dataElementGroups,function(dataElementGroup){
-                           if(dataElementGroup.dataElements[de.id]){
-                               if(!dataElementGroup.previouslyTaken ){
-                                   dataElementGroup.previouslyTaken=true;
-                                   $scope.model.dataElements[de.id].displayTitle={};
-                                   $scope.model.dataElements[de.id].displayTitle.displayName=dataElementGroup.displayName;
-                                   $scope.model.dataElements[de.id].displayTitle.serialNumber=dataElementGroup.serial_number;
-                               }
-                           } 
-                        });
+                        //Here is where the actual code should be changed.
+                        //the task is first to find the first data element which contains the option of that data elmeent and then setting the title of that 
+                        //dataelment to the serial of that dataelmeent.
+                        if(!$scope.model.dataElements[de.id]){
+                            console.error("Data element not in model",de)
+                        }
+                        if($scope.model.dataElements[de.id]&&$scope.model.dataElements[de.id].labelDEGroup && !takenLabels[$scope.model.dataElements[de.id].labelDEGroup]){
+                            
+                            var dataElement = $scope.model.dataElements[de.id];
+                            
+                            dataElement.displayTitle={};
+                            dataElement.displayTitle.serialNumber=dataElement.labelDEGroup;
+                            takenLabels[$scope.model.dataElements[de.id].labelDEGroup]=true;
+                            var labelOptionSet = {};
+                            var keys=Object.keys($scope.model.optionSets);
+                            
+                            //find the labeling option set
+                            for(var i=0;i<keys.length;i++){
+                                if($scope.model.optionSets[keys[i]].label_option_set){
+                                    labelOptionSet=$scope.model.optionSets[keys[i]];
+                                    break;
+                                }
+                            }
+                            
+                            //find the name of the specific option using the code
+                            var options=labelOptionSet.options
+                            for(var i=0; i<options.length; i++){
+                                if( dataElement.labelDEGroup === options[i].code){
+                                    $scope.model.dataElements[de.id].displayTitle.displayName= options[i].displayName;
+                                    return;
+                                }
+                            }
+                            
+                        }
+                        
                         $scope.tabOrder[de.id] = {};
-                        var dataElement = $scope.model.dataElements[de.id];
                         if( dataElement && dataElement.categoryCombo ){
                             angular.forEach($scope.model.categoryCombos[dataElement.categoryCombo.id].categoryOptionCombos, function(oco){
                                 $scope.tabOrder[de.id][oco.id] = idx++;
@@ -595,7 +537,7 @@ routineDataEntry.controller('dataEntryController',
                     }
                 });
                 
-                dataValueSet.dataValues.push({dataElement: deId, categoryOptionCombo: ocId, value: dataValue.value,orgUnit: $scope.selectedOrgUnit.id, deleted: dataValue.value === '' , period: $scope.model.selectedPeriod.id? true : false});
+                dataValueSet.dataValues.push({dataElement: deId, categoryOptionCombo: ocId, value: dataValue.value,orgUnit: $scope.selectedOrgUnit.id, deleted: dataValue.value === '' , period: $scope.model.selectedPeriod.id});
                 
 				var modalOptions={
 					closeButtonText: 'no',
