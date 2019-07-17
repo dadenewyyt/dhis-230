@@ -1,0 +1,120 @@
+<span id="showLeftBar" class="hideInPrint">
+    <a href="javascript:dhis2.leftBar.showAnimated()" title="$i18n.getString('show_menu' )"><i class="fa fa-arrow-right leftBarIcon"></i></a>
+</span>
+
+<div id="leftBar">
+
+    <d2-left-bar></d2-left-bar>    
+
+</div>
+
+
+<div class="page" id="mainPage">
+
+    <div ng-if="!metaDataDownloadComplete">
+        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}" ng-if="!selectedOrgUnit"/><br>
+        {{'loading_metadata'| translate}}
+    </div>
+
+    <div ng-show="metaDataDownloadComplete">
+        <h2>
+            <span class="remove-left-padding">{{'phem_data_export'| translate}}</span>
+        </h2>
+
+        <!-- selection begins-->
+
+        <div class="selectionGroup remove-left-padding">
+            <div class="col-sm-10 selectionArea">
+                <div class="row small-vertical-spacing">
+                    <div class="col-sm-3">
+                        {{'data_set'| translate}}
+                    </div>
+                    <div class="col-sm-9">                        
+                        <ui-select ng-model="model.selectedDataSet" 
+                                   theme="select2"                                 
+                                   style="width:100%;">
+                            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.dataSets && model.dataSets.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                            <ui-select-choices repeat="dataSet in model.dataSets | filter: $select.search | limitTo:maxOptionSize">
+                                <span ng-bind-html="dataSet.displayName | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="row small-vertical-spacing" ng-if="model.selectedDataSet">                    
+                    <div class="col-sm-6">
+                        {{'start_date'| translate}}                    
+                        <input type="text"
+                               ng-attr-placeholder="{{calendarSetting.keyDateFormat}}"
+                               d2-date
+                               min-date="model.minStartDate"
+                               max-date="model.maxStartDate"
+                               ng-model="model.startDate"
+                               ng-required="true"                            
+                               d2-date-validator
+                               name="startDate"
+                               ng-change="verifyStartDate()"
+                               ng-focus="setDateOnFocus(model.startDate)"
+                               input-field-id='startDate'
+                               autocomplete="off"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-sm-6">
+                        {{'end_date'| translate}}                    
+                        <input type="text"
+                               ng-attr-placeholder="{{calendarSetting.keyDateFormat}}"
+                               d2-date
+                               min-date="model.minEndDate"
+                               max-date="model.maxEndDate"
+                               ng-model="model.endDate"
+                               ng-required="true"                            
+                               d2-date-validator
+                               name="endDate"
+                               ng-change="verifyEndDate()"
+                               ng-focus="setDateOnFocus(model.endDate)"
+                               input-field-id='endDate'
+                               autocomplete="off"
+                               class="form-control">
+                    </div>
+                </div>                
+                <div ng-repeat="category in model.selectedAttributeCategoryCombo.categories" ng-if="model.selectedDataSet && model.selectedPeriod && !model.selectedAttributeCategoryCombo.isDefault && !model.invalidDimensions">                
+                    <div class="row small-vertical-spacing">
+                        <div class="col-sm-3">
+                            {{category.displayName}}
+                        </div>
+                        <div class="col-sm-9">
+                            <ui-select ng-model="category.selectedOption"                                        
+                                       theme="select2"  
+                                       on-select="getCategoryOptions(category)"
+                                       style="width:100%;">
+                                <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{category.categoryOptions && category.categoryOptions.length > 0 ? category.placeHolder : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                <ui-select-choices  repeat="option in category.categoryOptions  | categoryOptionFilter:selectedOrgUnit | filter: $select.search | limitTo:maxOptionSize">
+                                    <span ng-bind-html="option.displayName | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row vertical-spacing" ng-if="model.selectedDataSet && model.startDate && model.endDate">                    
+                    <div class="col-sm-12">
+                        <button type="button" 
+                                class="btn btn-primary" 
+                                ng-click="exportData()">
+                            {{'export'| translate}}
+                        </button>
+                    </div>
+                </div>
+            </div>            
+        </div>
+
+
+        <!-- selection ends -->        
+
+        <div class="alert alert-danger vertical-spacing" ng-if="model.invalidDimensions && model.selectedDataSet">
+            {{'data_set_have_invalid_dimension'| translate}}
+        </div>
+
+
+    </div>
+
+</div>

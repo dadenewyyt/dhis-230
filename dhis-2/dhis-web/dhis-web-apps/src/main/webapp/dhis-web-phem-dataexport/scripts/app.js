@@ -27,14 +27,11 @@ var phem = angular.module('phem',
     $httpProvider.defaults.useXDomain = true;
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
     
-    $routeProvider.when('/dataentry', {
-        templateUrl:'components/dataentry/dataentry.html',
-        controller: 'dataEntryController'
-    }).when('/dataexport', {
-        templateUrl:'components/dataexport/home.html',
+    $routeProvider.when('/dataexport', {
+        templateUrl:'components/dataexport/dataexport.html',
         controller: 'dataExportController'
     }).otherwise({
-        redirectTo : '/dataentry'
+        redirectTo : '/dataexport'
     });  
     
     $translateProvider.preferredLanguage('en');
