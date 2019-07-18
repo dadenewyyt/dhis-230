@@ -96,6 +96,10 @@ public class DataExportParams
 
     private IdSchemes outputIdSchemes;
 
+    private boolean skipAccessCheck;
+
+    private boolean isoCalendar;
+
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -265,7 +269,9 @@ public class DataExportParams
             add( "last updated", lastUpdated ).
             add( "last updated duration", lastUpdatedDuration ).
             add( "limit", limit ).
-            add( "output id schemes", outputIdSchemes ).toString();
+            add( "output id schemes", outputIdSchemes ).
+            add( "skip ou access check", skipAccessCheck).
+            add( "export data for iso calendar", isoCalendar).toString();
     }
 
     // -------------------------------------------------------------------------
@@ -457,6 +463,28 @@ public class DataExportParams
     {
         this.includeDeleted = includeDeleted;
         return this;
+    }
+
+    public boolean isIsoCalendar()
+    {
+    	return isoCalendar;
+    }
+
+    public DataExportParams setIsoCalendar( boolean isoCalendar )
+    {
+    	this.isoCalendar = isoCalendar;
+    	return this;
+    }
+
+    public boolean isSkipAccessCheck()
+    {
+    	return skipAccessCheck;
+    }
+
+    public DataExportParams setSkipAccessCheck( boolean skipAccessCheck )
+    {
+    	this.skipAccessCheck = skipAccessCheck;
+    	return this;
     }
 
     public Date getLastUpdated()

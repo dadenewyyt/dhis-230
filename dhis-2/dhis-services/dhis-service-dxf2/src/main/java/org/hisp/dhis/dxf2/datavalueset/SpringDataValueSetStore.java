@@ -33,6 +33,7 @@ import org.hisp.staxwax.factory.XMLFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.calendar.Calendar;
+import org.hisp.dhis.calendar.impl.Iso8601Calendar;
 import org.hisp.dhis.common.IdSchemes;
 import org.hisp.dhis.commons.util.TextUtils;
 import org.hisp.dhis.datavalue.DataExportParams;
@@ -154,6 +155,7 @@ public class SpringDataValueSetStore
     private void writeDataValueSet( String sql, DataExportParams params, final DataValueSet dataValueSet )
     {
         final Calendar calendar = PeriodType.getCalendar();
+        Calendar isoCalendar = Iso8601Calendar.getInstance();
         
         String completenessSql =  getCompletenessSql( params );
         
@@ -168,7 +170,7 @@ public class SpringDataValueSetStore
                     PeriodType pt = PeriodType.getPeriodTypeByName( rs.getString( "ptname" ) );
 
                     completeDataSet.setDataSet( rs.getString( "cdsr_dataset" ) );
-                    completeDataSet.setPeriod( pt.createPeriod( rs.getDate( "pestart" ), calendar ).getIsoDate() );
+                    completeDataSet.setPeriod( pt.createPeriod( rs.getDate( "pestart" ), params.isIsoCalendar() ? isoCalendar : calendar ).getIsoDate() );
                     completeDataSet.setOrgUnit( rs.getString( "cdsr_orgunit" ) );                
                     completeDataSet.setAttributeOptionCombo( rs.getString( "cdsr_aoc" ) );
                     completeDataSet.setCompleteDate( getLongGmtDateString( rs.getTimestamp( "cdsr_cdate" ) ) );
@@ -191,7 +193,7 @@ public class SpringDataValueSetStore
                 boolean deleted = rs.getBoolean( "deleted" );
 
                 dataValue.setDataElement( rs.getString( "deid" ) );
-                dataValue.setPeriod( pt.createPeriod( rs.getDate( "pestart" ), calendar ).getIsoDate() );
+                dataValue.setPeriod( pt.createPeriod( rs.getDate( "pestart" ), params.isIsoCalendar() ? isoCalendar : calendar ).getIsoDate() );
                 dataValue.setOrgUnit( rs.getString( "ouid" ) );
                 dataValue.setCategoryOptionCombo( rs.getString( "cocid" ) );
                 dataValue.setAttributeOptionCombo( rs.getString( "aocid" ) );
@@ -423,7 +425,7 @@ public class SpringDataValueSetStore
 
             if ( params.hasOrganisationUnits() )
             {
-                sql += "dv.sourceid in (" + orgUnits + ") ";
+                sql += "cdsr.sourceid in (" + orgUnits + ") ";
             }
 
             if ( params.hasOrganisationUnits() && params.hasOrganisationUnitGroups() )
@@ -445,12 +447,12 @@ public class SpringDataValueSetStore
         }
         else if ( params.hasPeriods() )
         {
-            sql += "and dv.periodid in (" + getCommaDelimitedString( getIdentifiers( params.getPeriods() ) ) + ") ";
+            sql += "and cdsr.periodid in (" + getCommaDelimitedString( getIdentifiers( params.getPeriods() ) ) + ") ";
         }
 
         if ( params.hasAttributeOptionCombos() )
         {
-            sql += "and dv.attributeoptioncomboid in (" + getCommaDelimitedString( getIdentifiers( params.getAttributeOptionCombos() ) ) + ") ";
+            sql += "and cdsr.attributeoptioncomboid in (" + getCommaDelimitedString( getIdentifiers( params.getAttributeOptionCombos() ) ) + ") ";
         }       
         
         return sql;

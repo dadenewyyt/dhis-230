@@ -349,7 +349,11 @@ public class DefaultDataValueSetService
     @Override
     public void writeDataValueSetJson( DataExportParams params, OutputStream out )
     {
-        decideAccess( params );
+    	if ( !params.isSkipAccessCheck() )
+    	{
+    		decideAccess( params );
+    	}
+
         validate( params );
 
         dataValueSetStore.writeDataValueSetJson( params, out );
