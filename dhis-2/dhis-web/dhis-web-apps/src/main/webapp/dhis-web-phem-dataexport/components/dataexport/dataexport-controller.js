@@ -5,7 +5,12 @@
 var phem = angular.module('phem');
 
 //Controller for settings page
-phem.controller('dataExportController', function($scope, MetaDataFactory, DataEntryUtils, CalendarService) {    
+phem.controller('dataExportController',
+    function($scope,
+                MetaDataFactory,
+                DataEntryUtils,
+                Analytics,
+                CalendarService) {
     $scope.maxOptionSize = 30;
     $scope.metaDataDownloadComplete = false;
     $scope.model = {invalidDimensions: false,
@@ -74,8 +79,15 @@ phem.controller('dataExportController', function($scope, MetaDataFactory, DataEn
     };
     
     $scope.exportData = function(){
-        console.log('dataSet:  ', $scope.model.selectedDataSet.id);
-        console.log('start date:  ', $scope.model.startDate);
-        console.log('end date:  ', $scope.model.endDate);
+        var fileName = $scope.model.selectedDataSet.displayName + "_" + $scope.model.startDate + "_" + $scope.model.endDate + ".zip";
+        var exportUrl = "dataSet=" + $scope.model.selectedDataSet.id;
+        exportUrl += "&startDate=" + $scope.model.startDate;
+        exportUrl += "&endDate=" + $scope.model.endDate;
+        exportUrl += "&attachment=" + fileName;
+
+        Analytics.getDataValues( exportUrl ).then(function(data){
+            var blob = new Blob([data], {type: 'application/zip'});
+            saveAs(blob, fileName);
+        });
     };
 });

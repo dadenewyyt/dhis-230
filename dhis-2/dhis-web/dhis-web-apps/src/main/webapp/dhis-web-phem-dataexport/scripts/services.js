@@ -73,6 +73,21 @@ var phemServices = angular.module('phemServices', ['ngResource'])
                 });                
             });            
             return def.promise;
-        },
+        }
     };        
+})
+
+.service('Analytics', function($http, DataEntryUtils){
+    return {
+        getDataValues: function( url ){
+            url = '../api/dataValueSetExport?' + url;
+            var promise = $http.get( url, {responseType: 'blob'} ).then(function(response){
+                return response.data;
+            }, function(response){
+                DataEntryUtils.errorNotifier(response);
+                return response.data;
+            });
+            return promise;
+        }
+    };
 });
