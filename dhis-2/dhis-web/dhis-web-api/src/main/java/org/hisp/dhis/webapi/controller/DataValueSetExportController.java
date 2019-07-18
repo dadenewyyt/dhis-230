@@ -42,6 +42,7 @@ import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -85,6 +86,7 @@ public class DataValueSetExportController
     // -------------------------------------------------------------------------
 
     @RequestMapping( method = RequestMethod.GET, produces = CONTENT_TYPE_JSON )
+    @PreAuthorize( "hasRole('ALL') or hasRole('F_PHEM_DATA_EXPORT')" )
     public void getDataValueSetJson(
         @RequestParam( required = false ) Set<String> dataSet,
         @RequestParam( required = false ) Set<String> dataElementGroup,
@@ -154,13 +156,11 @@ public class DataValueSetExportController
             response.addHeader( ContextUtils.HEADER_CONTENT_TRANSFER_ENCODING, "binary" );
             
             dataValueSetService.writeDataValueSetJson( params, getZipOut( response.getOutputStream(), attachment.replaceAll(".zip", "") ) );
-            //dataValueSetStore.writeDataValueSetJson( params, getZipOut( response.getOutputStream(), attachment.replaceAll(".zip", "") ) );
             
         }
         else
         {
-            dataValueSetService.writeDataValueSetJson( params, response.getOutputStream() );            
-            //dataValueSetStore.writeDataValueSetJson( params, response.getOutputStream() );
+            dataValueSetService.writeDataValueSetJson( params, response.getOutputStream() );
         }
     }
         
