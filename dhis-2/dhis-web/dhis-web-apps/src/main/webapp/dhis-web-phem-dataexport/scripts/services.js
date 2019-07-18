@@ -81,7 +81,7 @@ var phemServices = angular.module('phemServices', ['ngResource'])
     return {
         getDataValues: function( url ){
             url = '../api/dataValueSetExport?' + url;
-            var promise = $http.get( url, {responseType: 'blob'} ).then(function(response){
+            var promise = $http.get( url ).then(function(response){
                 return response.data;
             }, function(response){
                 DataEntryUtils.errorNotifier(response);

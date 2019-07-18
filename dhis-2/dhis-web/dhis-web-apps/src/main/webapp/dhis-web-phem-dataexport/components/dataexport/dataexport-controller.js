@@ -79,14 +79,13 @@ phem.controller('dataExportController',
     };
     
     $scope.exportData = function(){
-        var fileName = $scope.model.selectedDataSet.displayName + "_" + $scope.model.startDate + "_" + $scope.model.endDate + ".zip";
+        var fileName = $scope.model.selectedDataSet.displayName + "_" + $scope.model.startDate + "_" + $scope.model.endDate + ".json";
         var exportUrl = "dataSet=" + $scope.model.selectedDataSet.id;
         exportUrl += "&startDate=" + $scope.model.startDate;
         exportUrl += "&endDate=" + $scope.model.endDate;
-        exportUrl += "&attachment=" + fileName;
 
         Analytics.getDataValues( exportUrl ).then(function(data){
-            var blob = new Blob([data], {type: 'application/zip'});
+            var blob = new Blob([JSON.stringify({dataValues: data && data.dataValues ? data.dataValues : []})], {type: "application/json"});
             saveAs(blob, fileName);
         });
     };
