@@ -52,7 +52,7 @@ var lqasServices = angular.module('lqasServices', ['ngResource'])
                 });
                          
                 $http.post('../api/dataValueSets.json', dataValueSet ).then(function(response){
-                    dhis2.diseaseRegistration.store.removeAll( 'dataValues' );
+                    dhis2.lqas.store.removeAll( 'dataValues' );
                     NotificationService.displayDelayedHeaderMessage( $translate.instant('upload_success') );
                     log( 'Successfully uploaded local data values' );
                     def.resolve();
@@ -82,7 +82,7 @@ var lqasServices = angular.module('lqasServices', ['ngResource'])
                         
                         
                     ModalService.showModal(modalDefaults, modalOptions).then(function(result){
-                        dhis2.diseaseRegistration.store.removeAll( 'dataValues' );
+                        dhis2.lqas.store.removeAll( 'dataValues' );
                         NotificationService.displayDelayedHeaderMessage( $translate.instant('offline_data_deleted') );
                         def.resolve();
                     }, function(){
@@ -339,7 +339,7 @@ var lqasServices = angular.module('lqasServices', ['ngResource'])
                     dataValue.followUp=dv.followUp;
                 }
                     
-                dhis2.diseaseRegistration.store.set( 'dataValues', dataValue );
+                dhis2.lqas.store.set( 'dataValues', dataValue );
             });
             return promise;
         },

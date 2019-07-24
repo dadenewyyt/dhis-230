@@ -5,7 +5,7 @@
 var lqas = angular.module('lqas');
 
 //Controller for settings page
-diseaseRegistration.controller('dataEntryController',
+lqas.controller('dataEntryController',
         function($scope,
                 $filter,                
                 orderByFilter,

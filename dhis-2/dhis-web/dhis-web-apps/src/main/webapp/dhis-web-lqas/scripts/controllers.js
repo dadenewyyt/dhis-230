@@ -3,4 +3,4 @@
 'use strict';
 
 /* Controllers */
-var lqasControllers = angular.module('lqasControllers', []);
+var dataEntryController = angular.module('dataEntryController', []);

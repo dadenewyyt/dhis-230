@@ -1,10 +1,10 @@
 /* global dhis2, angular, selection, i18n_ajax_login_failed, _ */
 
-dhis2.util.namespace('dhis2.diseaseRegistration');
+dhis2.util.namespace('dhis2.lqas');
 dhis2.util.namespace('dhis2.rd');
 
 // whether current user has any organisation units
-dhis2.diseaseRegistration.emptyOrganisationUnits = false;
+dhis2.lqas.emptyOrganisationUnits = false;
 
 var i18n_no_orgunits = 'No organisation unit attached to current user, no data entry possible';
 var i18n_offline_notification = 'You are offline, data will be stored locally';
@@ -18,17 +18,17 @@ var optionSetsInPromise = [];
 var attributesInPromise = [];
 var batchSize = 50;
 
-dhis2.diseaseRegistration.store = null;
+dhis2.lqas.store = null;
 dhis2.rd.metaDataCached = dhis2.rd.metaDataCached || false;
-dhis2.diseaseRegistration.memoryOnly = $('html').hasClass('ie7') || $('html').hasClass('ie8');
+dhis2.lqas.memoryOnly = $('html').hasClass('ie7') || $('html').hasClass('ie8');
 var adapters = [];    
-if( dhis2.diseaseRegistration.memoryOnly ) {
+if( dhis2.lqas.memoryOnly ) {
     adapters = [ dhis2.storage.InMemoryAdapter ];
 } else {
     adapters = [ dhis2.storage.IndexedDBAdapter, dhis2.storage.DomLocalStorageAdapter, dhis2.storage.InMemoryAdapter ];
 }
 
-dhis2.diseaseRegistration.store = new dhis2.storage.Store({
+dhis2.lqas.store = new dhis2.storage.Store({
     name: 'dhis2dr',
     adapters: [dhis2.storage.IndexedDBAdapter, dhis2.storage.DomSessionStorageAdapter, dhis2.storage.InMemoryAdapter],
     objectStores: ['dataValues', 'dataSets', 'categoryCombos']
@@ -76,7 +76,7 @@ $(document).bind('dhis2.online', function(event, loggedIn)
                 $('#sync_button').bind('click', uploadLocalData);
             }
             else{
-                if (dhis2.diseaseRegistration.emptyOrganisationUnits) {
+                if (dhis2.lqas.emptyOrganisationUnits) {
                     setHeaderMessage(i18n_no_orgunits);
                 }
                 else {
@@ -86,7 +86,7 @@ $(document).bind('dhis2.online', function(event, loggedIn)
         });
         
         
-        if (dhis2.diseaseRegistration.emptyOrganisationUnits) {
+        if (dhis2.lqas.emptyOrganisationUnits) {
             setHeaderMessage(i18n_no_orgunits);
         }
         else {
@@ -112,7 +112,7 @@ $(document).bind('dhis2.online', function(event, loggedIn)
 
 $(document).bind('dhis2.offline', function()
 {
-    if (dhis2.diseaseRegistration.emptyOrganisationUnits) {
+    if (dhis2.lqas.emptyOrganisationUnits) {
         setHeaderMessage(i18n_no_orgunits);
     }
     else {
@@ -152,7 +152,7 @@ function downloadMetaData()
     var def = $.Deferred();
     var promise = def.promise();
 
-    promise = promise.then( dhis2.diseaseRegistration.store.open );
+    promise = promise.then( dhis2.lqas.store.open );
     promise = promise.then( getUserAccessibleDataSet );
     promise = promise.then( getSystemSetting );
     
@@ -179,14 +179,14 @@ function downloadMetaData()
 }
 
 function getUserAccessibleDataSet(){        
-    return dhis2.metadata.getMetaObject(null, 'ACCESSIBLE_DATASETS', '../api/dataSets/assigned.json', 'fields=id,access[data[write]]&paging=false', 'sessionStorage', dhis2.diseaseRegistration.store);
+    return dhis2.metadata.getMetaObject(null, 'ACCESSIBLE_DATASETS', '../api/dataSets/assigned.json', 'fields=id,access[data[write]]&paging=false', 'sessionStorage', dhis2.lqas.store);
 }
 
 function getSystemSetting(){   
     if(localStorage['SYSTEM_SETTING']){
        return; 
     }    
-    return dhis2.metadata.getMetaObject(null, 'SYSTEM_SETTING', '../api/systemSettings', 'key=keyGoogleMapsApiKey&key=keyMapzenSearchApiKey&key=keyCalendar&key=keyDateFormat&key=multiOrganisationUnitForms', 'localStorage', dhis2.diseaseRegistration.store);
+    return dhis2.metadata.getMetaObject(null, 'SYSTEM_SETTING', '../api/systemSettings', 'key=keyGoogleMapsApiKey&key=keyMapzenSearchApiKey&key=keyCalendar&key=keyDateFormat&key=multiOrganisationUnitForms', 'localStorage', dhis2.lqas.store);
 }
 
 function getMetaCategoryCombos(){
@@ -194,11 +194,11 @@ function getMetaCategoryCombos(){
 }
 
 function filterMissingCategoryCombos( objs ){
-    return dhis2.metadata.filterMissingObjIds('categoryCombos', dhis2.diseaseRegistration.store, objs);
+    return dhis2.metadata.filterMissingObjIds('categoryCombos', dhis2.lqas.store, objs);
 }
 
 function getCategoryCombos( ids ){    
-    return dhis2.metadata.getBatches( ids, batchSize, 'categoryCombos', 'categoryCombos', '../api/categoryCombos.json', 'paging=false&fields=id,displayName,code,skipTotal,isDefault,categoryOptionCombos[id,displayName],categories[id,displayName,code,attributeValues[value,attribute[id,name,valueType,code]],categoryOptions[id,displayName,code,organisationUnits[id]]]', 'idb', dhis2.diseaseRegistration.store);
+    return dhis2.metadata.getBatches( ids, batchSize, 'categoryCombos', 'categoryCombos', '../api/categoryCombos.json', 'paging=false&fields=id,displayName,code,skipTotal,isDefault,categoryOptionCombos[id,displayName],categories[id,displayName,code,attributeValues[value,attribute[id,name,valueType,code]],categoryOptions[id,displayName,code,organisationUnits[id]]]', 'idb', dhis2.lqas.store);
 }
 
 function getMetaDataSets(){
@@ -206,11 +206,11 @@ function getMetaDataSets(){
 }
 
 function filterMissingDataSets( objs ){
-    return dhis2.metadata.filterMissingObjIds('dataSets', dhis2.diseaseRegistration.store, objs);
+    return dhis2.metadata.filterMissingObjIds('dataSets', dhis2.lqas.store, objs);
 }
 
 function getDataSets( ids ){
-    return dhis2.metadata.getBatches( ids, batchSize, 'dataSets', 'dataSets', '../api/dataSets.json', 'paging=false&fields=id,periodType,openFuturePeriods,displayName,version,categoryCombo[id],attributeValues[value,attribute[id,name,valueType,code]],organisationUnits[id],sections[greyedFields[dimensionItem]],dataSetElements[id,dataElement[id,code,displayFormName,description,description,valueType,categoryCombo[id]]]', 'idb', dhis2.diseaseRegistration.store, dhis2.metadata.processObject);
+    return dhis2.metadata.getBatches( ids, batchSize, 'dataSets', 'dataSets', '../api/dataSets.json', 'paging=false&fields=id,periodType,openFuturePeriods,displayName,version,categoryCombo[id],attributeValues[value,attribute[id,name,valueType,code]],organisationUnits[id],sections[greyedFields[dimensionItem]],dataSetElements[id,dataElement[id,code,displayFormName,description,description,valueType,categoryCombo[id]]]', 'idb', dhis2.lqas.store, dhis2.metadata.processObject);
 }
 
 function uploadLocalData() {
