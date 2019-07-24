@@ -8,9 +8,9 @@ var lqas = angular.module('lqas',
          'ngCookies',
          'ngSanitize',
          'ngMessages',
-        /* 'diseaseRegistrationServices',
-         'diseaseRegistrationFilters',
-         'diseaseRegistrationDirectives'*/,
+         'lqasServices',
+         'lqasFilters',
+         'lqasDirectives',
          'd2Directives',
          'd2Filters',
          'd2Services',
@@ -30,6 +30,9 @@ var lqas = angular.module('lqas',
     $routeProvider.when('/dataentry', {
         templateUrl:'components/dataentry/dataentry.html',
         controller: 'dataEntryController'
+    }).when('/report', {
+        templateUrl:'components/report/reports.html',
+        controller: 'reportController'
     }).otherwise({
         redirectTo : '/dataentry'
     });  
