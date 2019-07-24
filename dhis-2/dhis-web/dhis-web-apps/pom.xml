@@ -12,7 +12,7 @@
     <build>
         <finalName>dhis-web-apps</finalName>
         <plugins>
-            <plugin>
+           <!-- <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.6</version>
@@ -54,7 +54,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -121,7 +121,7 @@
             </plugin>
         </plugins>
     </build>
-    <!---<dependencies>
+   <dependencies>
 
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -159,7 +159,7 @@
             <artifactId>dhis-service-analytics</artifactId>
         </dependency>
 
-    </dependencies>-->
+    </dependencies>
     <properties>
         <rootDir>../../</rootDir>
     </properties>

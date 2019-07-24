@@ -72,7 +72,22 @@
         </action>
     </package>
     
-    <package name="dhis-web-custom-report" extends="dhis-web-commons" namespace="/dhis-web-custom-report">
+      <package name="dhis-web-disease-registration" extends="dhis-web-commons" namespace="/dhis-web-disease-registration">
+        <action name="index" class="org.hisp.dhis.commons.action.NoAction">
+            <result name="success" type="redirect">index.html</result>
+        </action>
+        <action name="cacheManifest" class="org.hisp.dhis.appcache.CacheManifestAction">
+            <param name="appPath">dhis-web-disease-registration</param>
+            <param name="i18nPath">i18n</param>
+            <param name="appCache">disease-registration.appcache</param>
+            <result type="stream">
+                <param name="contentType">text/cache-manifest</param>
+                <param name="inputName">inputStream</param>
+            </result>
+        </action>
+    </package>
+    
+    <package name="dhis-web-lqas" extends="dhis-web-commons" namespace="/dhis-web-lqas">
         <action name="index" class="org.hisp.dhis.commons.action.NoAction">
             <result name="success" type="redirect">index.html</result>
         </action>
