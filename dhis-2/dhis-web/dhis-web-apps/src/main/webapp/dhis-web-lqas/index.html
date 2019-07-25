@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<!--<html manifest="cacheManifest.action" ng-app='diseaseRegistration'>-->
 <html ng-app='lqas'>
     <head>
-        <title>Lot Quality Assesement App</title>
+        <title>Lot Quality Assessment App</title>
 
         <meta name="description" content="DHIS 2">
         <meta name="keywords" content="DHIS 2">        
@@ -41,14 +40,10 @@
         <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.min.js"></script>
         <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.picker.min.js"></script>
         <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.plus.min.js"></script>
-        <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.picker.ext.js"></script>
+        <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.picker.ext.js"></script>        
         
-        <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.coptic.min.js"></script>
         <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.ethiopian.min.js"></script>
-        <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.islamic.min.js"></script>
-        <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.julian.min.js"></script>
-        <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.nepali.min.js"></script>
-        <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.thai.min.js"></script>      
+        
         <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/jQuery/ui/css/redmond/jquery-ui.css">
         <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/jQuery/calendars/css/ui-redmond.calendars.picker.css">
         
@@ -87,14 +82,16 @@
         
         <script src="../dhis-web-commons/ouwt/ouwt.js"></script>
         <script src="../dhis-web-commons/javascripts/dhis2/dhis2.metadata.js"></script>        
+        <script src="scripts/lqas.js"></script>
 
         <script type="text/javascript" src="../dhis-web-commons/javascripts/angular/plugins/select.js"></script>
         <script type="text/javascript" src="../dhis-web-commons/javascripts/angular/plugins/select2.js"></script>        
         <script type="text/javascript" src="../dhis-web-commons/javascripts/angular/plugins/angularLocalStorage.js"></script>
         <script type="text/javascript" src="../dhis-web-commons/javascripts/angular/plugins/angular-translate.min.js"></script>
-        <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.angular.directives.js"></script>
+        <!--<script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.angular.directives.js"></script>-->
+        
         <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.angular.services.js"></script>
-        <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.angular.validations.js"></script>
+        <!--<script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.angular.validations.js"></script>-->
         <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.angular.filters.js"></script>
         <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.angular.controllers.js"></script>
         
@@ -104,7 +101,7 @@
         <script type="text/javascript" src="scripts/directives.js"></script>        
         <script type="text/javascript" src="scripts/controllers.js"></script>
         <script type="text/javascript" src="components/dataentry/dataentry-controller.js"></script>
-        
+        <script type="text/javascript" src="components/reports/report-controller.js"></script>
 
         <link type="text/css" rel="stylesheet" href="../dhis-web-commons/font-awesome/css/font-awesome.min.css"/>        
         <link type="text/css" rel="stylesheet" href="styles/style.css">
@@ -113,9 +110,7 @@
         <link type="text/css" rel="stylesheet" media="print" href="../dhis-web-commons/css/print.css">
         <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/angular/plugins/select.css">
         <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/angular/plugins/select2.css">
-
         
-        <link type="text/css" rel="stylesheet" media="print" href="styles/print.css">
         <script type="text/javascript" src="../main.js"></script>
 
     </head>

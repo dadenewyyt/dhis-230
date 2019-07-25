@@ -1,4 +1,85 @@
-<div class="page" id="mainpage">
-    <h1>{{'lqas_dataentry' | translate}}</h2>
-     <h1>hsello</h2>
+<div id="leftBar">
+
+    
+
+    <div class="ou-search-left-bar">
+        <div class="input-group">
+            <input type="text" id="searchField" name="key" class="form-control" placeholder="{{'search' | translate}}">
+            <span class="input-group-btn">
+                <button class="btn btn-primary" type="button" onclick="selection.findByName()">{{'go' | translate}}</button>
+            </span>
+        </div>
+    </div>
+
+    <div id="orgUnitTree">
+        <ul>
+        </ul>
+    </div>
+
+    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
+
+    <div class="small-horizontal-spacing" ng-if="!treeLoaded">
+        {{'loading_tree'| translate}}
+    </div>
+
+</div>
+<div class="page" id="mainPage">
+    <h2>{{dataEntryTitle| translate}}</h2>
+    <hr>
+
+    <div class="selectionGroup remove-left-padding">
+        <div class="col-sm-10 selectionArea">
+            <div class="row">
+                <div class="col-sm-3">
+                    {{'org_unit'| translate}}
+                </div>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" 
+                           selected-org-unit
+                           value="{{selectedOrgUnit.displayName|| pleaseSelectLabel}}" disabled="">
+                </div>
+            </div>
+            <div class="row small-vertical-spacing" ng-if="selectedOrgUnit">
+                <div class="col-sm-3">
+                    {{'dataset'| translate}}
+                </div>
+                <div class="col-sm-9">
+                    <ui-select ng-model="model.selectedDataSet" 
+                               theme="select2"                                 
+                               style="width:100%;">
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{dataSets && dataSets.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                        <ui-select-choices repeat="dataSet in filteredDataSets | filter: $select.search | limitTo:maxOptionSize">
+                            <span ng-bind-html="dataSet.displayName | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="row small-vertical-spacing" ng-if="model.selectedDataSet">
+                <div class="col-sm-3">
+                    {{'period'| translate}}
+                </div>
+                <div class="col-sm-9">
+                    <ui-select ng-model="model.selectedPeriod" 
+                               theme="select2"                                 
+                               style="width:100%;">
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.periods && model.periods.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.name|| $select.selected}}</ui-select-match>
+                        <ui-select-choices repeat="period in model.periods | filter: $select.search | limitTo:maxOptionSize">
+                            <span ng-bind-html="period.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table ng-if="model.selectedDataSet && model.selectedPeriod" class="small-vertical-spacing">
+        <tr ng-repeat='dataSetElement in model.selectedDataSet.dataSetElements'>
+            <td>{{dataSetElement.dataElement.displayName}}</td>
+            <td>
+                <input ng-model="model.dataValues[dataSetElement.dataElement.id]" type='text'>
+            </td>
+            <td>
+                {{model.dataValues[dataSetElement.dataElement.id]}}
+            </td>
+        </tr>
+    </table>
 </div>

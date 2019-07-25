@@ -11,7 +11,7 @@ var lqas = angular.module('lqas',
          'lqasServices',
          'lqasFilters',
          'lqasDirectives',
-         'd2Directives',
+         //'d2Directives',
          'd2Filters',
          'd2Services',
          'd2Controllers',
@@ -31,7 +31,7 @@ var lqas = angular.module('lqas',
         templateUrl:'components/dataentry/dataentry.html',
         controller: 'dataEntryController'
     }).when('/report', {
-        templateUrl:'components/report/reports.html',
+        templateUrl:'components/reports/report.html',
         controller: 'reportController'
     }).otherwise({
         redirectTo : '/dataentry'
