@@ -15,6 +15,19 @@ var lqasServices = angular.module('lqasServices', [])
                 return response.data;
             });
             return promise;
+        },
+        put: function(){
+            
+        },
+        post: function(){
+            
+        },
+        patch: function() {
+            
         }
     };
+})
+
+.service('MyService', function(){
+    
 });
